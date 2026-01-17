@@ -14,7 +14,7 @@ import {
 } from '../services/orderService';
 import { getClients, createClient, Client, ClientInput } from '../services/clientService';
 import { getProducts, Product } from '../services/productService';
-import { Button, FilterPanel, Select, DatePicker, Input, ConfirmDialog } from '../components/ui';
+import { Button, FilterPanel, Select, DatePicker, Input, ConfirmDialog, PageHeader } from '../components/ui';
 import OrderCard from '../components/orders/OrderCard';
 import CreateOrderModal from '../components/orders/CreateOrderModal';
 import EditOrderModal from '../components/orders/EditOrderModal';
@@ -232,27 +232,24 @@ export default function Orders() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-rose-400 dark:from-burgundy-600 dark:to-burgundy-700 rounded-xl flex items-center justify-center">
-              <ShoppingCart className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Заказы</h1>
-              <p className="text-gray-600 dark:text-gray-400">Управление заказами</p>
-            </div>
-          </div>
-
-          <Button
-            variant="primary"
-            onClick={() => setIsCreateModalOpen(true)}
-            className="flex items-center gap-2"
-          >
-            <Plus className="h-5 w-5" />
-            Создать заказ
-          </Button>
-        </div>
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 sm:p-8">
+        <PageHeader
+          icon={<ShoppingCart className="h-6 w-6 text-white" />}
+          title="Заказы"
+          subtitle="Управление заказами"
+          actions={
+            <Button
+              variant="primary"
+              onClick={() => setIsCreateModalOpen(true)}
+              className="flex items-center gap-2 text-sm sm:text-base whitespace-nowrap"
+              size="md"
+            >
+              <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="hidden sm:inline">Создать заказ</span>
+              <span className="sm:hidden">Создать</span>
+            </Button>
+          }
+        />
 
         {error && (
           <div className="mb-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg">
