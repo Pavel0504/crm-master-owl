@@ -12,6 +12,7 @@ import Inventory from './pages/Inventory';
 import Products from './pages/Products';
 import Clients from './pages/Clients';
 import Orders from './pages/Orders';
+import Categories from './pages/Categories';
 
 function App() {
   return (
@@ -87,6 +88,16 @@ function App() {
                 <ProtectedRoute>
                   <MainLayout>
                     <Orders />
+                  </MainLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/categories"
+              element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Categories />
                   </MainLayout>
                 </ProtectedRoute>
               }

@@ -7,6 +7,7 @@ import {
   Users,
   ShoppingCart,
   Store,
+  FolderTree,
   Sun,
   Moon,
   Menu,
@@ -20,6 +21,7 @@ import { useState } from 'react';
 const navItems = [
   { path: '/dashboard', icon: LayoutDashboard, label: 'Дашборд' },
   { path: '/shop', icon: Store, label: 'Магазин' },
+  { path: '/categories', icon: FolderTree, label: 'Категории' },
   { path: '/materials', icon: Package, label: 'Материалы' },
   { path: '/inventory', icon: Box, label: 'Инвентарь' },
   { path: '/products', icon: ShoppingBag, label: 'Изделия' },
