@@ -13,6 +13,7 @@ import Products from './pages/Products';
 import Clients from './pages/Clients';
 import Orders from './pages/Orders';
 import Categories from './pages/Categories';
+import Suppliers from './pages/Suppliers';
 
 function App() {
   return (
@@ -98,6 +99,16 @@ function App() {
                 <ProtectedRoute>
                   <MainLayout>
                     <Categories />
+                  </MainLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/suppliers"
+              element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Suppliers />
                   </MainLayout>
                 </ProtectedRoute>
               }
