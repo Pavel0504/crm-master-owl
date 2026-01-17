@@ -145,7 +145,7 @@ export default function Dashboard() {
               <LayoutDashboard className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Дашборд</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Статистика</h1>
               <p className="text-gray-600 dark:text-gray-400">Аналитика и статистика</p>
             </div>
           </div>
