@@ -312,3 +312,217 @@ export function exportToCSV(data: any[], filename: string) {
   link.click();
   document.body.removeChild(link);
 }
+
+export async function exportAllDataToExcel(userId: string) {
+  try {
+    const XLSX = await import('xlsx');
+
+    const [
+      materialsResult,
+      materialCategoriesResult,
+      inventoryResult,
+      inventoryCategoriesResult,
+      productsResult,
+      productCategoriesResult,
+      clientsResult,
+      suppliersResult,
+      supplierCategoriesResult,
+      ordersResult,
+    ] = await Promise.all([
+      supabase.from('materials').select('*').eq('user_id', userId),
+      supabase.from('material_categories').select('*').eq('user_id', userId),
+      supabase.from('inventory').select('*').eq('user_id', userId),
+      supabase.from('inventory_categories').select('*').eq('user_id', userId),
+      supabase.from('products').select('*').eq('user_id', userId),
+      supabase.from('product_categories').select('*').eq('user_id', userId),
+      supabase.from('clients').select('*').eq('user_id', userId),
+      supabase.from('suppliers').select('*').eq('user_id', userId),
+      supabase.from('supplier_categories').select('*').eq('user_id', userId),
+      supabase.from('orders').select('*').eq('user_id', userId),
+    ]);
+
+    const workbook = XLSX.utils.book_new();
+
+    if (materialsResult.data && materialsResult.data.length > 0) {
+      const materialsData = materialsResult.data.map((item) => {
+        const category = materialCategoriesResult.data?.find(
+          (cat) => cat.id === item.category_id
+        );
+        return {
+          'Название': item.name,
+          'Категория': category?.name || 'Без категории',
+          'Поставщик': item.supplier,
+          'Способ доставки': item.delivery_method,
+          'Цена закупки (руб.)': item.purchase_price,
+          'Начальный объем': item.initial_volume,
+          'Остаток': item.remaining_volume,
+          'Ед. измерения': item.unit_of_measurement,
+          'Дата закупки': item.purchase_date,
+        };
+      });
+      const materialsSheet = XLSX.utils.json_to_sheet(materialsData);
+      XLSX.utils.book_append_sheet(workbook, materialsSheet, 'Материалы');
+    }
+
+    if (inventoryResult.data && inventoryResult.data.length > 0) {
+      const inventoryData = inventoryResult.data.map((item) => {
+        const category = inventoryCategoriesResult.data?.find(
+          (cat) => cat.id === item.category_id
+        );
+        return {
+          'Название': item.name,
+          'Категория': category?.name || 'Без категории',
+          'Цена покупки (руб.)': item.purchase_price,
+          'Износ (%)': item.wear_percentage,
+          'Износ на изделие (%)': item.wear_rate_per_item,
+          'Дата покупки': item.purchase_date,
+        };
+      });
+      const inventorySheet = XLSX.utils.json_to_sheet(inventoryData);
+      XLSX.utils.book_append_sheet(workbook, inventorySheet, 'Инвентарь');
+    }
+
+    if (productsResult.data && productsResult.data.length > 0) {
+      const productsData = productsResult.data.map((item) => {
+        const category = productCategoriesResult.data?.find(
+          (cat) => cat.id === item.category_id
+        );
+        return {
+          'Название': item.name,
+          'Категория': category?.name || 'Без категории',
+          'Описание': item.description,
+          'Состав': item.composition,
+          'Создано (шт)': item.quantity_created,
+          'Остаток (шт)': item.remaining_quantity,
+          'Трудочасов': item.labor_hours_per_item,
+          'Себестоимость (руб.)': item.cost_price_per_item,
+          'Цена продажи (руб.)': item.selling_price,
+        };
+      });
+      const productsSheet = XLSX.utils.json_to_sheet(productsData);
+      XLSX.utils.book_append_sheet(workbook, productsSheet, 'Изделия');
+    }
+
+    if (clientsResult.data && clientsResult.data.length > 0) {
+      const clientsData = clientsResult.data.map((item) => ({
+        'Полное имя': item.full_name,
+        'Телефон': item.phone,
+        'Соц. сеть': item.social_link,
+        'Адрес': item.address,
+        'Дата рождения': item.birth_date,
+        'Метка': item.tag_name,
+      }));
+      const clientsSheet = XLSX.utils.json_to_sheet(clientsData);
+      XLSX.utils.book_append_sheet(workbook, clientsSheet, 'Клиенты');
+    }
+
+    if (suppliersResult.data && suppliersResult.data.length > 0) {
+      const suppliersData = suppliersResult.data.map((item) => {
+        const category = supplierCategoriesResult.data?.find(
+          (cat) => cat.id === item.category_id
+        );
+        return {
+          'Название': item.name,
+          'Категория': category?.name || 'Без категории',
+          'Способ доставки': item.delivery_method,
+          'Цена доставки (руб.)': item.delivery_price,
+        };
+      });
+      const suppliersSheet = XLSX.utils.json_to_sheet(suppliersData);
+      XLSX.utils.book_append_sheet(workbook, suppliersSheet, 'Поставщики');
+    }
+
+    if (ordersResult.data && ordersResult.data.length > 0) {
+      const ordersWithDetails = await Promise.all(
+        ordersResult.data.map(async (order) => {
+          const { data: client } = await supabase
+            .from('clients')
+            .select('full_name')
+            .eq('id', order.client_id || '')
+            .maybeSingle();
+
+          return {
+            'Номер заказа': order.order_number,
+            'Клиент': client?.full_name || 'Без клиента',
+            'Дата заказа': order.order_date,
+            'Срок': order.deadline,
+            'Источник': order.source,
+            'Доставка': order.delivery,
+            'Статус': order.status,
+            'Тип бонуса': order.bonus_type,
+            'Скидка': order.discount_value,
+            'Цена (руб.)': order.total_price,
+          };
+        })
+      );
+      const ordersSheet = XLSX.utils.json_to_sheet(ordersWithDetails);
+      XLSX.utils.book_append_sheet(workbook, ordersSheet, 'Заказы');
+    }
+
+    if (materialCategoriesResult.data && materialCategoriesResult.data.length > 0) {
+      const categoriesData = materialCategoriesResult.data.map((item) => {
+        const parent = materialCategoriesResult.data.find(
+          (cat) => cat.id === item.parent_id
+        );
+        return {
+          'Название': item.name,
+          'Родительская категория': parent?.name || 'Нет',
+        };
+      });
+      const categoriesSheet = XLSX.utils.json_to_sheet(categoriesData);
+      XLSX.utils.book_append_sheet(workbook, categoriesSheet, 'Категории материалов');
+    }
+
+    if (inventoryCategoriesResult.data && inventoryCategoriesResult.data.length > 0) {
+      const categoriesData = inventoryCategoriesResult.data.map((item) => {
+        const parent = inventoryCategoriesResult.data.find(
+          (cat) => cat.id === item.parent_id
+        );
+        return {
+          'Название': item.name,
+          'Родительская категория': parent?.name || 'Нет',
+        };
+      });
+      const categoriesSheet = XLSX.utils.json_to_sheet(categoriesData);
+      XLSX.utils.book_append_sheet(workbook, categoriesSheet, 'Категории инвентаря');
+    }
+
+    if (productCategoriesResult.data && productCategoriesResult.data.length > 0) {
+      const categoriesData = productCategoriesResult.data.map((item) => {
+        const parent = productCategoriesResult.data.find(
+          (cat) => cat.id === item.parent_id
+        );
+        return {
+          'Название': item.name,
+          'Родительская категория': parent?.name || 'Нет',
+          'Затраты на свет (руб.)': item.energy_costs_electricity,
+          'Затраты на воду (руб.)': item.energy_costs_water,
+        };
+      });
+      const categoriesSheet = XLSX.utils.json_to_sheet(categoriesData);
+      XLSX.utils.book_append_sheet(workbook, categoriesSheet, 'Категории изделий');
+    }
+
+    if (supplierCategoriesResult.data && supplierCategoriesResult.data.length > 0) {
+      const categoriesData = supplierCategoriesResult.data.map((item) => {
+        const parent = supplierCategoriesResult.data.find(
+          (cat) => cat.id === item.parent_id
+        );
+        return {
+          'Название': item.name,
+          'Родительская категория': parent?.name || 'Нет',
+        };
+      });
+      const categoriesSheet = XLSX.utils.json_to_sheet(categoriesData);
+      XLSX.utils.book_append_sheet(workbook, categoriesSheet, 'Категории поставщиков');
+    }
+
+    const fileName = `Master_Owl_Export_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+
+    return { success: true, error: null };
+  } catch (error) {
+    console.error('Error exporting data:', error);
+    return { success: false, error };
+  }
+}

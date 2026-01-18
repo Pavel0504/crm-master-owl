@@ -235,16 +235,18 @@ export default function CreateOrderModal({
                       required
                     />
                   </div>
-                  <Input
-                    type="number"
-                    min="1"
-                    value={item.quantity}
-                    onChange={(e) =>
-                      updateItem(index, 'quantity', parseInt(e.target.value) || 1)
-                    }
-                    placeholder="Кол-во"
-                    required
-                  />
+                  <div className="w-24">
+                    <Input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(e) =>
+                        updateItem(index, 'quantity', parseInt(e.target.value) || 1)
+                      }
+                      placeholder="Кол-во"
+                      required
+                    />
+                  </div>
                   <label className="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-gray-900/50 rounded-lg min-w-fit">
                     <input
                       type="checkbox"
@@ -293,7 +295,7 @@ export default function CreateOrderModal({
             />
 
             {bonusType === 'скидка' && (
-              <div className="grid grid-cols-2 gap-4 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Тип скидки

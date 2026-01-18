@@ -32,6 +32,7 @@ import {
   getMaterialExpensesByType,
   getProfitData,
   exportToCSV,
+  exportAllDataToExcel,
   PeriodType,
   SalesData,
   ExpensesData,
@@ -44,6 +45,7 @@ const COLORS = ['#f97316', '#ef4444', '#eab308', '#22c55e', '#3b82f6', '#a855f7'
 export default function Dashboard() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [exportLoading, setExportLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [periodType, setPeriodType] = useState<PeriodType>('month');
@@ -115,6 +117,21 @@ export default function Dashboard() {
     exportToCSV(exportData, 'dashboard_statistics');
   };
 
+  const handleExportAllData = async () => {
+    if (!user) return;
+
+    setExportLoading(true);
+    setError(null);
+
+    const result = await exportAllDataToExcel(user.id);
+
+    if (!result.success) {
+      setError('Не удалось экспортировать данные');
+    }
+
+    setExportLoading(false);
+  };
+
   const resetFilters = () => {
     setStartDate('');
     setEndDate('');
@@ -155,15 +172,27 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <Button
-            variant="primary"
-            onClick={handleExport}
-            className="flex items-center justify-center gap-2 w-full sm:w-auto"
-            disabled={profitData.length === 0}
-          >
-            <Download className="h-5 w-5" />
-            Экспорт CSV
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Button
+              variant="secondary"
+              onClick={handleExport}
+              className="flex items-center justify-center gap-2"
+              disabled={profitData.length === 0}
+            >
+              <Download className="h-5 w-5" />
+              Экспорт CSV
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleExportAllData}
+              className="flex items-center justify-center gap-2"
+              loading={exportLoading}
+              disabled={exportLoading}
+            >
+              <Download className="h-5 w-5" />
+              Экспорт данных
+            </Button>
+          </div>
         </div>
 
         {error && (

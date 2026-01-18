@@ -195,29 +195,33 @@ export default function CreateProductModal({
           <div className="space-y-3">
             {selectedMaterials.map((material, index) => (
               <div key={index} className="flex gap-3">
-                <Select
-                  value={material.material_id}
-                  onChange={(e) => updateMaterial(index, 'material_id', e.target.value)}
-                  options={[
-                    { value: '', label: 'Выберите материал' },
-                    ...materials.map((mat) => ({
-                      value: mat.id,
-                      label: `${mat.name} (остаток: ${mat.remaining_volume} ${mat.unit_of_measurement})`,
-                    })),
-                  ]}
-                  required
-                />
-                <Input
-                  type="number"
-                  step="0.001"
-                  min="0"
-                  value={material.volume_per_item}
-                  onChange={(e) =>
-                    updateMaterial(index, 'volume_per_item', parseFloat(e.target.value) || 0)
-                  }
-                  placeholder="Объем"
-                  required
-                />
+                <div className="flex-1">
+                  <Select
+                    value={material.material_id}
+                    onChange={(e) => updateMaterial(index, 'material_id', e.target.value)}
+                    options={[
+                      { value: '', label: 'Выберите материал' },
+                      ...materials.map((mat) => ({
+                        value: mat.id,
+                        label: `${mat.name} (остаток: ${mat.remaining_volume} ${mat.unit_of_measurement})`,
+                      })),
+                    ]}
+                    required
+                  />
+                </div>
+                <div className="w-24">
+                  <Input
+                    type="number"
+                    step="0.001"
+                    min="0"
+                    value={material.volume_per_item}
+                    onChange={(e) =>
+                      updateMaterial(index, 'volume_per_item', parseFloat(e.target.value) || 0)
+                    }
+                    placeholder="Объем"
+                    required
+                  />
+                </div>
                 {selectedMaterials.length > 1 && (
                   <button
                     type="button"
