@@ -18,61 +18,65 @@ export default function ClientCard({ client, stats, onEdit, onDelete }: ClientCa
     : null;
 
   const title = (
-    <div className="flex items-center gap-3 flex-1">
+    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-1">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
         {client.full_name}
       </h3>
-      {client.tag_name && (
-        <Badge customColor={client.tag_color} size="md">
-          {client.tag_name}
-        </Badge>
-      )}
-      {formattedDate && (
-        <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-          <Calendar className="h-4 w-4" />
-          <span>{formattedDate}</span>
-        </div>
-      )}
+      <div className="flex items-center gap-2 flex-wrap">
+        {client.tag_name && (
+          <Badge customColor={client.tag_color} size="md">
+            {client.tag_name}
+          </Badge>
+        )}
+        {formattedDate && (
+          <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+            <Calendar className="h-4 w-4" />
+            <span>{formattedDate}</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 
   const headerContent = (
-    <div className="flex items-center gap-4">
-      <div className="flex items-center gap-4 mr-2">
-        <div className="text-center">
-          <p className="text-xs text-gray-500 dark:text-gray-400">Заказов</p>
-          <p className="text-lg font-bold text-gray-900 dark:text-white">
-            {stats.orders_count}
-          </p>
+    <>
+      <div className="flex items-center gap-3 justify-between flex-1">
+        <div className="flex items-center gap-3">
+          <div className="text-center">
+            <p className="text-xs text-gray-500 dark:text-gray-400">Заказов</p>
+            <p className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
+              {stats.orders_count}
+            </p>
+          </div>
+          <div className="text-center">
+            <p className="text-xs text-gray-500 dark:text-gray-400">Сумма</p>
+            <p className="text-base sm:text-lg font-bold text-orange-600 dark:text-orange-400">
+              {stats.total_orders_sum.toFixed(0)} ₽
+            </p>
+          </div>
         </div>
-        <div className="text-center">
-          <p className="text-xs text-gray-500 dark:text-gray-400">Сумма</p>
-          <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
-            {stats.total_orders_sum.toFixed(0)} ₽
-          </p>
+        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+          <IconButton
+            icon={<Edit2 />}
+            size="sm"
+            variant="ghost"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(client);
+            }}
+          />
+          <IconButton
+            icon={<Trash2 />}
+            size="sm"
+            variant="danger"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(client);
+            }}
+          />
         </div>
       </div>
-      <div className="flex items-center gap-2">
-        <IconButton
-          icon={<Edit2 />}
-          size="sm"
-          variant="ghost"
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit(client);
-          }}
-        />
-        <IconButton
-          icon={<Trash2 />}
-          size="sm"
-          variant="danger"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(client);
-          }}
-        />
-      </div>
-    </div>
+    </>
   );
 
   return (

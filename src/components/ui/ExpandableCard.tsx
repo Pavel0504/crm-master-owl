@@ -23,19 +23,23 @@ export default function ExpandableCard({
     <Card variant={variant} padding="none">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all rounded-t-2xl"
+        className="w-full px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all rounded-t-2xl"
       >
-        <div className="flex items-center gap-4 flex-1">
-          <div className="text-left flex-1">{title}</div>
-          {headerContent && <div className="flex items-center gap-2">{headerContent}</div>}
+        <div className="flex items-center justify-between w-full">
+          <div className="text-left flex-1 min-w-0">{title}</div>
+          <div className="ml-2 flex-shrink-0">
+            {isExpanded ? (
+              <ChevronUp className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+            )}
+          </div>
         </div>
-        <div className="ml-4">
-          {isExpanded ? (
-            <ChevronUp className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-          ) : (
-            <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-          )}
-        </div>
+        {headerContent && (
+          <div className="flex items-center justify-between w-full sm:w-auto gap-2">
+            {headerContent}
+          </div>
+        )}
       </button>
 
       {isExpanded && (

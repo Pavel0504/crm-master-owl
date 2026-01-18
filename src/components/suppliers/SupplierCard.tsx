@@ -27,40 +27,42 @@ export default function SupplierCard({
   );
 
   const headerContent = (
-    <div className="flex items-center gap-4">
-      <div className="flex items-center gap-4 mr-2">
-        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-          <Truck className="h-4 w-4" />
-          <span className="text-sm">{supplier.delivery_method || 'Не указан'}</span>
+    <>
+      <div className="flex items-center gap-3 justify-between flex-1">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+            <Truck className="h-4 w-4" />
+            <span className="text-sm">{supplier.delivery_method || 'Не указан'}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <DollarSign className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+            <span className="text-base sm:text-lg font-bold text-orange-600 dark:text-orange-400">
+              {supplier.delivery_price.toFixed(2)} ₽
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <DollarSign className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-          <span className="text-lg font-bold text-orange-600 dark:text-orange-400">
-            {supplier.delivery_price.toFixed(2)} ₽
-          </span>
+        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+          <IconButton
+            icon={<Edit2 />}
+            size="sm"
+            variant="ghost"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(supplier);
+            }}
+          />
+          <IconButton
+            icon={<Trash2 />}
+            size="sm"
+            variant="danger"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(supplier);
+            }}
+          />
         </div>
       </div>
-      <div className="flex items-center gap-2">
-        <IconButton
-          icon={<Edit2 />}
-          size="sm"
-          variant="ghost"
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit(supplier);
-          }}
-        />
-        <IconButton
-          icon={<Trash2 />}
-          size="sm"
-          variant="danger"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(supplier);
-          }}
-        />
-      </div>
-    </div>
+    </>
   );
 
   return (

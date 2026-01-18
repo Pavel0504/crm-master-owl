@@ -29,59 +29,63 @@ export default function OrderCard({ order, onEdit, onDelete }: OrderCardProps) {
   };
 
   const title = (
-    <div className="flex items-center gap-3 flex-1">
+    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-1">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
         Заказ №{order.order_number}
       </h3>
-      <Badge variant={getStatusColor(order.status)} size="md">
-        {order.status}
-      </Badge>
-      {order.deadline && (
-        <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-          <PercentageBadge percentage={timeRemaining} showPercentageSign={false} size="sm" />
-        </div>
-      )}
+      <div className="flex items-center gap-2 flex-wrap">
+        <Badge variant={getStatusColor(order.status)} size="md">
+          {order.status}
+        </Badge>
+        {order.deadline && (
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+            <PercentageBadge percentage={timeRemaining} showPercentageSign={false} size="sm" />
+          </div>
+        )}
+      </div>
     </div>
   );
 
   const headerContent = (
-    <div className="flex items-center gap-4">
-      <div className="flex items-center gap-4 mr-2">
-        <div className="text-center">
-          <p className="text-xs text-gray-500 dark:text-gray-400">Дата создания</p>
-          <p className="text-sm font-semibold text-gray-900 dark:text-white">
-            {formattedOrderDate}
-          </p>
+    <>
+      <div className="flex items-center gap-3 justify-between flex-1">
+        <div className="flex items-center gap-3">
+          <div className="text-center">
+            <p className="text-xs text-gray-500 dark:text-gray-400">Дата</p>
+            <p className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
+              {formattedOrderDate}
+            </p>
+          </div>
+          <div className="text-center">
+            <p className="text-xs text-gray-500 dark:text-gray-400">Цена</p>
+            <p className="text-base sm:text-lg font-bold text-orange-600 dark:text-orange-400">
+              {order.total_price.toFixed(2)} ₽
+            </p>
+          </div>
         </div>
-        <div className="text-center">
-          <p className="text-xs text-gray-500 dark:text-gray-400">Цена</p>
-          <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
-            {order.total_price.toFixed(2)} ₽
-          </p>
+        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+          <IconButton
+            icon={<Edit2 />}
+            size="sm"
+            variant="ghost"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(order);
+            }}
+          />
+          <IconButton
+            icon={<Trash2 />}
+            size="sm"
+            variant="danger"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(order);
+            }}
+          />
         </div>
       </div>
-      <div className="flex items-center gap-2">
-        <IconButton
-          icon={<Edit2 />}
-          size="sm"
-          variant="ghost"
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit(order);
-          }}
-        />
-        <IconButton
-          icon={<Trash2 />}
-          size="sm"
-          variant="danger"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(order);
-          }}
-        />
-      </div>
-    </div>
+    </>
   );
 
   return (

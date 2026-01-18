@@ -23,16 +23,16 @@ export default function ProductCard({
   const profit = product.selling_price - product.cost_price_per_item;
 
   const title = (
-    <div className="flex items-center gap-3 flex-1">
+    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-1">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
         {product.name}
       </h3>
-      {isSoldOut && (
-        <Badge variant="danger" size="md">
-          Продано
-        </Badge>
-      )}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
+        {isSoldOut && (
+          <Badge variant="danger" size="md">
+            Продано
+          </Badge>
+        )}
         <Badge variant="info" size="sm">
           {product.remaining_quantity}/{product.quantity_created} шт
         </Badge>
@@ -41,26 +41,28 @@ export default function ProductCard({
   );
 
   const headerContent = (
-    <div className="flex items-center gap-2">
-      <IconButton
-        icon={<Edit2 />}
-        size="sm"
-        variant="ghost"
-        onClick={(e) => {
-          e.stopPropagation();
-          onEdit(product);
-        }}
-      />
-      <IconButton
-        icon={<Trash2 />}
-        size="sm"
-        variant="danger"
-        onClick={(e) => {
-          e.stopPropagation();
-          onDelete(product);
-        }}
-      />
-    </div>
+    <>
+      <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 ml-auto">
+        <IconButton
+          icon={<Edit2 />}
+          size="sm"
+          variant="ghost"
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit(product);
+          }}
+        />
+        <IconButton
+          icon={<Trash2 />}
+          size="sm"
+          variant="danger"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(product);
+          }}
+        />
+      </div>
+    </>
   );
 
   return (

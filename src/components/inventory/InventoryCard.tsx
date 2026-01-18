@@ -22,7 +22,7 @@ export default function InventoryCard({
   const remainingValue = (inventory.wear_percentage / 100) * inventory.purchase_price;
 
   const title = (
-    <div className="flex items-center gap-3 flex-1">
+    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-1">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
         {inventory.name}
       </h3>
@@ -31,26 +31,28 @@ export default function InventoryCard({
   );
 
   const headerContent = (
-    <div className="flex items-center gap-2">
-      <IconButton
-        icon={<Edit2 />}
-        size="sm"
-        variant="ghost"
-        onClick={(e) => {
-          e.stopPropagation();
-          onEdit(inventory);
-        }}
-      />
-      <IconButton
-        icon={<Trash2 />}
-        size="sm"
-        variant="danger"
-        onClick={(e) => {
-          e.stopPropagation();
-          onDelete(inventory);
-        }}
-      />
-    </div>
+    <>
+      <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 ml-auto">
+        <IconButton
+          icon={<Edit2 />}
+          size="sm"
+          variant="ghost"
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit(inventory);
+          }}
+        />
+        <IconButton
+          icon={<Trash2 />}
+          size="sm"
+          variant="danger"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(inventory);
+          }}
+        />
+      </div>
+    </>
   );
 
   return (

@@ -177,59 +177,61 @@ export default function Categories() {
           </div>
         )}
 
-        <div className="flex flex-wrap gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">
-          <button
-            onClick={() => setActiveTab('materials')}
-            className={`
-              px-4 py-2 font-medium rounded-t-lg transition-all
-              ${
-                activeTab === 'materials'
-                  ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
-              }
-            `}
-          >
-            Материалы
-          </button>
-          <button
-            onClick={() => setActiveTab('inventory')}
-            className={`
-              px-4 py-2 font-medium rounded-t-lg transition-all
-              ${
-                activeTab === 'inventory'
-                  ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
-              }
-            `}
-          >
-            Инвентарь
-          </button>
-          <button
-            onClick={() => setActiveTab('products')}
-            className={`
-              px-4 py-2 font-medium rounded-t-lg transition-all
-              ${
-                activeTab === 'products'
-                  ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
-              }
-            `}
-          >
-            Изделия
-          </button>
-          <button
-            onClick={() => setActiveTab('suppliers')}
-            className={`
-              px-4 py-2 font-medium rounded-t-lg transition-all
-              ${
-                activeTab === 'suppliers'
-                  ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
-              }
-            `}
-          >
-            Поставщики
-          </button>
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 mb-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex gap-2 min-w-max sm:min-w-0 sm:flex-wrap">
+            <button
+              onClick={() => setActiveTab('materials')}
+              className={`
+                px-4 py-2 font-medium rounded-t-lg transition-all whitespace-nowrap
+                ${
+                  activeTab === 'materials'
+                    ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+                }
+              `}
+            >
+              Материалы
+            </button>
+            <button
+              onClick={() => setActiveTab('inventory')}
+              className={`
+                px-4 py-2 font-medium rounded-t-lg transition-all whitespace-nowrap
+                ${
+                  activeTab === 'inventory'
+                    ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+                }
+              `}
+            >
+              Инвентарь
+            </button>
+            <button
+              onClick={() => setActiveTab('products')}
+              className={`
+                px-4 py-2 font-medium rounded-t-lg transition-all whitespace-nowrap
+                ${
+                  activeTab === 'products'
+                    ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+                }
+              `}
+            >
+              Изделия
+            </button>
+            <button
+              onClick={() => setActiveTab('suppliers')}
+              className={`
+                px-4 py-2 font-medium rounded-t-lg transition-all whitespace-nowrap
+                ${
+                  activeTab === 'suppliers'
+                    ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+                }
+              `}
+            >
+              Поставщики
+            </button>
+          </div>
         </div>
 
         <div className="mt-6">

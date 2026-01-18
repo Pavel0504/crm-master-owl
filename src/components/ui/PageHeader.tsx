@@ -25,7 +25,7 @@ export default function PageHeader({ icon, title, subtitle, actions }: PageHeade
       </div>
 
       {actions && (
-        <div className="flex gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
           {actions}
         </div>
       )}

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Генератор иконок Master Owl</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    .icon-preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+    .icon-item {
+      text-align: center;
+    }
+    .icon-item img {
+      max-width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    button {
+      background: linear-gradient(to right, #f97316, #fb923c);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 20px;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .info {
+      background: #fff5f0;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #f97316;
+    }
+  </style>
+</head>
+<body>
+  <h1>Генератор иконок Master Owl</h1>
+
+  <div class="info">
+    <p><strong>Инструкция:</strong></p>
+    <ol>
+      <li>Нажмите кнопку "Сгенерировать все иконки"</li>
+      <li>Иконки будут автоматически скачаны</li>
+      <li>Поместите скачанные файлы в папку <code>public/icons/</code></li>
+    </ol>
+  </div>
+
+  <button onclick="generateAllIcons()">Сгенерировать все иконки</button>
+
+  <div class="icon-preview" id="preview"></div>
+
+  <script>
+    const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+
+    function createIcon(size) {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#f97316');
+      gradient.addColorStop(1, '#fb923c');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, size, size);
+
+      ctx.fillStyle = 'white';
+      ctx.font = `bold ${size * 0.5}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🦉', size / 2, size / 2);
+
+      return canvas;
+    }
+
+    function downloadIcon(canvas, size) {
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `icon-${size}x${size}.png`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    }
+
+    function generateAllIcons() {
+      const preview = document.getElementById('preview');
+      preview.innerHTML = '';
+
+      sizes.forEach((size, index) => {
+        setTimeout(() => {
+          const canvas = createIcon(size);
+          downloadIcon(canvas, size);
+
+          const item = document.createElement('div');
+          item.className = 'icon-item';
+          item.innerHTML = `
+            <img src="${canvas.toDataURL()}" alt="${size}x${size}">
+            <p>${size}x${size}</p>
+          `;
+          preview.appendChild(item);
+        }, index * 200);
+      });
+    }
+  </script>
+</body>
+</html>
