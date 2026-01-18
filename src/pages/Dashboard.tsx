@@ -25,7 +25,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import { Button, Select, DatePicker } from '../components/ui';
+import { Button, Select, DatePicker, FilterPanel } from '../components/ui';
 import {
   getSalesData,
   getExpensesData,
@@ -115,6 +115,11 @@ export default function Dashboard() {
     exportToCSV(exportData, 'dashboard_statistics');
   };
 
+  const resetFilters = () => {
+    setStartDate('');
+    setEndDate('');
+  };
+
   const periodOptions = [
     { value: 'day', label: 'По дням' },
     { value: 'week', label: 'По неделям' },
@@ -138,14 +143,14 @@ export default function Dashboard() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-        <div className="flex items-center justify-between mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 sm:p-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-rose-400 dark:from-burgundy-600 dark:to-burgundy-700 rounded-xl flex items-center justify-center">
               <LayoutDashboard className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Статистика</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Статистика</h1>
               <p className="text-gray-600 dark:text-gray-400">Аналитика и статистика</p>
             </div>
           </div>
@@ -153,7 +158,7 @@ export default function Dashboard() {
           <Button
             variant="primary"
             onClick={handleExport}
-            className="flex items-center gap-2"
+            className="flex items-center justify-center gap-2 w-full sm:w-auto"
             disabled={profitData.length === 0}
           >
             <Download className="h-5 w-5" />
@@ -167,12 +172,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        <div className="bg-gradient-to-r from-orange-50 to-rose-50 dark:from-burgundy-900/20 dark:to-burgundy-800/20 rounded-xl p-6 border border-orange-200 dark:border-burgundy-700 mb-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Calendar className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Фильтры</h3>
-          </div>
-
+        <FilterPanel onReset={resetFilters} showActions={false}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Select
               label="Период группировки"
@@ -207,175 +207,199 @@ export default function Dashboard() {
               Сбросить даты
             </Button>
           )}
-        </div>
+        </FilterPanel>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Общая выручка"
-          value={formatCurrency(totalRevenue)}
-          icon={<DollarSign className="h-6 w-6" />}
-          trend={totalRevenue > totalExpenses ? 'up' : 'down'}
-          color="green"
-        />
+      <div className="overflow-x-auto -mx-4 px-4 md:overflow-visible md:mx-0 md:px-0">
+        <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 min-w-max md:min-w-0">
+          <div className="w-72 md:w-auto flex-shrink-0">
+            <StatCard
+              title="Общая выручка"
+              value={formatCurrency(totalRevenue)}
+              icon={<DollarSign className="h-6 w-6" />}
+              trend={totalRevenue > totalExpenses ? 'up' : 'down'}
+              color="green"
+            />
+          </div>
 
-        <StatCard
-          title="Общие расходы"
-          value={formatCurrency(totalExpenses)}
-          icon={<TrendingDown className="h-6 w-6" />}
-          trend="neutral"
-          color="red"
-        />
+          <div className="w-72 md:w-auto flex-shrink-0">
+            <StatCard
+              title="Общие расходы"
+              value={formatCurrency(totalExpenses)}
+              icon={<TrendingDown className="h-6 w-6" />}
+              trend="neutral"
+              color="red"
+            />
+          </div>
 
-        <StatCard
-          title="Чистая прибыль"
-          value={formatCurrency(totalProfit)}
-          icon={<TrendingUp className="h-6 w-6" />}
-          trend={totalProfit > 0 ? 'up' : 'down'}
-          color={totalProfit > 0 ? 'green' : 'red'}
-        />
+          <div className="w-72 md:w-auto flex-shrink-0">
+            <StatCard
+              title="Чистая прибыль"
+              value={formatCurrency(totalProfit)}
+              icon={<TrendingUp className="h-6 w-6" />}
+              trend={totalProfit > 0 ? 'up' : 'down'}
+              color={totalProfit > 0 ? 'green' : 'red'}
+            />
+          </div>
 
-        <StatCard
-          title="Всего заказов"
-          value={totalOrders.toString()}
-          icon={<ShoppingCart className="h-6 w-6" />}
-          trend="neutral"
-          color="blue"
-        />
+          <div className="w-72 md:w-auto flex-shrink-0">
+            <StatCard
+              title="Всего заказов"
+              value={totalOrders.toString()}
+              icon={<ShoppingCart className="h-6 w-6" />}
+              trend="neutral"
+              color="blue"
+            />
+          </div>
+        </div>
       </div>
 
       {profitData.length > 0 && (
         <>
-          <ChartCard title="Прибыль по периодам">
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={profitData}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
-                <XAxis
-                  dataKey="period"
-                  className="text-xs text-gray-600 dark:text-gray-400"
-                />
-                <YAxis className="text-xs text-gray-600 dark:text-gray-400" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                  }}
-                  formatter={(value: number) => formatCurrency(value)}
-                />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="#22c55e"
-                  strokeWidth={2}
-                  name="Выручка"
-                  dot={{ fill: '#22c55e' }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="expenses"
-                  stroke="#ef4444"
-                  strokeWidth={2}
-                  name="Расходы"
-                  dot={{ fill: '#ef4444' }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="profit"
-                  stroke="#3b82f6"
-                  strokeWidth={2}
-                  name="Прибыль"
-                  dot={{ fill: '#3b82f6' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </ChartCard>
+          <div className="overflow-x-auto -mx-4 px-4 lg:overflow-visible lg:mx-0 lg:px-0">
+            <div className="min-w-[600px] lg:min-w-0">
+              <ChartCard title="Прибыль по периодам">
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={profitData}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
+                    <XAxis
+                      dataKey="period"
+                      className="text-xs text-gray-600 dark:text-gray-400"
+                    />
+                    <YAxis className="text-xs text-gray-600 dark:text-gray-400" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                      }}
+                      formatter={(value: number) => formatCurrency(value)}
+                    />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke="#22c55e"
+                      strokeWidth={2}
+                      name="Выручка"
+                      dot={{ fill: '#22c55e' }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="expenses"
+                      stroke="#ef4444"
+                      strokeWidth={2}
+                      name="Расходы"
+                      dot={{ fill: '#ef4444' }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="profit"
+                      stroke="#3b82f6"
+                      strokeWidth={2}
+                      name="Прибыль"
+                      dot={{ fill: '#3b82f6' }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </ChartCard>
+            </div>
+          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ChartCard title="Продажи по периодам">
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={salesData}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
-                  <XAxis
-                    dataKey="period"
-                    className="text-xs text-gray-600 dark:text-gray-400"
-                  />
-                  <YAxis className="text-xs text-gray-600 dark:text-gray-400" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                    }}
-                    formatter={(value: number) => formatCurrency(value)}
-                  />
-                  <Legend />
-                  <Bar dataKey="sales" fill="#f97316" name="Продажи" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartCard>
+          <div className="overflow-x-auto -mx-4 px-4 lg:overflow-visible lg:mx-0 lg:px-0">
+            <div className="flex lg:grid lg:grid-cols-2 gap-6 min-w-max lg:min-w-0">
+              <div className="w-[600px] lg:w-auto flex-shrink-0">
+                <ChartCard title="Продажи по периодам">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={salesData}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
+                      <XAxis
+                        dataKey="period"
+                        className="text-xs text-gray-600 dark:text-gray-400"
+                      />
+                      <YAxis className="text-xs text-gray-600 dark:text-gray-400" />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px',
+                        }}
+                        formatter={(value: number) => formatCurrency(value)}
+                      />
+                      <Legend />
+                      <Bar dataKey="sales" fill="#f97316" name="Продажи" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartCard>
+              </div>
 
-            <ChartCard title="Расходы по периодам">
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={expensesData}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
-                  <XAxis
-                    dataKey="period"
-                    className="text-xs text-gray-600 dark:text-gray-400"
-                  />
-                  <YAxis className="text-xs text-gray-600 dark:text-gray-400" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                    }}
-                    formatter={(value: number) => formatCurrency(value)}
-                  />
-                  <Legend />
-                  <Bar dataKey="materials" stackId="a" fill="#ef4444" name="Материалы" radius={[0, 0, 0, 0]} />
-                  <Bar dataKey="inventory" stackId="a" fill="#f97316" name="Инвентарь" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartCard>
+              <div className="w-[600px] lg:w-auto flex-shrink-0">
+                <ChartCard title="Расходы по периодам">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={expensesData}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
+                      <XAxis
+                        dataKey="period"
+                        className="text-xs text-gray-600 dark:text-gray-400"
+                      />
+                      <YAxis className="text-xs text-gray-600 dark:text-gray-400" />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px',
+                        }}
+                        formatter={(value: number) => formatCurrency(value)}
+                      />
+                      <Legend />
+                      <Bar dataKey="materials" stackId="a" fill="#ef4444" name="Материалы" radius={[0, 0, 0, 0]} />
+                      <Bar dataKey="inventory" stackId="a" fill="#f97316" name="Инвентарь" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartCard>
+              </div>
+            </div>
           </div>
 
           {materialExpenses.length > 0 && (
-            <ChartCard title="Расходы на материалы по видам">
-              <ResponsiveContainer width="100%" height={400}>
-                <PieChart>
-                  <Pie
-                    data={materialExpenses.slice(0, 10)}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={(entry) => `${entry.material_name}: ${formatCurrency(entry.total_spent)}`}
-                    outerRadius={120}
-                    fill="#8884d8"
-                    dataKey="total_spent"
-                  >
-                    {materialExpenses.slice(0, 10).map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                    }}
-                    formatter={(value: number) => formatCurrency(value)}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+            <div className="overflow-x-auto -mx-4 px-4 lg:overflow-visible lg:mx-0 lg:px-0">
+              <div className="min-w-[600px] lg:min-w-0">
+                <ChartCard title="Расходы на материалы по видам">
+                  <ResponsiveContainer width="100%" height={400}>
+                    <PieChart>
+                      <Pie
+                        data={materialExpenses.slice(0, 10)}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={(entry) => `${entry.material_name}: ${formatCurrency(entry.total_spent)}`}
+                        outerRadius={120}
+                        fill="#8884d8"
+                        dataKey="total_spent"
+                      >
+                        {materialExpenses.slice(0, 10).map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px',
+                        }}
+                        formatter={(value: number) => formatCurrency(value)}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
 
-              {materialExpenses.length > 10 && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-4">
-                  Показаны топ-10 материалов по расходам
-                </p>
-              )}
-            </ChartCard>
+                  {materialExpenses.length > 10 && (
+                    <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-4">
+                      Показаны топ-10 материалов по расходам
+                    </p>
+                  )}
+                </ChartCard>
+              </div>
+            </div>
           )}
         </>
       )}

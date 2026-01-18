@@ -40,7 +40,7 @@ export default function Navigation() {
     <>
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg"
+        className="lg:hidden fixed top-4 right-4 z-50 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg"
       >
         {isMobileMenuOpen ? (
           <X className="h-6 w-6 text-gray-700 dark:text-gray-300" />

@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { Modal, Input, Select, Button, DatePicker } from '../ui';
 import { MaterialCategory } from '../../services/materialCategoryService';
 import { MaterialInput } from '../../services/materialService';
+import { Supplier } from '../../services/supplierService';
 
 interface CreateMaterialModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: MaterialInput) => Promise<void>;
   categories: MaterialCategory[];
+  suppliers: Supplier[];
   loading?: boolean;
 }
 
@@ -16,6 +18,7 @@ export default function CreateMaterialModal({
   onClose,
   onSubmit,
   categories,
+  suppliers,
   loading = false,
 }: CreateMaterialModalProps) {
   const [formData, setFormData] = useState<MaterialInput>({
@@ -63,6 +66,30 @@ export default function CreateMaterialModal({
     })),
   ];
 
+  const supplierOptions = [
+    { value: '', label: 'Без поставщика' },
+    ...suppliers.map((sup) => ({
+      value: sup.id,
+      label: `${sup.name} (${sup.delivery_method})`,
+    })),
+  ];
+
+  const handleSupplierChange = (supplierId: string) => {
+    if (!supplierId) {
+      setFormData({ ...formData, supplier: '', delivery_method: '' });
+      return;
+    }
+
+    const selectedSupplier = suppliers.find((sup) => sup.id === supplierId);
+    if (selectedSupplier) {
+      setFormData({
+        ...formData,
+        supplier: selectedSupplier.name,
+        delivery_method: selectedSupplier.delivery_method,
+      });
+    }
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -92,20 +119,11 @@ export default function CreateMaterialModal({
             options={categoryOptions}
           />
 
-          <Input
+          <Select
             label="Поставщик"
-            value={formData.supplier}
-            onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
-            placeholder="Название поставщика"
-          />
-
-          <Input
-            label="Способ доставки"
-            value={formData.delivery_method}
-            onChange={(e) =>
-              setFormData({ ...formData, delivery_method: e.target.value })
-            }
-            placeholder="Например: Почта России"
+            value={suppliers.find((s) => s.name === formData.supplier)?.id || ''}
+            onChange={(e) => handleSupplierChange(e.target.value)}
+            options={supplierOptions}
           />
 
           <Input

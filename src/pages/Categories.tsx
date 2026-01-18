@@ -21,8 +21,14 @@ import {
   updateProductCategory,
   deleteProductCategory,
 } from '../services/productCategoryService';
+import {
+  getSupplierCategories,
+  SupplierCategory,
+  updateSupplierCategory,
+  deleteSupplierCategory,
+} from '../services/supplierCategoryService';
 
-type TabType = 'materials' | 'inventory' | 'products';
+type TabType = 'materials' | 'inventory' | 'products' | 'suppliers';
 
 export default function Categories() {
   const { user } = useAuth();
@@ -33,6 +39,7 @@ export default function Categories() {
   const [materialCategories, setMaterialCategories] = useState<MaterialCategory[]>([]);
   const [inventoryCategories, setInventoryCategories] = useState<InventoryCategory[]>([]);
   const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
+  const [supplierCategories, setSupplierCategories] = useState<SupplierCategory[]>([]);
 
   useEffect(() => {
     loadAllCategories();
@@ -44,18 +51,20 @@ export default function Categories() {
     setLoading(true);
     setError(null);
 
-    const [materialsResult, inventoryResult, productsResult] = await Promise.all([
+    const [materialsResult, inventoryResult, productsResult, suppliersResult] = await Promise.all([
       getMaterialCategories(user.id),
       getInventoryCategories(user.id),
       getProductCategories(user.id),
+      getSupplierCategories(user.id),
     ]);
 
-    if (materialsResult.error || inventoryResult.error || productsResult.error) {
+    if (materialsResult.error || inventoryResult.error || productsResult.error || suppliersResult.error) {
       setError('Не удалось загрузить категории');
     } else {
       setMaterialCategories(materialsResult.data || []);
       setInventoryCategories(inventoryResult.data || []);
       setProductCategories(productsResult.data || []);
+      setSupplierCategories(suppliersResult.data || []);
     }
 
     setLoading(false);
@@ -113,6 +122,26 @@ export default function Categories() {
 
   const handleDeleteProductCategory = async (id: string) => {
     const { error } = await deleteProductCategory(id);
+    if (error) {
+      setError('Не удалось удалить категорию');
+      return false;
+    }
+    await loadAllCategories();
+    return true;
+  };
+
+  const handleUpdateSupplierCategory = async (id: string, name: string) => {
+    const { error } = await updateSupplierCategory(id, { name });
+    if (error) {
+      setError('Не удалось обновить категорию');
+      return false;
+    }
+    await loadAllCategories();
+    return true;
+  };
+
+  const handleDeleteSupplierCategory = async (id: string) => {
+    const { error } = await deleteSupplierCategory(id);
     if (error) {
       setError('Не удалось удалить категорию');
       return false;
@@ -188,6 +217,19 @@ export default function Categories() {
           >
             Изделия
           </button>
+          <button
+            onClick={() => setActiveTab('suppliers')}
+            className={`
+              px-4 py-2 font-medium rounded-t-lg transition-all
+              ${
+                activeTab === 'suppliers'
+                  ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+              }
+            `}
+          >
+            Поставщики
+          </button>
         </div>
 
         <div className="mt-6">
@@ -210,6 +252,13 @@ export default function Categories() {
               categories={productCategories}
               onUpdate={handleUpdateProductCategory}
               onDelete={handleDeleteProductCategory}
+            />
+          )}
+          {activeTab === 'suppliers' && (
+            <CategoryTab
+              categories={supplierCategories}
+              onUpdate={handleUpdateSupplierCategory}
+              onDelete={handleDeleteSupplierCategory}
             />
           )}
         </div>

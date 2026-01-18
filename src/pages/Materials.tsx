@@ -14,6 +14,7 @@ import {
   createMaterialCategory,
   MaterialCategory,
 } from '../services/materialCategoryService';
+import { getSuppliers, Supplier } from '../services/supplierService';
 import { Button, FilterPanel, Select, DatePicker, ConfirmDialog, PageHeader } from '../components/ui';
 import MaterialCard from '../components/materials/MaterialCard';
 import CreateCategoryModal from '../components/materials/CreateCategoryModal';
@@ -24,6 +25,7 @@ export default function Materials() {
   const { user } = useAuth();
   const [materials, setMaterials] = useState<Material[]>([]);
   const [categories, setCategories] = useState<MaterialCategory[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,16 +52,18 @@ export default function Materials() {
     setLoading(true);
     setError(null);
 
-    const [materialsResult, categoriesResult] = await Promise.all([
+    const [materialsResult, categoriesResult, suppliersResult] = await Promise.all([
       getMaterials(user.id),
       getMaterialCategories(user.id),
+      getSuppliers(user.id),
     ]);
 
-    if (materialsResult.error || categoriesResult.error) {
+    if (materialsResult.error || categoriesResult.error || suppliersResult.error) {
       setError('Не удалось загрузить данные');
     } else {
       setMaterials(materialsResult.data || []);
       setCategories(categoriesResult.data || []);
+      setSuppliers(suppliersResult.data || []);
     }
 
     setLoading(false);
@@ -301,6 +305,7 @@ export default function Materials() {
         onClose={() => setIsCreateModalOpen(false)}
         onSubmit={handleCreateMaterial}
         categories={categories}
+        suppliers={suppliers}
         loading={actionLoading}
       />
 
@@ -312,6 +317,7 @@ export default function Materials() {
         }}
         onSubmit={handleEditMaterial}
         categories={categories}
+        suppliers={suppliers}
         material={selectedMaterial}
         loading={actionLoading}
       />
