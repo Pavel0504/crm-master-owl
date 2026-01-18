@@ -20,7 +20,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useState } from 'react';
 
 const navItems = [
-  { path: '/dashboard', icon: LayoutDashboard, label: 'Дашборд' },
+  { path: '/dashboard', icon: LayoutDashboard, label: 'Аналитика' },
   { path: '/shop', icon: Store, label: 'Магазин' },
   { path: '/categories', icon: FolderTree, label: 'Категории' },
   { path: '/suppliers', icon: Truck, label: 'Поставщики' },
