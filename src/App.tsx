@@ -4,6 +4,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/MainLayout';
 import OfflineIndicator from './components/OfflineIndicator';
+import NotificationManager from './components/NotificationManager';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -22,6 +23,7 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <OfflineIndicator />
+          <NotificationManager />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
