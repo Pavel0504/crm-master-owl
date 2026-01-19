@@ -7,6 +7,7 @@ export interface Supplier {
   category_id: string | null;
   delivery_method: string;
   delivery_price: number;
+  notes: string;
   created_at: string;
   updated_at: string;
 }
@@ -16,6 +17,7 @@ export interface SupplierInput {
   category_id?: string | null;
   delivery_method?: string;
   delivery_price?: number;
+  notes?: string;
 }
 
 export async function getSuppliers(userId: string) {

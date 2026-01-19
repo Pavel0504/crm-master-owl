@@ -23,6 +23,7 @@ export default function CreateSupplierModal({
     category_id: null,
     delivery_method: '',
     delivery_price: 0,
+    notes: '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,6 +38,7 @@ export default function CreateSupplierModal({
       category_id: null,
       delivery_method: '',
       delivery_price: 0,
+      notes: '',
     });
     onClose();
   };
@@ -93,6 +95,19 @@ export default function CreateSupplierModal({
           }
           required
         />
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Заметки о поставщике
+          </label>
+          <textarea
+            value={formData.notes}
+            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+            placeholder="Любая дополнительная информация о поставщике..."
+            rows={4}
+            className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-2.5 focus:ring-2 focus:ring-orange-500 dark:focus:ring-burgundy-600 focus:border-transparent transition-all placeholder-gray-400 dark:placeholder-gray-500"
+          />
+        </div>
 
         <div className="flex gap-3 pt-4">
           <Button

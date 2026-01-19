@@ -80,6 +80,17 @@ export default function SupplierCard({
           value={new Date(supplier.created_at).toLocaleDateString('ru-RU')}
         />
       </div>
+
+      {supplier.notes && (
+        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Заметки о поставщике
+          </p>
+          <p className="text-gray-900 dark:text-white whitespace-pre-wrap">
+            {supplier.notes}
+          </p>
+        </div>
+      )}
     </ExpandableCard>
   );
 }

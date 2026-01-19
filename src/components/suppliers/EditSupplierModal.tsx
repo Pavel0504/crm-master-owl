@@ -25,6 +25,7 @@ export default function EditSupplierModal({
     category_id: null,
     delivery_method: '',
     delivery_price: 0,
+    notes: '',
   });
 
   useEffect(() => {
@@ -34,6 +35,7 @@ export default function EditSupplierModal({
         category_id: supplier.category_id,
         delivery_method: supplier.delivery_method,
         delivery_price: supplier.delivery_price,
+        notes: supplier.notes,
       });
     }
   }, [supplier]);
@@ -105,6 +107,19 @@ export default function EditSupplierModal({
           }
           required
         />
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Заметки о поставщике
+          </label>
+          <textarea
+            value={formData.notes}
+            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+            placeholder="Любая дополнительная информация о поставщике..."
+            rows={4}
+            className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-2.5 focus:ring-2 focus:ring-orange-500 dark:focus:ring-burgundy-600 focus:border-transparent transition-all placeholder-gray-400 dark:placeholder-gray-500"
+          />
+        </div>
 
         <div className="flex gap-3 pt-4">
           <Button
