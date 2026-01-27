@@ -9,7 +9,7 @@ import {
   PurchasePlan,
   PurchasePlanInput,
 } from '../services/purchaseService';
-import { Button, PageHeader, ConfirmDialog } from '../ui';
+import { Button, PageHeader, ConfirmDialog } from '../supabase';
 import PurchaseCard from '../components/purchases/PurchaseCard';
 import CreatePurchaseModal from '../components/purchases/CreatePurchaseModal';
 import EditPurchaseModal from '../components/purchases/EditPurchaseModal';
