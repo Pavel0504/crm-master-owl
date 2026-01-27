@@ -1,4 +1,4 @@
-import { Bolt Database } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export interface PurchasePlan {
   id: string;
@@ -23,7 +23,7 @@ export interface PurchasePlanInput {
 }
 
 export async function getPurchasePlans(userId: string) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('purchase_plans')
     .select('*')
     .eq('user_id', userId)
@@ -38,7 +38,7 @@ export async function getPurchasePlans(userId: string) {
 }
 
 export async function getPurchasePlanById(planId: string) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('purchase_plans')
     .select('*')
     .eq('id', planId)
@@ -53,7 +53,7 @@ export async function getPurchasePlanById(planId: string) {
 }
 
 export async function createPurchasePlan(userId: string, planData: PurchasePlanInput) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('purchase_plans')
     .insert({
       user_id: userId,
@@ -71,7 +71,7 @@ export async function createPurchasePlan(userId: string, planData: PurchasePlanI
 }
 
 export async function updatePurchasePlan(planId: string, planData: PurchasePlanInput) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('purchase_plans')
     .update(planData)
     .eq('id', planId)
@@ -87,7 +87,7 @@ export async function updatePurchasePlan(planId: string, planData: PurchasePlanI
 }
 
 export async function deletePurchasePlan(planId: string) {
-  const { error } = await Bolt Database
+  const { error } = await supabase
     .from('purchase_plans')
     .delete()
     .eq('id', planId);
@@ -101,7 +101,7 @@ export async function deletePurchasePlan(planId: string) {
 }
 
 export async function checkAndCreatePurchasesForLowStock(userId: string) {
-  const { data: materials, error: materialsError } = await Bolt Database
+  const { data: materials, error: materialsError } = await supabase
     .from('materials')
     .select('id, name, initial_volume, remaining_volume, purchase_price, unit_of_measurement')
     .eq('user_id', userId);
@@ -111,7 +111,7 @@ export async function checkAndCreatePurchasesForLowStock(userId: string) {
     return { created: 0, error: materialsError };
   }
 
-  const { data: existingPurchases } = await Bolt Database
+  const { data: existingPurchases } = await supabase
     .from('purchase_plans')
     .select('material_id')
     .eq('user_id', userId)

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Bolt Database } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export interface NotificationPermissionState {
   permission: NotificationPermission;
@@ -52,7 +52,7 @@ export function useNotifications(userId: string | undefined) {
   const checkMaterialsLowStock = async () => {
     if (!userId || Notification.permission !== 'granted') return;
 
-    const { data: materials } = await Bolt Database
+    const { data: materials } = await supabase
       .from('materials')
       .select('id, name, initial_volume, remaining_volume, archived')
       .eq('user_id', userId)
@@ -121,7 +121,7 @@ export function useNotifications(userId: string | undefined) {
     const todayStr = moscowToday.toISOString().split('T')[0];
     const twoDaysLaterStr = twoDaysLater.toISOString().split('T')[0];
 
-    const { data: orders } = await Bolt Database
+    const { data: orders } = await supabase
       .from('orders')
       .select('id, order_number, deadline, status')
       .eq('user_id', userId)
@@ -171,7 +171,7 @@ export function useNotifications(userId: string | undefined) {
     const todayStr = moscowToday.toISOString().split('T')[0];
     const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
-    const { data: tasks } = await Bolt Database
+    const { data: tasks } = await supabase
       .from('tasks')
       .select('id, title, end_date, completed')
       .eq('user_id', userId)
