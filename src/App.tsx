@@ -16,6 +16,8 @@ import Clients from './pages/Clients';
 import Orders from './pages/Orders';
 import Categories from './pages/Categories';
 import Suppliers from './pages/Suppliers';
+import Planner from './pages/Planner';
+import Purchases from './pages/Purchases';
 
 function App() {
   return (
@@ -113,6 +115,26 @@ function App() {
                 <ProtectedRoute>
                   <MainLayout>
                     <Suppliers />
+                  </MainLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/planner"
+              element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Planner />
+                  </MainLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/purchases"
+              element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Purchases />
                   </MainLayout>
                 </ProtectedRoute>
               }

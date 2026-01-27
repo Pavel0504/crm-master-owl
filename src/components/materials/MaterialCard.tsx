@@ -24,6 +24,10 @@ export default function MaterialCard({
 
   const remainingValue = (material.remaining_volume / material.initial_volume) * material.purchase_price;
 
+  const pricePerUnit = material.initial_volume > 0
+    ? material.purchase_price / material.initial_volume
+    : 0;
+
   const title = (
     <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-1">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -72,6 +76,12 @@ export default function MaterialCard({
           value={`${material.purchase_price.toFixed(2)} руб.`}
         />
         <DetailItem
+          label="Цена за единицу"
+          value={`${pricePerUnit.toFixed(2)} руб./${material.unit_of_measurement}`}
+          highlight
+          secondary
+        />
+        <DetailItem
           label="Начальный объем"
           value={`${material.initial_volume} ${material.unit_of_measurement}`}
         />
@@ -97,16 +107,19 @@ interface DetailItemProps {
   label: string;
   value: string;
   highlight?: boolean;
+  secondary?: boolean;
 }
 
-function DetailItem({ label, value, highlight }: DetailItemProps) {
+function DetailItem({ label, value, highlight, secondary }: DetailItemProps) {
   return (
     <div>
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{label}</p>
       <p
         className={`font-medium ${
           highlight
-            ? 'text-orange-600 dark:text-orange-400 text-lg'
+            ? secondary
+              ? 'text-blue-600 dark:text-blue-400 text-base'
+              : 'text-orange-600 dark:text-orange-400 text-lg'
             : 'text-gray-900 dark:text-white'
         }`}
       >

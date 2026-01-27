@@ -13,14 +13,18 @@ import {
   Moon,
   Menu,
   X,
-  LogOut
+  LogOut,
+  Calendar,
+  ListTodo
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useState } from 'react';
 
 const navItems = [
-  { path: '/dashboard', icon: LayoutDashboard, label: 'Аналитика' },
+  { path: '/dashboard', icon: LayoutDashboard, label: 'Дашборд' },
+  { path: '/planner', icon: Calendar, label: 'Планировщик' },
+  { path: '/purchases', icon: ListTodo, label: 'Будущие покупки' },
   { path: '/shop', icon: Store, label: 'Магазин' },
   { path: '/categories', icon: FolderTree, label: 'Категории' },
   { path: '/suppliers', icon: Truck, label: 'Поставщики' },

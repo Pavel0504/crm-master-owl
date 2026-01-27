@@ -15,6 +15,7 @@ import {
   MaterialCategory,
 } from '../services/materialCategoryService';
 import { getSuppliers, Supplier } from '../services/supplierService';
+import { checkAndCreatePurchasesForLowStock } from '../services/purchaseService';
 import { Button, FilterPanel, Select, DatePicker, ConfirmDialog, PageHeader } from '../components/ui';
 import MaterialCard from '../components/materials/MaterialCard';
 import CreateCategoryModal from '../components/materials/CreateCategoryModal';
@@ -64,6 +65,8 @@ export default function Materials() {
       setMaterials(materialsResult.data || []);
       setCategories(categoriesResult.data || []);
       setSuppliers(suppliersResult.data || []);
+
+      await checkAndCreatePurchasesForLowStock(user.id);
     }
 
     setLoading(false);

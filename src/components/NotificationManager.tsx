@@ -32,6 +32,18 @@ export default function NotificationManager() {
     }
   }, [user, permissionState.permission]);
 
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data.type === 'GET_SUPABASE_URL') {
+          event.ports[0].postMessage(import.meta.env.VITE_SUPABASE_URL);
+        } else if (event.data.type === 'GET_SUPABASE_ANON_KEY') {
+          event.ports[0].postMessage(import.meta.env.VITE_SUPABASE_ANON_KEY);
+        }
+      });
+    }
+  }, []);
+
   const handleEnableNotifications = async () => {
     const granted = await requestPermission();
     if (granted) {
@@ -45,7 +57,7 @@ export default function NotificationManager() {
     const result = await checkAllNotifications();
     setChecking(false);
 
-    if (result.materials === 0 && result.orders === 0) {
+    if (result.materials === 0 && result.orders === 0 && result.tasks === 0) {
       new Notification('Все в порядке!', {
         body: 'Нет срочных уведомлений',
         icon: '/icons/icon-192x192.svg',
@@ -78,7 +90,7 @@ export default function NotificationManager() {
               Включить уведомления?
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-              Получайте уведомления о низких остатках материалов и истекающих сроках заказов
+              Получайте уведомления о низких остатках материалов, истекающих сроках заказов и задач
             </p>
 
             <div className="flex gap-2">

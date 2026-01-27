@@ -1,4 +1,5 @@
-import { supabase } from '../lib/supabase';
+import { Bolt Database } from '../lib/supabase';
+import { checkAndCreatePurchasesForLowStock } from './purchaseService';
 
 export interface Product {
   id: string;
@@ -40,7 +41,7 @@ export interface ProductWithMaterials extends Product {
 }
 
 export async function getProducts(userId: string) {
-  const { data, error } = await supabase
+  const { data, error } = await Bolt Database
     .from('products')
     .select('*')
     .eq('user_id', userId)
@@ -55,7 +56,7 @@ export async function getProducts(userId: string) {
 }
 
 export async function getProductMaterials(productId: string) {
-  const { data, error } = await supabase
+  const { data, error } = await Bolt Database
     .from('product_materials')
     .select('material_id, volume_per_item')
     .eq('product_id', productId);
@@ -69,7 +70,7 @@ export async function getProductMaterials(productId: string) {
 }
 
 export async function getProductWithMaterials(productId: string) {
-  const { data: product, error: productError } = await supabase
+  const { data: product, error: productError } = await Bolt Database
     .from('products')
     .select('*')
     .eq('id', productId)
@@ -105,7 +106,7 @@ export async function calculateProductCost(
   let totalCost = 0;
 
   for (const material of materials) {
-    const { data: materialData, error } = await supabase
+    const { data: materialData, error } = await Bolt Database
       .from('materials')
       .select('purchase_price, initial_volume')
       .eq('id', material.material_id)
@@ -122,7 +123,7 @@ export async function calculateProductCost(
   }
 
   if (categoryId) {
-    const { data: category, error: catError } = await supabase
+    const { data: category, error: catError } = await Bolt Database
       .from('product_categories')
       .select('energy_costs_electricity, energy_costs_water')
       .eq('id', categoryId)
@@ -133,14 +134,14 @@ export async function calculateProductCost(
       totalCost += energyCosts;
     }
 
-    const { data: inventoryLinks, error: linkError } = await supabase
+    const { data: inventoryLinks, error: linkError } = await Bolt Database
       .from('product_category_inventory')
       .select('inventory_id')
       .eq('category_id', categoryId);
 
     if (!linkError && inventoryLinks) {
       for (const link of inventoryLinks) {
-        const { data: inventory, error: invError } = await supabase
+        const { data: inventory, error: invError } = await Bolt Database
           .from('inventory')
           .select('purchase_price, wear_rate_per_item')
           .eq('id', link.inventory_id)
@@ -177,7 +178,7 @@ export async function createProduct(userId: string, productData: ProductInput) {
   for (const material of productData.materials) {
     const totalVolumeNeeded = material.volume_per_item * productData.quantity_created;
 
-    const { data: materialData, error: materialError } = await supabase
+    const { data: materialData, error: materialError } = await Bolt Database
       .from('materials')
       .select('remaining_volume')
       .eq('id', material.material_id)
@@ -199,14 +200,14 @@ export async function createProduct(userId: string, productData: ProductInput) {
   }
 
   if (productData.category_id) {
-    const { data: inventoryLinks, error: linkError } = await supabase
+    const { data: inventoryLinks, error: linkError } = await Bolt Database
       .from('product_category_inventory')
       .select('inventory_id')
       .eq('category_id', productData.category_id);
 
     if (!linkError && inventoryLinks) {
       for (const link of inventoryLinks) {
-        const { data: inventory, error: invError } = await supabase
+        const { data: inventory, error: invError } = await Bolt Database
           .from('inventory')
           .select('wear_percentage, wear_rate_per_item')
           .eq('id', link.inventory_id)
@@ -231,7 +232,7 @@ export async function createProduct(userId: string, productData: ProductInput) {
     }
   }
 
-  const { data: product, error: productError } = await supabase
+  const { data: product, error: productError } = await Bolt Database
     .from('products')
     .insert({
       user_id: userId,
@@ -254,7 +255,7 @@ export async function createProduct(userId: string, productData: ProductInput) {
   }
 
   for (const material of productData.materials) {
-    const { error: linkError } = await supabase
+    const { error: linkError } = await Bolt Database
       .from('product_materials')
       .insert({
         product_id: product.id,
@@ -275,7 +276,7 @@ export async function createProduct(userId: string, productData: ProductInput) {
     });
 
     if (updateError) {
-      const { error: manualUpdateError } = await supabase
+      const { error: manualUpdateError } = await Bolt Database
         .from('materials')
         .update({
           remaining_volume: supabase.raw(`remaining_volume - ${totalVolumeNeeded}`),
@@ -289,14 +290,14 @@ export async function createProduct(userId: string, productData: ProductInput) {
   }
 
   if (productData.category_id) {
-    const { data: inventoryLinks } = await supabase
+    const { data: inventoryLinks } = await Bolt Database
       .from('product_category_inventory')
       .select('inventory_id')
       .eq('category_id', productData.category_id);
 
     if (inventoryLinks) {
       for (const link of inventoryLinks) {
-        const { data: inventory } = await supabase
+        const { data: inventory } = await Bolt Database
           .from('inventory')
           .select('wear_rate_per_item')
           .eq('id', link.inventory_id)
@@ -305,7 +306,7 @@ export async function createProduct(userId: string, productData: ProductInput) {
         if (inventory) {
           const totalWearNeeded = inventory.wear_rate_per_item * productData.quantity_created;
 
-          await supabase
+          await Bolt Database
             .from('inventory')
             .update({
               wear_percentage: supabase.raw(`wear_percentage - ${totalWearNeeded}`),
@@ -315,6 +316,8 @@ export async function createProduct(userId: string, productData: ProductInput) {
       }
     }
   }
+
+  await checkAndCreatePurchasesForLowStock(userId);
 
   return { data: product, error: null };
 }
@@ -329,7 +332,7 @@ export async function updateProduct(productId: string, productData: Partial<Prod
   if (productData.labor_hours_per_item !== undefined) updates.labor_hours_per_item = productData.labor_hours_per_item;
   if (productData.selling_price !== undefined) updates.selling_price = productData.selling_price;
 
-  const { data, error } = await supabase
+  const { data, error } = await Bolt Database
     .from('products')
     .update(updates)
     .eq('id', productId)
@@ -345,7 +348,7 @@ export async function updateProduct(productId: string, productData: Partial<Prod
 }
 
 export async function deleteProduct(productId: string) {
-  const { error } = await supabase
+  const { error } = await Bolt Database
     .from('products')
     .delete()
     .eq('id', productId);
