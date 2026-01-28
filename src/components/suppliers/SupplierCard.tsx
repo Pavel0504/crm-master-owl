@@ -1,4 +1,4 @@
-import { Edit2, Trash2, Truck, russianRuble } from 'lucide-react';
+import { Edit2, Trash2, Truck, RussianRuble } from 'lucide-react';
 import { Supplier } from '../../services/supplierService';
 import { SupplierCategory } from '../../services/supplierCategoryService';
 import { ExpandableCard, IconButton } from '../ui';
@@ -35,7 +35,7 @@ export default function SupplierCard({
             <span className="text-sm">{supplier.delivery_method || 'Не указан'}</span>
           </div>
           <div className="flex items-center gap-2">
-            <russianRuble className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+            <RussianRuble className="h-4 w-4 text-orange-600 dark:text-orange-400" />
             <span className="text-base sm:text-lg font-bold text-orange-600 dark:text-orange-400">
               {supplier.delivery_price.toFixed(2)} ₽
             </span>
