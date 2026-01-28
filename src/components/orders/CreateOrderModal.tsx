@@ -237,8 +237,9 @@ export default function CreateOrderModal({
                   </div>
                   <div className="w-24">
                     <Input
-                      type="number"
-                      min="1"
+  type="text"
+  inputMode="numeric"
+  pattern="[0-9]*"
                       value={item.quantity}
                       onChange={(e) =>
                         updateItem(index, 'quantity', parseInt(e.target.value) || 1)
@@ -334,9 +335,9 @@ export default function CreateOrderModal({
 
                 <Input
                   label="Значение скидки"
-                  type="number"
-                  step="0.01"
-                  min="0"
+  type="text"
+  inputMode="decimal"
+  pattern="[0-9]*[.,]?[0-9]*"
                   value={discountValue}
                   onChange={(e) => setDiscountValue(parseFloat(e.target.value) || 0)}
                   placeholder={discountType === 'процент' ? '0-100' : '0'}

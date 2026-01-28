@@ -103,9 +103,9 @@ export default function CreateProductCategoryModal({
         <div className="grid grid-cols-2 gap-4">
           <Input
             label="Затраты на электричество (руб.)"
-            type="number"
-            step="0.01"
-            min="0"
+  type="text"
+  inputMode="decimal"
+  pattern="[0-9]*[.,]?[0-9]*"
             value={electricity}
             onChange={(e) => setElectricity(parseFloat(e.target.value) || 0)}
             helperText="За единицу изделия"
@@ -113,9 +113,9 @@ export default function CreateProductCategoryModal({
 
           <Input
             label="Затраты на воду (руб.)"
-            type="number"
-            step="0.01"
-            min="0"
+  type="text"
+  inputMode="decimal"
+  pattern="[0-9]*[.,]?[0-9]*"
             value={water}
             onChange={(e) => setWater(parseFloat(e.target.value) || 0)}
             helperText="За единицу изделия"

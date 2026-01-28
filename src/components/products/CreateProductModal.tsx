@@ -170,8 +170,9 @@ export default function CreateProductModal({
 
           <Input
             label="Количество создаваемых изделий"
-            type="number"
-            min="1"
+  type="text"
+  inputMode="numeric"
+  pattern="[0-9]*"
             value={quantity}
             onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
             required
@@ -179,9 +180,9 @@ export default function CreateProductModal({
 
           <Input
             label="Трудочасов на единицу"
-            type="number"
-            step="0.1"
-            min="0"
+  type="text"
+  inputMode="decimal"
+  pattern="[0-9]*[.,]?[0-9]*"
             value={laborHours}
             onChange={(e) => setLaborHours(parseFloat(e.target.value) || 0)}
           />
@@ -211,9 +212,9 @@ export default function CreateProductModal({
                 </div>
                 <div className="w-24">
                   <Input
-                    type="number"
-                    step="0.001"
-                    min="0"
+  type="text"
+  inputMode="decimal"
+  pattern="[0-9]*[.,]?[0-9]*"
                     value={material.volume_per_item}
                     onChange={(e) =>
                       updateMaterial(index, 'volume_per_item', parseFloat(e.target.value) || 0)
@@ -250,9 +251,9 @@ export default function CreateProductModal({
         <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
           <Input
             label="Цена продажи (руб.)"
-            type="number"
-            step="0.01"
-            min="0"
+  type="text"
+  inputMode="decimal"
+  pattern="[0-9]*[.,]?[0-9]*"
             value={sellingPrice}
             onChange={(e) => setSellingPrice(parseFloat(e.target.value) || 0)}
             required

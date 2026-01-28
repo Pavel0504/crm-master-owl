@@ -54,9 +54,9 @@ export default function CreatePurchaseModal({
         <div className="grid grid-cols-2 gap-4">
           <Input
             label="Количество"
-            type="number"
-            step="0.001"
-            min="0"
+  type="text"
+  inputMode="decimal"
+  pattern="[0-9]*[.,]?[0-9]*"
             value={formData.quantity}
             onChange={(e) =>
               setFormData({
@@ -69,9 +69,9 @@ export default function CreatePurchaseModal({
 
           <Input
             label="Сумма (руб.)"
-            type="number"
-            step="0.01"
-            min="0"
+  type="text"
+  inputMode="decimal"
+  pattern="[0-9]*[.,]?[0-9]*"
             value={formData.amount}
             onChange={(e) =>
               setFormData({

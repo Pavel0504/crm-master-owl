@@ -84,9 +84,9 @@ export default function CreateInventoryModal({
 
           <Input
             label="Цена покупки (руб.)"
-            type="number"
-            step="0.01"
-            min="0"
+  type="text"
+  inputMode="decimal"
+  pattern="[0-9]*[.,]?[0-9]*"
             value={formData.purchase_price}
             onChange={(e) =>
               setFormData({
@@ -99,9 +99,9 @@ export default function CreateInventoryModal({
 
           <Input
             label="Износ на единицу изделия (%)"
-            type="number"
-            step="0.01"
-            min="0"
+  type="text"
+  inputMode="decimal"
+  pattern="[0-9]*[.,]?[0-9]*"
             max="100"
             value={formData.wear_rate_per_item}
             onChange={(e) =>

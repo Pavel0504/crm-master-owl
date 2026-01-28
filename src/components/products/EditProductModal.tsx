@@ -121,18 +121,18 @@ export default function EditProductModal({
 
           <Input
             label="Трудочасов на единицу"
-            type="number"
-            step="0.1"
-            min="0"
+  type="text"
+  inputMode="decimal"
+  pattern="[0-9]*[.,]?[0-9]*"
             value={laborHours}
             onChange={(e) => setLaborHours(parseFloat(e.target.value) || 0)}
           />
 
           <Input
             label="Цена продажи (руб.)"
-            type="number"
-            step="0.01"
-            min="0"
+  type="text"
+  inputMode="decimal"
+  pattern="[0-9]*[.,]?[0-9]*"
             value={sellingPrice}
             onChange={(e) => setSellingPrice(parseFloat(e.target.value) || 0)}
             required

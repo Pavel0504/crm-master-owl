@@ -91,9 +91,9 @@ export default function EditInventoryModal({
 
           <Input
             label="Цена покупки (руб.)"
-            type="number"
-            step="0.01"
-            min="0"
+  type="text"
+  inputMode="decimal"
+  pattern="[0-9]*[.,]?[0-9]*"
             value={formData.purchase_price}
             onChange={(e) =>
               setFormData({
@@ -106,10 +106,9 @@ export default function EditInventoryModal({
 
           <Input
             label="Текущий процент износа (%)"
-            type="number"
-            step="0.01"
-            min="0"
-            max="100"
+  type="text"
+  inputMode="decimal"
+  pattern="[0-9]*[.,]?[0-9]*"
             value={formData.wear_percentage}
             onChange={(e) =>
               setFormData({
@@ -123,10 +122,9 @@ export default function EditInventoryModal({
 
           <Input
             label="Износ на единицу изделия (%)"
-            type="number"
-            step="0.01"
-            min="0"
-            max="100"
+  type="text"
+  inputMode="decimal"
+  pattern="[0-9]*[.,]?[0-9]*"
             value={formData.wear_rate_per_item}
             onChange={(e) =>
               setFormData({

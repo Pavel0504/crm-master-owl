@@ -131,9 +131,9 @@ export default function EditMaterialModal({
 
           <Input
             label="Цена закупки (руб.)"
-            type="number"
-            step="0.01"
-            min="0"
+  type="text"
+  inputMode="decimal"
+  pattern="[0-9]*[.,]?[0-9]*"
             value={formData.purchase_price}
             onChange={(e) =>
               setFormData({
@@ -146,9 +146,9 @@ export default function EditMaterialModal({
 
           <Input
             label="Начальный объем"
-            type="number"
-            step="0.001"
-            min="0"
+  type="text"
+  inputMode="decimal"
+  pattern="[0-9]*[.,]?[0-9]*"
             value={formData.initial_volume}
             onChange={(e) =>
               setFormData({
@@ -161,9 +161,9 @@ export default function EditMaterialModal({
 
           <Input
             label="Оставшийся объем"
-            type="number"
-            step="0.001"
-            min="0"
+  type="text"
+  inputMode="decimal"
+  pattern="[0-9]*[.,]?[0-9]*"
             value={formData.remaining_volume}
             onChange={(e) =>
               setFormData({

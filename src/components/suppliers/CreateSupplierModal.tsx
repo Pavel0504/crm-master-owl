@@ -83,9 +83,9 @@ export default function CreateSupplierModal({
 
         <Input
           label="Цена доставки (руб.)"
-          type="number"
-          step="0.01"
-          min="0"
+  type="text"
+  inputMode="decimal"
+  pattern="[0-9]*[.,]?[0-9]*"
           value={formData.delivery_price}
           onChange={(e) =>
             setFormData({
