@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+import { Bolt Database } from '../lib/supabase';
 
 export interface Inventory {
   id: string;
@@ -6,8 +6,11 @@ export interface Inventory {
   name: string;
   category_id: string | null;
   purchase_price: number;
-  wear_percentage: number;
-  wear_rate_per_item: number;
+  inventory_type: 'процент' | 'количество';
+  wear_percentage: number | null;
+  wear_rate_per_item: number | null;
+  quantity: number | null;
+  remaining_quantity: number | null;
   purchase_date: string;
   created_at: string;
   updated_at: string;
@@ -17,13 +20,16 @@ export interface InventoryInput {
   name: string;
   category_id?: string | null;
   purchase_price?: number;
-  wear_percentage?: number;
-  wear_rate_per_item?: number;
+  inventory_type?: 'процент' | 'количество';
+  wear_percentage?: number | null;
+  wear_rate_per_item?: number | null;
+  quantity?: number | null;
+  remaining_quantity?: number | null;
   purchase_date?: string;
 }
 
 export async function getInventory(userId: string) {
-  const { data, error } = await supabase
+  const { data, error } = await Bolt Database
     .from('inventory')
     .select('*')
     .eq('user_id', userId)
@@ -38,7 +44,7 @@ export async function getInventory(userId: string) {
 }
 
 export async function createInventory(userId: string, inventoryData: InventoryInput) {
-  const { data, error } = await supabase
+  const { data, error } = await Bolt Database
     .from('inventory')
     .insert({
       user_id: userId,
@@ -56,7 +62,7 @@ export async function createInventory(userId: string, inventoryData: InventoryIn
 }
 
 export async function updateInventory(inventoryId: string, inventoryData: InventoryInput) {
-  const { data, error } = await supabase
+  const { data, error } = await Bolt Database
     .from('inventory')
     .update(inventoryData)
     .eq('id', inventoryId)
@@ -72,7 +78,7 @@ export async function updateInventory(inventoryId: string, inventoryData: Invent
 }
 
 export async function deleteInventory(inventoryId: string) {
-  const { error } = await supabase
+  const { error } = await Bolt Database
     .from('inventory')
     .delete()
     .eq('id', inventoryId);

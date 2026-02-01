@@ -18,6 +18,7 @@ import {
   TaskInput,
   TaskWithChecklist,
 } from '../services/taskService';
+import { toMoscowDateString } from '../utils/moscowTime';
 
 export default function Planner() {
   const { user } = useAuth();
@@ -49,7 +50,6 @@ export default function Planner() {
     const { data: tasks } = await getTasks(user.id);
 
     if (tasks) {
-      // Загружаем детали для каждой задачи
       const tasksWithDetails: TaskWithChecklist[] = [];
       for (const task of tasks) {
         const { data: taskWithChecklist } = await getTaskWithChecklist(task.id);
@@ -59,15 +59,14 @@ export default function Planner() {
       }
       setAllTasks(tasksWithDetails);
 
-      // Подсчитываем количество задач по датам
       const counts: Record<string, number> = {};
       tasks.forEach((task) => {
-        const startDate = new Date(task.start_date);
-        const endDate = new Date(task.end_date);
+        const startDate = new Date(task.start_date + 'T00:00:00');
+        const endDate = new Date(task.end_date + 'T00:00:00');
 
         const current = new Date(startDate);
         while (current <= endDate) {
-          const dateKey = current.toISOString().split('T')[0];
+          const dateKey = toMoscowDateString(current);
           counts[dateKey] = (counts[dateKey] || 0) + 1;
           current.setDate(current.getDate() + 1);
         }
@@ -86,7 +85,7 @@ export default function Planner() {
     setLoading(true);
     setError(null);
 
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = toMoscowDateString(date);
 
     const { data: tasks, error: tasksError } = await getTasksByDateRange(
       user.id,

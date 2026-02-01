@@ -122,7 +122,7 @@ export default function Clients() {
 
   const uniqueTags = Array.from(
     new Set(clients.filter((c) => c.tag_name).map((c) => c.tag_name))
-  );
+  ).sort((a, b) => a.localeCompare(b, 'ru'));
 
   const filteredClients = clients.filter((client) => {
     const stats = clientsStats[client.id] || { orders_count: 0, total_orders_sum: 0 };
@@ -148,6 +148,10 @@ export default function Clients() {
     }
 
     return true;
+  });
+
+  const sortedClients = [...filteredClients].sort((a, b) => {
+    return a.full_name.localeCompare(b.full_name, 'ru');
   });
 
   const resetFilters = () => {
@@ -270,7 +274,7 @@ export default function Clients() {
         </FilterPanel>
       </div>
 
-      {filteredClients.length === 0 ? (
+      {sortedClients.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-12 text-center">
           <Users className="h-16 w-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
@@ -294,7 +298,7 @@ export default function Clients() {
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredClients.map((client) => (
+          {sortedClients.map((client) => (
             <ClientCard
               key={client.id}
               client={client}

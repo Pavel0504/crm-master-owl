@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, Input, Select, Button } from '../ui';
+import { Modal, Input, Select, Button, CurrencyInput } from '../ui';
 import { SupplierCategory } from '../../services/supplierCategoryService';
 import { SupplierInput } from '../../services/supplierService';
 
@@ -81,17 +81,11 @@ export default function CreateSupplierModal({
           placeholder="Например: Курьер, Почта России"
         />
 
-        <Input
+        <CurrencyInput
           label="Цена доставки (руб.)"
-  type="text"
-  inputMode="decimal"
-  pattern="[0-9]*[.,]?[0-9]*"
           value={formData.delivery_price}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              delivery_price: parseFloat(e.target.value) || 0,
-            })
+          onChange={(value) =>
+            setFormData({ ...formData, delivery_price: value })
           }
           required
         />

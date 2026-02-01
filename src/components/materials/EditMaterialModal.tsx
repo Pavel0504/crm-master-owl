@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Modal, Input, Select, Button, DatePicker } from '../ui';
+import { Modal, Input, Select, Button, DatePicker, CurrencyInput } from '../ui';
 import { MaterialCategory } from '../../services/materialCategoryService';
 import { Material, MaterialInput } from '../../services/materialService';
 import { Supplier } from '../../services/supplierService';
+import { parseDecimal } from '../../utils/currency';
 
 interface EditMaterialModalProps {
   isOpen: boolean;
@@ -129,48 +130,42 @@ export default function EditMaterialModal({
             options={supplierOptions}
           />
 
-          <Input
+          <CurrencyInput
             label="Цена закупки (руб.)"
-  type="text"
-  inputMode="decimal"
-  pattern="[0-9]*[.,]?[0-9]*"
             value={formData.purchase_price}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                purchase_price: parseFloat(e.target.value) || 0,
-              })
+            onChange={(value) =>
+              setFormData({ ...formData, purchase_price: value })
             }
             required
           />
 
           <Input
             label="Начальный объем"
-  type="text"
-  inputMode="decimal"
-  pattern="[0-9]*[.,]?[0-9]*"
+            type="text"
+            inputMode="decimal"
             value={formData.initial_volume}
             onChange={(e) =>
               setFormData({
                 ...formData,
-                initial_volume: parseFloat(e.target.value) || 0,
+                initial_volume: parseDecimal(e.target.value),
               })
             }
+            helperText="До 3 знаков после запятой"
             required
           />
 
           <Input
             label="Оставшийся объем"
-  type="text"
-  inputMode="decimal"
-  pattern="[0-9]*[.,]?[0-9]*"
+            type="text"
+            inputMode="decimal"
             value={formData.remaining_volume}
             onChange={(e) =>
               setFormData({
                 ...formData,
-                remaining_volume: parseFloat(e.target.value) || 0,
+                remaining_volume: parseDecimal(e.target.value),
               })
             }
+            helperText="До 3 знаков после запятой"
             required
           />
 

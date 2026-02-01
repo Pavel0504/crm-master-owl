@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { roundToCents, multiplyCurrency, sumCurrency } from '../utils/currency';
 
 export interface Order {
   id: string;
@@ -56,6 +57,49 @@ export interface OrderWithItems extends Order {
   }>;
   client_name?: string;
 }
+
+export async function calculateOrderPrice(
+  items: OrderItemInput[],
+  bonusType: string,
+  discountType: string,
+  discountValue: number
+): Promise<{ totalPrice: number; error: Error | null }> {
+  let basePrice = 0;
+
+  for (const item of items) {
+    if (item.is_bonus) continue;
+
+    const { data: product, error } = await Bolt Database
+      .from('products')
+      .select('selling_price')
+      .eq('id', item.product_id)
+      .single();
+
+    if (error || !product) {
+      console.error('Error fetching product for price calculation:', error);
+      continue;
+    }
+
+    const itemTotal = multiplyCurrency(product.selling_price, item.quantity);
+    basePrice = sumCurrency(basePrice, itemTotal);
+  }
+
+  let finalPrice = basePrice;
+
+  if (bonusType === 'скидка' && discountValue > 0) {
+    if (discountType === 'процент') {
+      const discount = roundToCents(basePrice * discountValue / 100);
+      finalPrice = roundToCents(basePrice - discount);
+    } else if (discountType === 'сумма') {
+      finalPrice = roundToCents(basePrice - discountValue);
+    }
+  }
+
+  finalPrice = Math.max(0, roundToCents(finalPrice));
+
+  return { totalPrice: finalPrice, error: null };
+}
+
 
 export async function getOrders(userId: string) {
   const { data, error } = await supabase

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Modal, Input, Button, DatePicker, DynamicFieldArray } from '../ui';
 import { TaskInput } from '../../services/taskService';
+import { getMoscowDateString, toMoscowDateString } from '../../utils/moscowTime';
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -45,10 +46,10 @@ export default function CreateTaskModal({
 }: CreateTaskModalProps) {
   const [title, setTitle] = useState('');
   const [startDate, setStartDate] = useState(
-    initialDate?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0]
+    initialDate ? toMoscowDateString(initialDate) : getMoscowDateString()
   );
   const [endDate, setEndDate] = useState(
-    initialDate?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0]
+    initialDate ? toMoscowDateString(initialDate) : getMoscowDateString()
   );
   const [description, setDescription] = useState('');
   const [tag, setTag] = useState('');
@@ -82,8 +83,8 @@ export default function CreateTaskModal({
 
   const handleClose = () => {
     setTitle('');
-    setStartDate(new Date().toISOString().split('T')[0]);
-    setEndDate(new Date().toISOString().split('T')[0]);
+    setStartDate(getMoscowDateString());
+    setEndDate(getMoscowDateString());
     setDescription('');
     setTag('');
     setCustomTag('');

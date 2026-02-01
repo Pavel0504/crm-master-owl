@@ -143,7 +143,7 @@ export default function Suppliers() {
         .map((s) => s.delivery_method)
         .filter((method) => method && method.trim() !== '')
     )
-  );
+  ).sort((a, b) => a.localeCompare(b, 'ru'));
 
   const filteredSuppliers = suppliers.filter((supplier) => {
     if (filterCategory && supplier.category_id !== filterCategory) {
@@ -157,10 +157,18 @@ export default function Suppliers() {
     return true;
   });
 
+  // Сортировка по алфавиту
+  const sortedSuppliers = [...filteredSuppliers].sort((a, b) => {
+    return a.name.localeCompare(b.name, 'ru');
+  });
+
   const resetFilters = () => {
     setFilterCategory('');
     setFilterDeliveryMethod('');
   };
+
+  // Сортировка категорий для селекта
+  const sortedCategories = [...categories].sort((a, b) => a.name.localeCompare(b.name, 'ru'));
 
   if (loading) {
     return (
@@ -221,7 +229,7 @@ export default function Suppliers() {
               onChange={(e) => setFilterCategory(e.target.value)}
               options={[
                 { value: '', label: 'Все категории' },
-                ...categories.map((cat) => ({
+                ...sortedCategories.map((cat) => ({
                   value: cat.id,
                   label: cat.name,
                 })),
@@ -252,7 +260,7 @@ export default function Suppliers() {
         </FilterPanel>
       </div>
 
-      {filteredSuppliers.length === 0 ? (
+      {sortedSuppliers.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-12 text-center">
           <Truck className="h-16 w-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
@@ -276,7 +284,7 @@ export default function Suppliers() {
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredSuppliers.map((supplier) => (
+          {sortedSuppliers.map((supplier) => (
             <SupplierCard
               key={supplier.id}
               supplier={supplier}
@@ -292,7 +300,7 @@ export default function Suppliers() {
         isOpen={isCategoryModalOpen}
         onClose={() => setIsCategoryModalOpen(false)}
         onSubmit={handleCreateCategory}
-        categories={categories}
+        categories={sortedCategories}
         loading={actionLoading}
       />
 
@@ -300,7 +308,7 @@ export default function Suppliers() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSubmit={handleCreateSupplier}
-        categories={categories}
+        categories={sortedCategories}
         loading={actionLoading}
       />
 
@@ -311,7 +319,7 @@ export default function Suppliers() {
           setSelectedSupplier(null);
         }}
         onSubmit={handleEditSupplier}
-        categories={categories}
+        categories={sortedCategories}
         supplier={selectedSupplier}
         loading={actionLoading}
       />

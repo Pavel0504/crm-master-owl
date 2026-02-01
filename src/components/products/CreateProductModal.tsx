@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Modal, Input, Select, Button } from '../ui';
+import { Modal, Input, Select, Button, CurrencyInput, DatePicker } from '../ui';
 import { ProductCategory } from '../../services/productCategoryService';
 import { Material } from '../../services/materialService';
 import { Plus, Trash2 } from 'lucide-react';
+import { parseDecimal } from '../../utils/currency';
 
 interface MaterialEntry {
   material_id: string;
@@ -20,6 +21,7 @@ interface CreateProductModalProps {
     quantity_created: number;
     labor_hours_per_item?: number;
     selling_price?: number;
+    creation_date?: string;
     materials: MaterialEntry[];
   }) => Promise<void>;
   categories: ProductCategory[];
@@ -49,14 +51,15 @@ export default function CreateProductModal({
   const [quantity, setQuantity] = useState<number>(1);
   const [laborHours, setLaborHours] = useState<number>(0);
   const [sellingPrice, setSellingPrice] = useState<number>(0);
-  const [selectedMaterials, setSelectedMaterials] = useState<MaterialEntry[]>([
-    { material_id: '', volume_per_item: 0 },
-  ]);
+  const [creationDate, setCreationDate] = useState<string>(
+    new Date().toISOString().split('T')[0]
+  );
+  const [selectedMaterials, setSelectedMaterials] = useState<MaterialEntry[]>([]);
   const [calculatedCost, setCalculatedCost] = useState<number>(0);
   const [calculatedProfit, setCalculatedProfit] = useState<number>(0);
 
   useEffect(() => {
-    if (onCalculateCost && selectedMaterials.some((m) => m.material_id && m.volume_per_item > 0)) {
+    if (onCalculateCost) {
       const validMaterials = selectedMaterials.filter(
         (m) => m.material_id && m.volume_per_item > 0
       );
@@ -82,6 +85,7 @@ export default function CreateProductModal({
       quantity_created: quantity,
       labor_hours_per_item: laborHours,
       selling_price: sellingPrice,
+      creation_date: creationDate,
       materials: validMaterials,
     });
 
@@ -96,7 +100,8 @@ export default function CreateProductModal({
     setQuantity(1);
     setLaborHours(0);
     setSellingPrice(0);
-    setSelectedMaterials([{ material_id: '', volume_per_item: 0 }]);
+    setCreationDate(new Date().toISOString().split('T')[0]);
+    setSelectedMaterials([]);
     setCalculatedCost(0);
     setCalculatedProfit(0);
     onClose();
@@ -107,9 +112,7 @@ export default function CreateProductModal({
   };
 
   const removeMaterial = (index: number) => {
-    if (selectedMaterials.length > 1) {
-      setSelectedMaterials(selectedMaterials.filter((_, i) => i !== index));
-    }
+    setSelectedMaterials(selectedMaterials.filter((_, i) => i !== index));
   };
 
   const updateMaterial = (index: number, field: 'material_id' | 'volume_per_item', value: any) => {
@@ -170,60 +173,89 @@ export default function CreateProductModal({
 
           <Input
             label="Количество создаваемых изделий"
-  type="text"
-  inputMode="numeric"
-  pattern="[0-9]*"
+            type="text"
+            inputMode="decimal"
             value={quantity}
-            onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+            onChange={(e) => setQuantity(parseDecimal(e.target.value) || 1)}
+            helperText="До 3 знаков после запятой"
             required
           />
 
           <Input
             label="Трудочасов на единицу"
-  type="text"
-  inputMode="decimal"
-  pattern="[0-9]*[.,]?[0-9]*"
+            type="text"
+            inputMode="decimal"
             value={laborHours}
-            onChange={(e) => setLaborHours(parseFloat(e.target.value) || 0)}
+            onChange={(e) => setLaborHours(parseDecimal(e.target.value) || 0)}
+            helperText="До 3 знаков после запятой"
+          />
+
+          <DatePicker
+            label="Дата создания"
+            value={creationDate}
+            onChange={setCreationDate}
+            required
           />
         </div>
 
         <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            Затраченные материалы (на единицу изделия)
-          </label>
+          <div className="flex items-center justify-between mb-3">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Затраченные материалы (на единицу изделия)
+            </label>
+            {selectedMaterials.length === 0 && (
+              <span className="text-xs text-gray-500 dark:text-gray-400 italic">
+                Опционально
+              </span>
+            )}
+          </div>
 
-          <div className="space-y-3">
-            {selectedMaterials.map((material, index) => (
-              <div key={index} className="flex gap-3">
-                <div className="flex-1">
-                  <Select
-                    value={material.material_id}
-                    onChange={(e) => updateMaterial(index, 'material_id', e.target.value)}
-                    options={[
-                      { value: '', label: 'Выберите материал' },
-                      ...materials.map((mat) => ({
-                        value: mat.id,
-                        label: `${mat.name} (остаток: ${mat.remaining_volume} ${mat.unit_of_measurement})`,
-                      })),
-                    ]}
-                    required
-                  />
-                </div>
-                <div className="w-24">
-                  <Input
-  type="text"
-  inputMode="decimal"
-  pattern="[0-9]*[.,]?[0-9]*"
-                    value={material.volume_per_item}
-                    onChange={(e) =>
-                      updateMaterial(index, 'volume_per_item', parseFloat(e.target.value) || 0)
-                    }
-                    placeholder="Объем"
-                    required
-                  />
-                </div>
-                {selectedMaterials.length > 1 && (
+          {selectedMaterials.length === 0 ? (
+            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 text-center">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                Материалы не добавлены
+              </p>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={addMaterial}
+                className="flex items-center gap-2 mx-auto"
+              >
+                <Plus className="h-4 w-4" />
+                Добавить материал
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {selectedMaterials.map((material, index) => (
+                <div key={index} className="flex gap-3">
+                  <div className="flex-1">
+                    <Select
+                      value={material.material_id}
+                      onChange={(e) => updateMaterial(index, 'material_id', e.target.value)}
+                      options={[
+                        { value: '', label: 'Выберите материал' },
+                        ...materials.map((mat) => ({
+                          value: mat.id,
+                          label: `${mat.name} (остаток: ${mat.remaining_volume} ${mat.unit_of_measurement})`,
+                        })),
+                      ]}
+                      required
+                    />
+                  </div>
+                  <div className="w-32">
+                    <Input
+                      type="text"
+                      inputMode="decimal"
+                      value={material.volume_per_item}
+                      onChange={(e) =>
+                        updateMaterial(index, 'volume_per_item', parseDecimal(e.target.value) || 0)
+                      }
+                      placeholder="Объем"
+                      required
+                    />
+                  </div>
                   <button
                     type="button"
                     onClick={() => removeMaterial(index)}
@@ -231,36 +263,33 @@ export default function CreateProductModal({
                   >
                     <Trash2 className="h-5 w-5" />
                   </button>
-                )}
-              </div>
-            ))}
+                </div>
+              ))}
 
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={addMaterial}
-              className="flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              Добавить материал
-            </Button>
-          </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={addMaterial}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Добавить материал
+              </Button>
+            </div>
+          )}
         </div>
 
         <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-          <Input
+          <CurrencyInput
             label="Цена продажи (руб.)"
-  type="text"
-  inputMode="decimal"
-  pattern="[0-9]*[.,]?[0-9]*"
             value={sellingPrice}
-            onChange={(e) => setSellingPrice(parseFloat(e.target.value) || 0)}
+            onChange={(value) => setSellingPrice(value)}
             required
           />
         </div>
 
-        {calculatedCost > 0 && (
+        {(calculatedCost > 0 || sellingPrice > 0) && (
           <div className="bg-gradient-to-r from-orange-50 to-rose-50 dark:from-burgundy-900/20 dark:to-burgundy-800/20 rounded-xl p-4 border border-orange-200 dark:border-burgundy-700">
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>

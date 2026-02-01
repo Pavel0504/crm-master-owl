@@ -5,7 +5,6 @@ import {
   TrendingUp,
   TrendingDown,
   DollarSign,
-  RussianRuble,
   ShoppingCart,
   Download,
   Calendar,
@@ -246,7 +245,7 @@ export default function Dashboard() {
             <StatCard
               title="Общая выручка"
               value={formatCurrency(totalRevenue)}
-              icon={<RussianRuble className="h-6 w-6" />}
+              icon={<DollarSign className="h-6 w-6" />}
               trend={totalRevenue > totalExpenses ? 'up' : 'down'}
               color="green"
             />

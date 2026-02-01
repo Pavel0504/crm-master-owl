@@ -107,6 +107,10 @@ export default function Purchases() {
     setIsDeleteDialogOpen(true);
   };
 
+  const sortedPurchases = [...purchases].sort((a, b) => {
+    return a.name.localeCompare(b.name, 'ru');
+  });
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto">
@@ -147,7 +151,7 @@ export default function Purchases() {
         )}
       </div>
 
-      {purchases.length === 0 ? (
+      {sortedPurchases.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-12 text-center">
           <ShoppingBag className="h-16 w-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
@@ -167,7 +171,7 @@ export default function Purchases() {
         </div>
       ) : (
         <div className="space-y-4">
-          {purchases.map((purchase) => (
+          {sortedPurchases.map((purchase) => (
             <PurchaseCard
               key={purchase.id}
               purchase={purchase}

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Modal, Input, Select, Button, DatePicker } from '../ui';
+import { Modal, Input, Select, Button, DatePicker, CurrencyInput } from '../ui';
 import { Plus, Trash2 } from 'lucide-react';
 import { OrderItemInput } from '../../services/orderService';
 import { Client } from '../../services/clientService';
 import { Product } from '../../services/productService';
 import CreateClientModal from '../clients/CreateClientModal';
+import { parseDecimal } from '../../utils/currency';
 
 interface ProductEntry {
   product_id: string;
@@ -151,6 +152,14 @@ export default function CreateOrderModal({
     })),
   ];
 
+  const productOptions = [
+    { value: '', label: 'Выберите изделие' },
+    ...products.map((prod) => ({
+      value: prod.id,
+      label: `${prod.name} (остаток: ${prod.remaining_quantity} шт, ${prod.selling_price.toFixed(2)} руб.)`,
+    })),
+  ];
+
   const statusOptions = [
     { value: 'В процессе', label: 'В процессе' },
     { value: 'На утверждении', label: 'На утверждении' },
@@ -225,24 +234,17 @@ export default function CreateOrderModal({
                     <Select
                       value={item.product_id}
                       onChange={(e) => updateItem(index, 'product_id', e.target.value)}
-                      options={[
-                        { value: '', label: 'Выберите изделие' },
-                        ...products.map((prod) => ({
-                          value: prod.id,
-                          label: `${prod.name} (остаток: ${prod.remaining_quantity} шт, ${prod.selling_price.toFixed(2)} руб.)`,
-                        })),
-                      ]}
+                      options={productOptions}
                       required
                     />
                   </div>
-                  <div className="w-24">
+                  <div className="w-28">
                     <Input
-  type="text"
-  inputMode="numeric"
-  pattern="[0-9]*"
+                      type="text"
+                      inputMode="decimal"
                       value={item.quantity}
                       onChange={(e) =>
-                        updateItem(index, 'quantity', parseInt(e.target.value) || 1)
+                        updateItem(index, 'quantity', parseDecimal(e.target.value) || 1)
                       }
                       placeholder="Кол-во"
                       required
@@ -333,15 +335,23 @@ export default function CreateOrderModal({
                   </div>
                 </div>
 
-                <Input
-                  label="Значение скидки"
-  type="text"
-  inputMode="decimal"
-  pattern="[0-9]*[.,]?[0-9]*"
-                  value={discountValue}
-                  onChange={(e) => setDiscountValue(parseFloat(e.target.value) || 0)}
-                  placeholder={discountType === 'процент' ? '0-100' : '0'}
-                />
+                {discountType === 'процент' ? (
+                  <Input
+                    label="Значение скидки (%)"
+                    type="text"
+                    inputMode="decimal"
+                    value={discountValue}
+                    onChange={(e) => setDiscountValue(parseDecimal(e.target.value) || 0)}
+                    placeholder="0-100"
+                    helperText="До 3 знаков после запятой"
+                  />
+                ) : (
+                  <CurrencyInput
+                    label="Значение скидки (руб.)"
+                    value={discountValue}
+                    onChange={(value) => setDiscountValue(value)}
+                  />
+                )}
               </div>
             )}
           </div>

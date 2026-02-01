@@ -105,28 +105,29 @@ export default function Products() {
     setLoading(false);
   };
 
-  const handleCreateCategory = async (
-    data: {
-      name: string;
-      parent_id: string | null;
-      energy_costs_electricity: number;
-      energy_costs_water: number;
-    },
-    inventoryIds: string[]
-  ) => {
-    if (!user) return;
+const handleCreateCategory = async (
+  data: {
+    name: string;
+    parent_id: string | null;
+    energy_costs_electricity: number;
+    energy_costs_water: number;
+    labor_cost_per_hour: number;
+  },
+  inventoryIds: string[]
+) => {
+  if (!user) return;
 
-    setActionLoading(true);
-    const { error } = await createProductCategory(user.id, data, inventoryIds);
+  setActionLoading(true);
+  const { error } = await createProductCategory(user.id, data, inventoryIds);
 
-    if (error) {
-      setError('Не удалось создать категорию');
-    } else {
-      await loadData();
-    }
+  if (error) {
+    setError('Не удалось создать категорию');
+  } else {
+    await loadData();
+  }
 
-    setActionLoading(false);
-  };
+  setActionLoading(false);
+};
 
   const handleCalculateCost = async (
     categoryId: string | null,
@@ -238,6 +239,11 @@ export default function Products() {
     return true;
   });
 
+  // Сортировка по алфавиту
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    return a.name.localeCompare(b.name, 'ru');
+  });
+
   const resetFilters = () => {
     setFilterCategory('');
     setFilterPriceFrom('');
@@ -245,6 +251,9 @@ export default function Products() {
     setFilterQuantityFrom('');
     setFilterQuantityTo('');
   };
+
+  // Сортировка категорий для селекта
+  const sortedCategories = [...categories].sort((a, b) => a.name.localeCompare(b.name, 'ru'));
 
   if (loading) {
     return (
@@ -305,7 +314,7 @@ export default function Products() {
               onChange={(e) => setFilterCategory(e.target.value)}
               options={[
                 { value: '', label: 'Все категории' },
-                ...categories.map((cat) => ({
+                ...sortedCategories.map((cat) => ({
                   value: cat.id,
                   label: cat.name,
                 })),
@@ -363,7 +372,7 @@ export default function Products() {
         </FilterPanel>
       </div>
 
-      {filteredProducts.length === 0 ? (
+      {sortedProducts.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-12 text-center">
           <ShoppingBag className="h-16 w-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
@@ -387,7 +396,7 @@ export default function Products() {
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredProducts.map((product) => (
+          {sortedProducts.map((product) => (
             <ProductCard
               key={product.id}
               product={product}
@@ -404,7 +413,7 @@ export default function Products() {
         isOpen={isCategoryModalOpen}
         onClose={() => setIsCategoryModalOpen(false)}
         onSubmit={handleCreateCategory}
-        categories={categories}
+        categories={sortedCategories}
         inventory={inventory}
         loading={actionLoading}
       />
@@ -413,7 +422,7 @@ export default function Products() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSubmit={handleCreateProduct}
-        categories={categories}
+        categories={sortedCategories}
         materials={materials}
         loading={actionLoading}
         onCalculateCost={handleCalculateCost}
@@ -426,7 +435,7 @@ export default function Products() {
           setSelectedProduct(null);
         }}
         onSubmit={handleEditProduct}
-        categories={categories}
+        categories={sortedCategories}
         product={selectedProduct}
         loading={actionLoading}
       />

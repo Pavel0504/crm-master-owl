@@ -161,11 +161,20 @@ export default function Materials() {
     return true;
   });
 
+  // Сортировка по алфавиту если нет фильтров
+  const sortedMaterials = [...filteredMaterials].sort((a, b) => {
+    return a.name.localeCompare(b.name, 'ru');
+  });
+
   const resetFilters = () => {
     setFilterCategory('');
     setFilterDateFrom('');
     setFilterDateTo('');
   };
+
+  // Сортировка категорий и поставщиков для селектов
+  const sortedCategories = [...categories].sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+  const sortedSuppliers = [...suppliers].sort((a, b) => a.name.localeCompare(b.name, 'ru'));
 
   if (loading) {
     return (
@@ -226,7 +235,7 @@ export default function Materials() {
               onChange={(e) => setFilterCategory(e.target.value)}
               options={[
                 { value: '', label: 'Все категории' },
-                ...categories.map((cat) => ({
+                ...sortedCategories.map((cat) => ({
                   value: cat.id,
                   label: cat.name,
                 })),
@@ -259,7 +268,7 @@ export default function Materials() {
         </FilterPanel>
       </div>
 
-      {filteredMaterials.length === 0 ? (
+      {sortedMaterials.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-12 text-center">
           <Package className="h-16 w-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
@@ -283,7 +292,7 @@ export default function Materials() {
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredMaterials.map((material) => (
+          {sortedMaterials.map((material) => (
             <MaterialCard
               key={material.id}
               material={material}
@@ -299,7 +308,7 @@ export default function Materials() {
         isOpen={isCategoryModalOpen}
         onClose={() => setIsCategoryModalOpen(false)}
         onSubmit={handleCreateCategory}
-        categories={categories}
+        categories={sortedCategories}
         loading={actionLoading}
       />
 
@@ -307,8 +316,8 @@ export default function Materials() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSubmit={handleCreateMaterial}
-        categories={categories}
-        suppliers={suppliers}
+        categories={sortedCategories}
+        suppliers={sortedSuppliers}
         loading={actionLoading}
       />
 
@@ -319,8 +328,8 @@ export default function Materials() {
           setSelectedMaterial(null);
         }}
         onSubmit={handleEditMaterial}
-        categories={categories}
-        suppliers={suppliers}
+        categories={sortedCategories}
+        suppliers={sortedSuppliers}
         material={selectedMaterial}
         loading={actionLoading}
       />

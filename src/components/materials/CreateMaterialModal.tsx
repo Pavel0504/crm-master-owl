@@ -1,8 +1,9 @@
-import { useState } from "react";
-import { Modal, Input, Select, Button, DatePicker } from "../ui";
-import { MaterialCategory } from "../../services/materialCategoryService";
-import { MaterialInput } from "../../services/materialService";
-import { Supplier } from "../../services/supplierService";
+import { useState } from 'react';
+import { Modal, Input, Select, Button, DatePicker, CurrencyInput } from '../ui';
+import { MaterialCategory } from '../../services/materialCategoryService';
+import { MaterialInput } from '../../services/materialService';
+import { Supplier } from '../../services/supplierService';
+import { parseDecimal } from '../../utils/currency';
 
 interface CreateMaterialModalProps {
   isOpen: boolean;
@@ -22,15 +23,15 @@ export default function CreateMaterialModal({
   loading = false,
 }: CreateMaterialModalProps) {
   const [formData, setFormData] = useState<MaterialInput>({
-    name: "",
+    name: '',
     category_id: null,
-    supplier: "",
-    delivery_method: "",
+    supplier: '',
+    delivery_method: '',
     purchase_price: 0,
     initial_volume: 0,
     remaining_volume: 0,
-    purchase_date: new Date().toISOString().split("T")[0],
-    unit_of_measurement: "",
+    purchase_date: new Date().toISOString().split('T')[0],
+    unit_of_measurement: '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,21 +46,21 @@ export default function CreateMaterialModal({
 
   const handleClose = () => {
     setFormData({
-      name: "",
+      name: '',
       category_id: null,
-      supplier: "",
-      delivery_method: "",
+      supplier: '',
+      delivery_method: '',
       purchase_price: 0,
       initial_volume: 0,
       remaining_volume: 0,
-      purchase_date: new Date().toISOString().split("T")[0],
-      unit_of_measurement: "",
+      purchase_date: new Date().toISOString().split('T')[0],
+      unit_of_measurement: '',
     });
     onClose();
   };
 
   const categoryOptions = [
-    { value: "", label: "Без категории" },
+    { value: '', label: 'Без категории' },
     ...categories.map((cat) => ({
       value: cat.id,
       label: cat.name,
@@ -67,7 +68,7 @@ export default function CreateMaterialModal({
   ];
 
   const supplierOptions = [
-    { value: "", label: "Без поставщика" },
+    { value: '', label: 'Без поставщика' },
     ...suppliers.map((sup) => ({
       value: sup.id,
       label: `${sup.name} (${sup.delivery_method})`,
@@ -76,7 +77,7 @@ export default function CreateMaterialModal({
 
   const handleSupplierChange = (supplierId: string) => {
     if (!supplierId) {
-      setFormData({ ...formData, supplier: "", delivery_method: "" });
+      setFormData({ ...formData, supplier: '', delivery_method: '' });
       return;
     }
 
@@ -109,7 +110,7 @@ export default function CreateMaterialModal({
 
           <Select
             label="Категория"
-            value={formData.category_id || ""}
+            value={formData.category_id || ''}
             onChange={(e) =>
               setFormData({
                 ...formData,
@@ -121,24 +122,16 @@ export default function CreateMaterialModal({
 
           <Select
             label="Поставщик"
-            value={
-              suppliers.find((s) => s.name === formData.supplier)?.id || ""
-            }
+            value={suppliers.find((s) => s.name === formData.supplier)?.id || ''}
             onChange={(e) => handleSupplierChange(e.target.value)}
             options={supplierOptions}
           />
 
-          <Input
+          <CurrencyInput
             label="Цена закупки (руб.)"
-            type="text"
-            inputMode="decimal"
-            pattern="[0-9]*[.,]?[0-9]*"
             value={formData.purchase_price}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                purchase_price: parseFloat(e.target.value) || 0,
-              })
+            onChange={(value) =>
+              setFormData({ ...formData, purchase_price: value })
             }
             required
           />
@@ -147,14 +140,14 @@ export default function CreateMaterialModal({
             label="Начальный объем"
             type="text"
             inputMode="decimal"
-            pattern="[0-9]*[.,]?[0-9]*"
             value={formData.initial_volume}
             onChange={(e) =>
               setFormData({
                 ...formData,
-                initial_volume: parseFloat(e.target.value) || 0,
+                initial_volume: parseDecimal(e.target.value),
               })
             }
+            helperText="До 3 знаков после запятой"
             required
           />
 
@@ -170,7 +163,7 @@ export default function CreateMaterialModal({
 
           <DatePicker
             label="Дата закупки"
-            value={formData.purchase_date || ""}
+            value={formData.purchase_date || ''}
             onChange={(value) =>
               setFormData({ ...formData, purchase_date: value })
             }

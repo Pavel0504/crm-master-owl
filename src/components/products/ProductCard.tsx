@@ -1,4 +1,4 @@
-import { Edit2, Trash2, Package } from 'lucide-react';
+import { Edit2, Trash2, Package, Calendar } from 'lucide-react';
 import { Product } from '../../services/productService';
 import { ProductCategory } from '../../services/productCategoryService';
 import { ExpandableCard, IconButton, Badge } from '../ui';
@@ -92,6 +92,13 @@ export default function ProductCard({
           label="Всего создано"
           value={`${product.quantity_created} шт`}
         />
+        {product.creation_date && (
+          <DetailItem
+            icon={<Calendar className="h-4 w-4" />}
+            label="Дата создания"
+            value={new Date(product.creation_date).toLocaleDateString('ru-RU')}
+          />
+        )}
       </div>
 
       {materials.length > 0 && (
@@ -122,24 +129,28 @@ export default function ProductCard({
 }
 
 interface DetailItemProps {
+  icon?: React.ReactNode;
   label: string;
   value: string;
   highlight?: boolean;
 }
 
-function DetailItem({ label, value, highlight }: DetailItemProps) {
+function DetailItem({ icon, label, value, highlight }: DetailItemProps) {
   return (
-    <div>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{label}</p>
-      <p
-        className={`font-medium ${
-          highlight
-            ? 'text-green-600 dark:text-green-400 text-lg'
-            : 'text-gray-900 dark:text-white'
-        }`}
-      >
-        {value}
-      </p>
+    <div className="flex items-start gap-3">
+      {icon && <div className="mt-1 text-gray-400 dark:text-gray-500">{icon}</div>}
+      <div className="flex-1">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{label}</p>
+        <p
+          className={`font-medium ${
+            highlight
+              ? 'text-green-600 dark:text-green-400 text-lg'
+              : 'text-gray-900 dark:text-white'
+          }`}
+        >
+          {value}
+        </p>
+      </div>
     </div>
   );
 }

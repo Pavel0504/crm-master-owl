@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Modal, Input, Select, Button } from '../ui';
+import { Modal, Input, Select, Button, CurrencyInput, DatePicker } from '../ui';
 import { Product } from '../../services/productService';
 import { ProductCategory } from '../../services/productCategoryService';
+import { parseDecimal } from '../../utils/currency';
 
 interface EditProductModalProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface EditProductModalProps {
     composition?: string;
     labor_hours_per_item?: number;
     selling_price?: number;
+    creation_date?: string;
   }) => Promise<void>;
   categories: ProductCategory[];
   product: Product | null;
@@ -33,6 +35,7 @@ export default function EditProductModal({
   const [composition, setComposition] = useState('');
   const [laborHours, setLaborHours] = useState<number>(0);
   const [sellingPrice, setSellingPrice] = useState<number>(0);
+  const [creationDate, setCreationDate] = useState<string>('');
 
   useEffect(() => {
     if (product) {
@@ -42,6 +45,7 @@ export default function EditProductModal({
       setComposition(product.composition);
       setLaborHours(product.labor_hours_per_item);
       setSellingPrice(product.selling_price);
+      setCreationDate(product.creation_date || new Date().toISOString().split('T')[0]);
     }
   }, [product]);
 
@@ -55,6 +59,7 @@ export default function EditProductModal({
       composition,
       labor_hours_per_item: laborHours,
       selling_price: sellingPrice,
+      creation_date: creationDate,
     });
 
     handleClose();
@@ -121,20 +126,24 @@ export default function EditProductModal({
 
           <Input
             label="Трудочасов на единицу"
-  type="text"
-  inputMode="decimal"
-  pattern="[0-9]*[.,]?[0-9]*"
+            type="text"
+            inputMode="decimal"
             value={laborHours}
-            onChange={(e) => setLaborHours(parseFloat(e.target.value) || 0)}
+            onChange={(e) => setLaborHours(parseDecimal(e.target.value) || 0)}
+            helperText="До 3 знаков после запятой"
           />
 
-          <Input
+          <CurrencyInput
             label="Цена продажи (руб.)"
-  type="text"
-  inputMode="decimal"
-  pattern="[0-9]*[.,]?[0-9]*"
             value={sellingPrice}
-            onChange={(e) => setSellingPrice(parseFloat(e.target.value) || 0)}
+            onChange={(value) => setSellingPrice(value)}
+            required
+          />
+
+          <DatePicker
+            label="Дата создания"
+            value={creationDate}
+            onChange={setCreationDate}
             required
           />
         </div>

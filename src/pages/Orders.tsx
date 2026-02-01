@@ -210,6 +210,13 @@ export default function Orders() {
     return true;
   });
 
+  const sortedOrders = [...filteredOrders].sort((a, b) => {
+    return b.order_number - a.order_number;
+  });
+
+  const sortedClients = [...clients].sort((a, b) => a.full_name.localeCompare(b.full_name, 'ru'));
+  const sortedProducts = [...products].sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+
   const resetFilters = () => {
     setFilterStatus('');
     setFilterDateFrom('');
@@ -317,7 +324,7 @@ export default function Orders() {
         </FilterPanel>
       </div>
 
-      {filteredOrders.length === 0 ? (
+      {sortedOrders.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-12 text-center">
           <ShoppingCart className="h-16 w-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
@@ -341,7 +348,7 @@ export default function Orders() {
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredOrders.map((order) => (
+          {sortedOrders.map((order) => (
             <OrderCard
               key={order.id}
               order={order}
@@ -356,8 +363,8 @@ export default function Orders() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSubmit={handleCreateOrder}
-        clients={clients}
-        products={products}
+        clients={sortedClients}
+        products={sortedProducts}
         loading={actionLoading}
         onCalculatePrice={handleCalculatePrice}
         onCreateClient={handleCreateClient}
@@ -371,7 +378,7 @@ export default function Orders() {
         }}
         onSubmit={handleEditOrder}
         order={selectedOrder}
-        clients={clients}
+        clients={sortedClients}
         loading={actionLoading}
       />
 

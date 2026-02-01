@@ -1,5 +1,6 @@
-import { supabase } from '../lib/supabase';
+import { Bolt Database } from '../lib/supabase';
 import { checkAndCreatePurchasesForLowStock } from './purchaseService';
+import { roundToCents, multiplyCurrency, sumCurrency } from '../utils/currency';
 
 export interface Product {
   id: string;
@@ -13,6 +14,7 @@ export interface Product {
   labor_hours_per_item: number;
   cost_price_per_item: number;
   selling_price: number;
+  creation_date: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -30,6 +32,7 @@ export interface ProductInput {
   quantity_created: number;
   labor_hours_per_item?: number;
   selling_price?: number;
+  creation_date?: string;
   materials: ProductMaterial[];
 }
 
@@ -40,8 +43,90 @@ export interface ProductWithMaterials extends Product {
   }>;
 }
 
+export async function calculateProductCost(
+  categoryId: string | null,
+  materials: ProductMaterial[],
+  laborHours: number,
+  quantity: number,
+  userId: string
+): Promise<{ cost: number; error: Error | null }> {
+  let totalCost = 0;
+
+  for (const material of materials) {
+    const { data: materialData, error } = await Bolt Database
+      .from('materials')
+      .select('purchase_price, initial_volume')
+      .eq('id', material.material_id)
+      .single();
+
+    if (error || !materialData) {
+      console.error('Error fetching material:', error);
+      continue;
+    }
+
+    const pricePerUnit = roundToCents(materialData.purchase_price / materialData.initial_volume);
+    const materialCost = multiplyCurrency(
+      multiplyCurrency(pricePerUnit, material.volume_per_item),
+      quantity
+    );
+    totalCost = sumCurrency(totalCost, materialCost);
+  }
+
+  if (categoryId) {
+    const { data: category, error: catError } = await Bolt Database
+      .from('product_categories')
+      .select('energy_costs_electricity, energy_costs_water, labor_cost_per_hour')
+      .eq('id', categoryId)
+      .single();
+
+    if (!catError && category) {
+      const energyCosts = multiplyCurrency(
+        sumCurrency(category.energy_costs_electricity, category.energy_costs_water),
+        quantity
+      );
+      totalCost = sumCurrency(totalCost, energyCosts);
+
+      if (category.labor_cost_per_hour > 0 && laborHours > 0) {
+        const laborCost = multiplyCurrency(
+          multiplyCurrency(category.labor_cost_per_hour, laborHours),
+          quantity
+        );
+        totalCost = sumCurrency(totalCost, laborCost);
+      }
+    }
+
+    const { data: inventoryLinks, error: linkError } = await Bolt Database
+      .from('product_category_inventory')
+      .select('inventory_id')
+      .eq('category_id', categoryId);
+
+    if (!linkError && inventoryLinks) {
+      for (const link of inventoryLinks) {
+        const { data: inventory, error: invError } = await Bolt Database
+          .from('inventory')
+          .select('purchase_price, wear_rate_per_item')
+          .eq('id', link.inventory_id)
+          .single();
+
+        if (!invError && inventory) {
+          const wearCost = multiplyCurrency(
+            multiplyCurrency(
+              roundToCents(inventory.purchase_price * inventory.wear_rate_per_item / 100),
+              quantity
+            ),
+            1
+          );
+          totalCost = sumCurrency(totalCost, wearCost);
+        }
+      }
+    }
+  }
+
+  return { cost: roundToCents(totalCost / quantity), error: null };
+}
+
 export async function getProducts(userId: string) {
-  const { data, error } = await supabase
+  const { data, error } = await Bolt Database
     .from('products')
     .select('*')
     .eq('user_id', userId)
@@ -56,7 +141,7 @@ export async function getProducts(userId: string) {
 }
 
 export async function getProductMaterials(productId: string) {
-  const { data, error } = await supabase
+  const { data, error } = await Bolt Database
     .from('product_materials')
     .select('material_id, volume_per_item')
     .eq('product_id', productId);
@@ -70,7 +155,7 @@ export async function getProductMaterials(productId: string) {
 }
 
 export async function getProductWithMaterials(productId: string) {
-  const { data: product, error: productError } = await supabase
+  const { data: product, error: productError } = await Bolt Database
     .from('products')
     .select('*')
     .eq('id', productId)
@@ -96,72 +181,6 @@ export async function getProductWithMaterials(productId: string) {
   };
 }
 
-export async function calculateProductCost(
-  categoryId: string | null,
-  materials: ProductMaterial[],
-  laborHours: number,
-  quantity: number,
-  userId: string
-): Promise<{ cost: number; error: Error | null }> {
-  let totalCost = 0;
-
-  for (const material of materials) {
-    const { data: materialData, error } = await supabase
-      .from('materials')
-      .select('purchase_price, initial_volume')
-      .eq('id', material.material_id)
-      .single();
-
-    if (error || !materialData) {
-      console.error('Error fetching material:', error);
-      continue;
-    }
-
-    const pricePerUnit = materialData.purchase_price / materialData.initial_volume;
-    const materialCost = pricePerUnit * material.volume_per_item * quantity;
-    totalCost += materialCost;
-  }
-
-  if (categoryId) {
-    const { data: category, error: catError } = await supabase
-      .from('product_categories')
-      .select('energy_costs_electricity, energy_costs_water')
-      .eq('id', categoryId)
-      .single();
-
-    if (!catError && category) {
-      const energyCosts = (category.energy_costs_electricity + category.energy_costs_water) * quantity;
-      totalCost += energyCosts;
-    }
-
-    const { data: inventoryLinks, error: linkError } = await supabase
-      .from('product_category_inventory')
-      .select('inventory_id')
-      .eq('category_id', categoryId);
-
-    if (!linkError && inventoryLinks) {
-      for (const link of inventoryLinks) {
-        const { data: inventory, error: invError } = await supabase
-          .from('inventory')
-          .select('purchase_price, wear_rate_per_item')
-          .eq('id', link.inventory_id)
-          .single();
-
-        if (!invError && inventory) {
-          const wearCost = (inventory.purchase_price * inventory.wear_rate_per_item / 100) * quantity;
-          totalCost += wearCost;
-        }
-      }
-    }
-  }
-
-  const laborCost = laborHours * quantity * 0;
-
-  totalCost += laborCost;
-
-  return { cost: totalCost / quantity, error: null };
-}
-
 export async function createProduct(userId: string, productData: ProductInput) {
   const costResult = await calculateProductCost(
     productData.category_id || null,
@@ -175,41 +194,43 @@ export async function createProduct(userId: string, productData: ProductInput) {
     return { data: null, error: costResult.error };
   }
 
-  for (const material of productData.materials) {
-    const totalVolumeNeeded = material.volume_per_item * productData.quantity_created;
+  if (productData.materials.length > 0) {
+    for (const material of productData.materials) {
+      const totalVolumeNeeded = material.volume_per_item * productData.quantity_created;
 
-    const { data: materialData, error: materialError } = await supabase
-      .from('materials')
-      .select('remaining_volume')
-      .eq('id', material.material_id)
-      .single();
+      const { data: materialData, error: materialError } = await Bolt Database
+        .from('materials')
+        .select('remaining_volume')
+        .eq('id', material.material_id)
+        .single();
 
-    if (materialError || !materialData) {
-      return {
-        data: null,
-        error: new Error(`Не удалось найти материал ${material.material_id}`),
-      };
-    }
+      if (materialError || !materialData) {
+        return {
+          data: null,
+          error: new Error(`Не удалось найти материал ${material.material_id}`),
+        };
+      }
 
-    if (materialData.remaining_volume < totalVolumeNeeded) {
-      return {
-        data: null,
-        error: new Error(`Недостаточно материала (доступно: ${materialData.remaining_volume}, требуется: ${totalVolumeNeeded})`),
-      };
+      if (materialData.remaining_volume < totalVolumeNeeded) {
+        return {
+          data: null,
+          error: new Error(`Недостаточно материала (доступно: ${materialData.remaining_volume}, требуется: ${totalVolumeNeeded})`),
+        };
+      }
     }
   }
 
   if (productData.category_id) {
-    const { data: inventoryLinks, error: linkError } = await supabase
+    const { data: inventoryLinks, error: linkError } = await Bolt Database
       .from('product_category_inventory')
       .select('inventory_id')
       .eq('category_id', productData.category_id);
 
     if (!linkError && inventoryLinks) {
       for (const link of inventoryLinks) {
-        const { data: inventory, error: invError } = await supabase
+        const { data: inventory, error: invError } = await Bolt Database
           .from('inventory')
-          .select('wear_percentage, wear_rate_per_item')
+          .select('inventory_type, wear_percentage, wear_rate_per_item, remaining_quantity')
           .eq('id', link.inventory_id)
           .single();
 
@@ -220,19 +241,32 @@ export async function createProduct(userId: string, productData: ProductInput) {
           };
         }
 
-        const totalWearNeeded = inventory.wear_rate_per_item * productData.quantity_created;
+        if (inventory.inventory_type === 'процент') {
+          const totalWearNeeded = (inventory.wear_rate_per_item || 0) * productData.quantity_created;
 
-        if (inventory.wear_percentage < totalWearNeeded) {
-          return {
-            data: null,
-            error: new Error(`Недостаточный ресурс инвентаря (доступно: ${inventory.wear_percentage}%, требуется: ${totalWearNeeded}%)`),
-          };
+          if ((inventory.wear_percentage || 0) < totalWearNeeded) {
+            return {
+              data: null,
+              error: new Error(
+                `Недостаточный ресурс инвентаря (доступно: ${inventory.wear_percentage}%, требуется: ${totalWearNeeded}%)`
+              ),
+            };
+          }
+        } else {
+          if ((inventory.remaining_quantity || 0) < productData.quantity_created) {
+            return {
+              data: null,
+              error: new Error(
+                `Недостаточное количество инвентаря (доступно: ${inventory.remaining_quantity} шт, требуется: ${productData.quantity_created} шт)`
+              ),
+            };
+          }
         }
       }
     }
   }
 
-  const { data: product, error: productError } = await supabase
+  const { data: product, error: productError } = await Bolt Database
     .from('products')
     .insert({
       user_id: userId,
@@ -245,6 +279,7 @@ export async function createProduct(userId: string, productData: ProductInput) {
       labor_hours_per_item: productData.labor_hours_per_item || 0,
       cost_price_per_item: costResult.cost,
       selling_price: productData.selling_price || 0,
+      creation_date: productData.creation_date || new Date().toISOString().split('T')[0],
     })
     .select()
     .single();
@@ -254,70 +289,95 @@ export async function createProduct(userId: string, productData: ProductInput) {
     return { data: null, error: productError };
   }
 
-  for (const material of productData.materials) {
-    const { error: linkError } = await supabase
-      .from('product_materials')
-      .insert({
-        product_id: product.id,
+  if (productData.materials.length > 0) {
+    for (const material of productData.materials) {
+      const { error: linkError } = await Bolt Database
+        .from('product_materials')
+        .insert({
+          product_id: product.id,
+          material_id: material.material_id,
+          volume_per_item: material.volume_per_item,
+        });
+
+      if (linkError) {
+        console.error('Error linking material to product:', linkError);
+        return { data: null, error: linkError };
+      }
+
+      const totalVolumeNeeded = material.volume_per_item * productData.quantity_created;
+
+      const { error: decreaseError } = await supabase.rpc('decrease_material_volume', {
         material_id: material.material_id,
-        volume_per_item: material.volume_per_item,
+        volume_to_decrease: totalVolumeNeeded,
       });
 
-    if (linkError) {
-      console.error('Error linking material to product:', linkError);
-      return { data: null, error: linkError };
-    }
-
-    const totalVolumeNeeded = material.volume_per_item * productData.quantity_created;
-
-    const { error: updateError } = await supabase.rpc('decrease_material_volume', {
-      material_id: material.material_id,
-      volume_to_decrease: totalVolumeNeeded,
-    });
-
-    if (updateError) {
-      const { error: manualUpdateError } = await supabase
-        .from('materials')
-        .update({
-          remaining_volume: supabase.raw(`remaining_volume - ${totalVolumeNeeded}`),
-        })
-        .eq('id', material.material_id);
-
-      if (manualUpdateError) {
-        console.error('Error updating material volume:', manualUpdateError);
+      if (decreaseError) {
+        console.error('Error decreasing material volume:', decreaseError);
+        return { data: null, error: new Error(`Не удалось вычесть материал: ${decreaseError.message}`) };
       }
     }
   }
 
   if (productData.category_id) {
-    const { data: inventoryLinks } = await supabase
+    const { data: inventoryLinks } = await Bolt Database
       .from('product_category_inventory')
       .select('inventory_id')
       .eq('category_id', productData.category_id);
 
     if (inventoryLinks) {
       for (const link of inventoryLinks) {
-        const { data: inventory } = await supabase
+        const { data: inventory } = await Bolt Database
           .from('inventory')
-          .select('wear_rate_per_item')
+          .select('inventory_type, wear_rate_per_item, remaining_quantity')
           .eq('id', link.inventory_id)
           .single();
 
         if (inventory) {
-          const totalWearNeeded = inventory.wear_rate_per_item * productData.quantity_created;
+          if (inventory.inventory_type === 'процент') {
+            const totalWearNeeded = (inventory.wear_rate_per_item || 0) * productData.quantity_created;
 
-          await supabase
-            .from('inventory')
-            .update({
-              wear_percentage: supabase.raw(`wear_percentage - ${totalWearNeeded}`),
-            })
-            .eq('id', link.inventory_id);
+            const { data: currentInventory } = await Bolt Database
+              .from('inventory')
+              .select('wear_percentage')
+              .eq('id', link.inventory_id)
+              .single();
+
+            if (currentInventory) {
+              const newWearPercentage = (currentInventory.wear_percentage || 0) - totalWearNeeded;
+
+              await Bolt Database
+                .from('inventory')
+                .update({
+                  wear_percentage: newWearPercentage,
+                })
+                .eq('id', link.inventory_id);
+            }
+          } else {
+            const { data: currentInventory } = await Bolt Database
+              .from('inventory')
+              .select('remaining_quantity')
+              .eq('id', link.inventory_id)
+              .single();
+
+            if (currentInventory) {
+              const newQuantity = (currentInventory.remaining_quantity || 0) - productData.quantity_created;
+
+              await Bolt Database
+                .from('inventory')
+                .update({
+                  remaining_quantity: newQuantity,
+                })
+                .eq('id', link.inventory_id);
+            }
+          }
         }
       }
     }
   }
 
-  await checkAndCreatePurchasesForLowStock(userId);
+  if (productData.materials.length > 0) {
+    await checkAndCreatePurchasesForLowStock(userId);
+  }
 
   return { data: product, error: null };
 }
@@ -331,8 +391,9 @@ export async function updateProduct(productId: string, productData: Partial<Prod
   if (productData.composition !== undefined) updates.composition = productData.composition;
   if (productData.labor_hours_per_item !== undefined) updates.labor_hours_per_item = productData.labor_hours_per_item;
   if (productData.selling_price !== undefined) updates.selling_price = productData.selling_price;
+  if (productData.creation_date !== undefined) updates.creation_date = productData.creation_date;
 
-  const { data, error } = await supabase
+  const { data, error } = await Bolt Database
     .from('products')
     .update(updates)
     .eq('id', productId)
@@ -348,7 +409,7 @@ export async function updateProduct(productId: string, productData: Partial<Prod
 }
 
 export async function deleteProduct(productId: string) {
-  const { error } = await supabase
+  const { error } = await Bolt Database
     .from('products')
     .delete()
     .eq('id', productId);

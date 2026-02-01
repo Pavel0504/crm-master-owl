@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button, Badge } from '../ui';
+import { getMoscowTime, getMoscowDateString, toMoscowDateString, isMoscowToday } from '../../utils/moscowTime';
 
 interface WeekCalendarProps {
   onDayClick: (date: Date) => void;
@@ -17,10 +18,10 @@ interface DayData {
 }
 
 export default function WeekCalendar({ onDayClick, tasksCountByDate }: WeekCalendarProps) {
-  const [currentWeekStart, setCurrentWeekStart] = useState<Date>(getWeekStart(new Date()));
+  const [currentWeekStart, setCurrentWeekStart] = useState<Date>(getWeekStart(getMoscowTime()));
 
   useEffect(() => {
-    setCurrentWeekStart(getWeekStart(new Date()));
+    setCurrentWeekStart(getWeekStart(getMoscowTime()));
   }, []);
 
   function getWeekStart(date: Date): Date {
@@ -37,8 +38,8 @@ export default function WeekCalendar({ onDayClick, tasksCountByDate }: WeekCalen
 
   function getWeekDays(weekStart: Date): DayData[] {
     const days: DayData[] = [];
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const moscowNow = getMoscowTime();
+    const currentMonth = moscowNow.getMonth();
 
     for (let i = 0; i < 7; i++) {
       const date = new Date(weekStart);
@@ -47,15 +48,15 @@ export default function WeekCalendar({ onDayClick, tasksCountByDate }: WeekCalen
       const dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
       const dayName = dayNames[date.getDay()];
 
-      const dateKey = date.toISOString().split('T')[0];
+      const dateKey = toMoscowDateString(date);
       const tasksCount = tasksCountByDate[dateKey] || 0;
 
       days.push({
         date: new Date(date),
         dayNumber: date.getDate(),
         dayName,
-        isToday: date.getTime() === today.getTime(),
-        isCurrentMonth: date.getMonth() === today.getMonth(),
+        isToday: isMoscowToday(date),
+        isCurrentMonth: date.getMonth() === currentMonth,
         tasksCount,
       });
     }
@@ -76,7 +77,7 @@ export default function WeekCalendar({ onDayClick, tasksCountByDate }: WeekCalen
   }
 
   function goToToday() {
-    setCurrentWeekStart(getWeekStart(new Date()));
+    setCurrentWeekStart(getWeekStart(getMoscowTime()));
   }
 
   const weekDays = getWeekDays(currentWeekStart);

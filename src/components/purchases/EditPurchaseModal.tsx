@@ -1,6 +1,8 @@
+// EditPurchaseModal.tsx
 import { useState, useEffect } from 'react';
-import { Modal, Input, Button } from '../ui';
+import { Modal, Input, Button, CurrencyInput } from '../ui';
 import { PurchasePlan, PurchasePlanInput } from '../../services/purchaseService';
+import { parseDecimal } from '../../utils/currency';
 
 interface EditPurchaseModalProps {
   isOpen: boolean;
@@ -61,32 +63,28 @@ export default function EditPurchaseModal({
         <div className="grid grid-cols-2 gap-4">
           <Input
             label="Количество"
-            type="number"
-            step="0.001"
-            min="0"
+            type="text"
+            inputMode="decimal"
             value={formData.quantity}
             onChange={(e) =>
               setFormData({
                 ...formData,
-                quantity: parseFloat(e.target.value) || 0,
+                quantity: parseDecimal(e.target.value),
               })
             }
             placeholder="0"
+            helperText="До 3 знаков после запятой"
           />
 
-          <Input
+          <CurrencyInput
             label="Сумма (руб.)"
-            type="number"
-            step="0.01"
-            min="0"
             value={formData.amount}
-            onChange={(e) =>
+            onChange={(value) =>
               setFormData({
                 ...formData,
-                amount: parseFloat(e.target.value) || 0,
+                amount: value,
               })
             }
-            placeholder="0"
           />
         </div>
 

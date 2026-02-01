@@ -153,15 +153,20 @@ export default function Inventory() {
       return false;
     }
 
-    if (filterWearFrom && item.wear_percentage < parseFloat(filterWearFrom)) {
+    if (filterWearFrom && item.wear_percentage && item.wear_percentage < parseFloat(filterWearFrom)) {
       return false;
     }
 
-    if (filterWearTo && item.wear_percentage > parseFloat(filterWearTo)) {
+    if (filterWearTo && item.wear_percentage && item.wear_percentage > parseFloat(filterWearTo)) {
       return false;
     }
 
     return true;
+  });
+
+  // Сортировка по алфавиту
+  const sortedInventory = [...filteredInventory].sort((a, b) => {
+    return a.name.localeCompare(b.name, 'ru');
   });
 
   const resetFilters = () => {
@@ -171,6 +176,9 @@ export default function Inventory() {
     setFilterWearFrom('');
     setFilterWearTo('');
   };
+
+  // Сортировка категорий для селекта
+  const sortedCategories = [...categories].sort((a, b) => a.name.localeCompare(b.name, 'ru'));
 
   if (loading) {
     return (
@@ -231,7 +239,7 @@ export default function Inventory() {
               onChange={(e) => setFilterCategory(e.target.value)}
               options={[
                 { value: '', label: 'Все категории' },
-                ...categories.map((cat) => ({
+                ...sortedCategories.map((cat) => ({
                   value: cat.id,
                   label: cat.name,
                 })),
@@ -284,7 +292,7 @@ export default function Inventory() {
         </FilterPanel>
       </div>
 
-      {filteredInventory.length === 0 ? (
+      {sortedInventory.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-12 text-center">
           <Box className="h-16 w-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
@@ -308,7 +316,7 @@ export default function Inventory() {
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredInventory.map((item) => (
+          {sortedInventory.map((item) => (
             <InventoryCard
               key={item.id}
               inventory={item}
@@ -324,7 +332,7 @@ export default function Inventory() {
         isOpen={isCategoryModalOpen}
         onClose={() => setIsCategoryModalOpen(false)}
         onSubmit={handleCreateCategory}
-        categories={categories}
+        categories={sortedCategories}
         loading={actionLoading}
       />
 
@@ -332,7 +340,7 @@ export default function Inventory() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSubmit={handleCreateInventory}
-        categories={categories}
+        categories={sortedCategories}
         loading={actionLoading}
       />
 
@@ -343,7 +351,7 @@ export default function Inventory() {
           setSelectedInventory(null);
         }}
         onSubmit={handleEditInventory}
-        categories={categories}
+        categories={sortedCategories}
         inventory={selectedInventory}
         loading={actionLoading}
       />

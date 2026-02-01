@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Modal, Input, Select, Button } from '../ui';
+import { Modal, Input, Select, Button, CurrencyInput } from '../ui';
 import { ProductCategory } from '../../services/productCategoryService';
 import { Inventory } from '../../services/inventoryService';
-import { Plus, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 
 interface CreateProductCategoryModalProps {
   isOpen: boolean;
@@ -12,6 +12,7 @@ interface CreateProductCategoryModalProps {
     parent_id: string | null;
     energy_costs_electricity: number;
     energy_costs_water: number;
+    labor_cost_per_hour: number;
   }, inventoryIds: string[]) => Promise<void>;
   categories: ProductCategory[];
   inventory: Inventory[];
@@ -30,6 +31,7 @@ export default function CreateProductCategoryModal({
   const [parentId, setParentId] = useState<string>('');
   const [electricity, setElectricity] = useState<number>(0);
   const [water, setWater] = useState<number>(0);
+  const [laborCostPerHour, setLaborCostPerHour] = useState<number>(0);
   const [selectedInventory, setSelectedInventory] = useState<string[]>([]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,6 +42,7 @@ export default function CreateProductCategoryModal({
         parent_id: parentId || null,
         energy_costs_electricity: electricity,
         energy_costs_water: water,
+        labor_cost_per_hour: laborCostPerHour,
       },
       selectedInventory
     );
@@ -51,6 +54,7 @@ export default function CreateProductCategoryModal({
     setParentId('');
     setElectricity(0);
     setWater(0);
+    setLaborCostPerHour(0);
     setSelectedInventory([]);
     onClose();
   };
@@ -101,26 +105,27 @@ export default function CreateProductCategoryModal({
         />
 
         <div className="grid grid-cols-2 gap-4">
-          <Input
+          <CurrencyInput
             label="Затраты на электричество (руб.)"
-  type="text"
-  inputMode="decimal"
-  pattern="[0-9]*[.,]?[0-9]*"
             value={electricity}
-            onChange={(e) => setElectricity(parseFloat(e.target.value) || 0)}
+            onChange={(value) => setElectricity(value)}
             helperText="За единицу изделия"
           />
 
-          <Input
+          <CurrencyInput
             label="Затраты на воду (руб.)"
-  type="text"
-  inputMode="decimal"
-  pattern="[0-9]*[.,]?[0-9]*"
             value={water}
-            onChange={(e) => setWater(parseFloat(e.target.value) || 0)}
+            onChange={(value) => setWater(value)}
             helperText="За единицу изделия"
           />
         </div>
+
+        <CurrencyInput
+          label="Стоимость трудочаса (руб./час)"
+          value={laborCostPerHour}
+          onChange={(value) => setLaborCostPerHour(value)}
+          helperText="Стоимость одного часа работы"
+        />
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -169,6 +174,10 @@ export default function CreateProductCategoryModal({
               Инвентарь не выбран
             </p>
           )}
+        </div>
+
+        <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300 px-4 py-3 rounded-lg text-sm">
+          <strong>Пример:</strong> Если стоимость трудочаса 300 руб., а на изделие тратится 2.2 часа, то трудозатраты составят 660 руб. (300 × 2.2)
         </div>
 
         <div className="flex gap-3 pt-4">
