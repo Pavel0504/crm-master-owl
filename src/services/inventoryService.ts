@@ -1,4 +1,4 @@
-import { Bolt Database } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export interface Inventory {
   id: string;
@@ -29,7 +29,7 @@ export interface InventoryInput {
 }
 
 export async function getInventory(userId: string) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('inventory')
     .select('*')
     .eq('user_id', userId)
@@ -44,7 +44,7 @@ export async function getInventory(userId: string) {
 }
 
 export async function createInventory(userId: string, inventoryData: InventoryInput) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('inventory')
     .insert({
       user_id: userId,
@@ -62,7 +62,7 @@ export async function createInventory(userId: string, inventoryData: InventoryIn
 }
 
 export async function updateInventory(inventoryId: string, inventoryData: InventoryInput) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('inventory')
     .update(inventoryData)
     .eq('id', inventoryId)
@@ -78,7 +78,7 @@ export async function updateInventory(inventoryId: string, inventoryData: Invent
 }
 
 export async function deleteInventory(inventoryId: string) {
-  const { error } = await Bolt Database
+  const { error } = await supabase
     .from('inventory')
     .delete()
     .eq('id', inventoryId);
