@@ -176,7 +176,7 @@ export default function CreateProductModal({
             type="text"
             inputMode="decimal"
             value={quantity}
-            onChange={(e) => setQuantity(parseDecimal(e.target.value) || 1)}
+            onChange={(e) => setQuantity(parseDecimal(e.target.value) || 0)}
             helperText="До 3 знаков после запятой"
             required
           />
