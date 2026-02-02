@@ -1,4 +1,4 @@
-import { Bolt Database } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export interface Background {
   id: string;
@@ -19,7 +19,7 @@ export interface BackgroundInput {
 }
 
 export async function getBackgroundByUserId(userId: string) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('backgrounds')
     .select('*')
     .eq('user_id', userId)
@@ -34,7 +34,7 @@ export async function getBackgroundByUserId(userId: string) {
 }
 
 export async function createBackground(userId: string, backgroundData: BackgroundInput) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('backgrounds')
     .insert({
       user_id: userId,
@@ -52,7 +52,7 @@ export async function createBackground(userId: string, backgroundData: Backgroun
 }
 
 export async function updateBackground(backgroundId: string, backgroundData: BackgroundInput) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('backgrounds')
     .update(backgroundData)
     .eq('id', backgroundId)

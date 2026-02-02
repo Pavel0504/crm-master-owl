@@ -1,4 +1,4 @@
-import { Bolt Database } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export interface Task {
   id: string;
@@ -39,7 +39,7 @@ export interface TaskWithChecklist extends Task {
 }
 
 export async function getTasks(userId: string) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('tasks')
     .select('*')
     .eq('user_id', userId)
@@ -54,7 +54,7 @@ export async function getTasks(userId: string) {
 }
 
 export async function getTaskById(taskId: string) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('tasks')
     .select('*')
     .eq('id', taskId)
@@ -75,7 +75,7 @@ export async function getTaskWithChecklist(taskId: string) {
     return { data: null, error: taskError };
   }
 
-  const { data: checklist, error: checklistError } = await Bolt Database
+  const { data: checklist, error: checklistError } = await supabase
     .from('task_checklist_items')
     .select('*')
     .eq('task_id', taskId)
@@ -100,7 +100,7 @@ export async function getTasksByDateRange(
   startDate: string,
   endDate: string
 ) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('tasks')
     .select('*')
     .eq('user_id', userId)
@@ -117,7 +117,7 @@ export async function getTasksByDateRange(
 }
 
 export async function createTask(userId: string, taskData: TaskInput) {
-  const { data: task, error: taskError } = await Bolt Database
+  const { data: task, error: taskError } = await supabase
     .from('tasks')
     .insert({
       user_id: userId,
@@ -149,7 +149,7 @@ export async function createTask(userId: string, taskData: TaskInput) {
       }));
 
     if (checklistItems.length > 0) {
-      const { error: checklistError } = await Bolt Database
+      const { error: checklistError } = await supabase
         .from('task_checklist_items')
         .insert(checklistItems);
 
@@ -172,7 +172,7 @@ export async function updateTask(taskId: string, taskData: Partial<TaskInput>) {
   if (taskData.tag !== undefined) updates.tag = taskData.tag;
   if (taskData.priority !== undefined) updates.priority = taskData.priority;
 
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('tasks')
     .update(updates)
     .eq('id', taskId)
@@ -185,7 +185,7 @@ export async function updateTask(taskId: string, taskData: Partial<TaskInput>) {
   }
 
   if (taskData.checklist !== undefined) {
-    const { error: deleteError } = await Bolt Database
+    const { error: deleteError } = await supabase
       .from('task_checklist_items')
       .delete()
       .eq('task_id', taskId);
@@ -205,7 +205,7 @@ export async function updateTask(taskId: string, taskData: Partial<TaskInput>) {
       }));
 
     if (checklistItems.length > 0) {
-      const { error: checklistError } = await Bolt Database
+      const { error: checklistError } = await supabase
         .from('task_checklist_items')
         .insert(checklistItems);
 
@@ -231,7 +231,7 @@ export async function deleteTask(taskId: string) {
 }
 
 export async function toggleTaskCompletion(taskId: string, completed: boolean) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('tasks')
     .update({ 
       completed,
@@ -250,7 +250,7 @@ export async function toggleTaskCompletion(taskId: string, completed: boolean) {
 }
 
 export async function toggleChecklistItem(itemId: string, completed: boolean) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('task_checklist_items')
     .update({ completed })
     .eq('id', itemId)
@@ -269,7 +269,7 @@ export async function updateChecklistItemsOrder(
   items: Array<{ id: string; order_index: number }>
 ) {
   for (const item of items) {
-    await Bolt Database
+    await supabase
       .from('task_checklist_items')
       .update({ order_index: item.order_index })
       .eq('id', item.id);

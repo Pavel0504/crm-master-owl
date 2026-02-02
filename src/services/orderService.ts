@@ -69,7 +69,7 @@ export async function calculateOrderPrice(
   for (const item of items) {
     if (item.is_bonus) continue;
 
-    const { data: product, error } = await Bolt Database
+    const { data: product, error } = await supabase
       .from('products')
       .select('selling_price')
       .eq('id', item.product_id)

@@ -1,4 +1,4 @@
-import { Bolt Database } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export interface Employee {
   id: string;
@@ -44,7 +44,7 @@ export const ALL_PAGES = [
 ];
 
 export async function getEmployees(createdByUserId: string) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('employees')
     .select('*')
     .eq('created_by_user_id', createdByUserId)
@@ -59,7 +59,7 @@ export async function getEmployees(createdByUserId: string) {
 }
 
 export async function getEmployeeById(employeeId: string) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('employees')
     .select('*')
     .eq('id', employeeId)
@@ -74,7 +74,7 @@ export async function getEmployeeById(employeeId: string) {
 }
 
 export async function getEmployeeByUserId(userId: string) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('employees')
     .select('*')
     .eq('user_id', userId)
@@ -89,7 +89,7 @@ export async function getEmployeeByUserId(userId: string) {
 }
 
 export async function getEmployeeByInviteToken(inviteToken: string) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('employees')
     .select('*')
     .eq('invite_token', inviteToken)
@@ -104,7 +104,7 @@ export async function getEmployeeByInviteToken(inviteToken: string) {
 }
 
 export async function createEmployee(createdByUserId: string, employeeData: EmployeeInput) {
-  const { data: existingUser, error: checkError } = await Bolt Database
+  const { data: existingUser, error: checkError } = await supabase
     .from('employees')
     .select('id')
     .eq('email', employeeData.email)
@@ -121,7 +121,7 @@ export async function createEmployee(createdByUserId: string, employeeData: Empl
     };
   }
 
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('employees')
     .insert({
       created_by_user_id: createdByUserId,
@@ -156,7 +156,7 @@ export async function updateEmployee(employeeId: string, employeeData: Partial<E
   if (employeeData.position_color !== undefined) updates.position_color = employeeData.position_color;
   if (employeeData.allowed_pages !== undefined) updates.allowed_pages = employeeData.allowed_pages;
 
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('employees')
     .update(updates)
     .eq('id', employeeId)
@@ -183,7 +183,7 @@ export async function deleteEmployee(employeeId: string) {
 }
 
 export async function joinEmployeeByToken(inviteToken: string, userId: string) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('employees')
     .update({
       user_id: userId,

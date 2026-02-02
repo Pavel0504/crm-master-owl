@@ -1,4 +1,4 @@
-import { Bolt Database } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 import { checkAndCreatePurchasesForLowStock } from './purchaseService';
 import { roundToCents, multiplyCurrency, sumCurrency } from '../utils/currency';
 
@@ -53,7 +53,7 @@ export async function calculateProductCost(
   let totalCost = 0;
 
   for (const material of materials) {
-    const { data: materialData, error } = await Bolt Database
+    const { data: materialData, error } = await supabase
       .from('materials')
       .select('purchase_price, initial_volume')
       .eq('id', material.material_id)
@@ -73,7 +73,7 @@ export async function calculateProductCost(
   }
 
   if (categoryId) {
-    const { data: category, error: catError } = await Bolt Database
+    const { data: category, error: catError } = await supabase
       .from('product_categories')
       .select('energy_costs_electricity, energy_costs_water, labor_cost_per_hour')
       .eq('id', categoryId)
@@ -95,14 +95,14 @@ export async function calculateProductCost(
       }
     }
 
-    const { data: inventoryLinks, error: linkError } = await Bolt Database
+    const { data: inventoryLinks, error: linkError } = await supabase
       .from('product_category_inventory')
       .select('inventory_id')
       .eq('category_id', categoryId);
 
     if (!linkError && inventoryLinks) {
       for (const link of inventoryLinks) {
-        const { data: inventory, error: invError } = await Bolt Database
+        const { data: inventory, error: invError } = await supabase
           .from('inventory')
           .select('purchase_price, wear_rate_per_item, quantity_rate_per_item, inventory_type')
           .eq('id', link.inventory_id)
@@ -137,7 +137,7 @@ export async function calculateProductCost(
 }
 
 export async function getProducts(userId: string) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('products')
     .select('*')
     .eq('user_id', userId)
@@ -152,7 +152,7 @@ export async function getProducts(userId: string) {
 }
 
 export async function getProductMaterials(productId: string) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('product_materials')
     .select('material_id, volume_per_item')
     .eq('product_id', productId);
@@ -166,7 +166,7 @@ export async function getProductMaterials(productId: string) {
 }
 
 export async function getProductWithMaterials(productId: string) {
-  const { data: product, error: productError } = await Bolt Database
+  const { data: product, error: productError } = await supabase
     .from('products')
     .select('*')
     .eq('id', productId)
@@ -209,7 +209,7 @@ export async function createProduct(userId: string, productData: ProductInput) {
     for (const material of productData.materials) {
       const totalVolumeNeeded = material.volume_per_item * productData.quantity_created;
 
-      const { data: materialData, error: materialError } = await Bolt Database
+      const { data: materialData, error: materialError } = await supabase
         .from('materials')
         .select('remaining_volume')
         .eq('id', material.material_id)
@@ -232,14 +232,14 @@ export async function createProduct(userId: string, productData: ProductInput) {
   }
 
   if (productData.category_id) {
-    const { data: inventoryLinks, error: linkError } = await Bolt Database
+    const { data: inventoryLinks, error: linkError } = await supabase
       .from('product_category_inventory')
       .select('inventory_id')
       .eq('category_id', productData.category_id);
 
     if (!linkError && inventoryLinks) {
       for (const link of inventoryLinks) {
-        const { data: inventory, error: invError } = await Bolt Database
+        const { data: inventory, error: invError } = await supabase
           .from('inventory')
           .select('inventory_type, wear_percentage, wear_rate_per_item, remaining_quantity, quantity_rate_per_item')
           .eq('id', link.inventory_id)
@@ -279,7 +279,7 @@ export async function createProduct(userId: string, productData: ProductInput) {
     }
   }
 
-  const { data: product, error: productError } = await Bolt Database
+  const { data: product, error: productError } = await supabase
     .from('products')
     .insert({
       user_id: userId,
@@ -304,7 +304,7 @@ export async function createProduct(userId: string, productData: ProductInput) {
 
   if (productData.materials.length > 0) {
     for (const material of productData.materials) {
-      const { error: linkError } = await Bolt Database
+      const { error: linkError } = await supabase
         .from('product_materials')
         .insert({
           product_id: product.id,
@@ -332,14 +332,14 @@ export async function createProduct(userId: string, productData: ProductInput) {
   }
 
   if (productData.category_id) {
-    const { data: inventoryLinks } = await Bolt Database
+    const { data: inventoryLinks } = await supabase
       .from('product_category_inventory')
       .select('inventory_id')
       .eq('category_id', productData.category_id);
 
     if (inventoryLinks) {
       for (const link of inventoryLinks) {
-        const { data: inventory } = await Bolt Database
+        const { data: inventory } = await supabase
           .from('inventory')
           .select('inventory_type, wear_rate_per_item, remaining_quantity, quantity_rate_per_item')
           .eq('id', link.inventory_id)
@@ -349,7 +349,7 @@ export async function createProduct(userId: string, productData: ProductInput) {
           if (inventory.inventory_type === 'процент') {
             const totalWearNeeded = (inventory.wear_rate_per_item || 0) * productData.quantity_created;
 
-            const { data: currentInventory } = await Bolt Database
+            const { data: currentInventory } = await supabase
               .from('inventory')
               .select('wear_percentage')
               .eq('id', link.inventory_id)
@@ -358,7 +358,7 @@ export async function createProduct(userId: string, productData: ProductInput) {
             if (currentInventory) {
               const newWearPercentage = (currentInventory.wear_percentage || 0) - totalWearNeeded;
 
-              await Bolt Database
+              await supabase
                 .from('inventory')
                 .update({
                   wear_percentage: newWearPercentage,
@@ -368,7 +368,7 @@ export async function createProduct(userId: string, productData: ProductInput) {
           } else {
             const totalQuantityNeeded = (inventory.quantity_rate_per_item || 0) * productData.quantity_created;
             
-            const { data: currentInventory } = await Bolt Database
+            const { data: currentInventory } = await supabase
               .from('inventory')
               .select('remaining_quantity')
               .eq('id', link.inventory_id)
@@ -377,7 +377,7 @@ export async function createProduct(userId: string, productData: ProductInput) {
             if (currentInventory) {
               const newQuantity = (currentInventory.remaining_quantity || 0) - totalQuantityNeeded;
 
-              await Bolt Database
+              await supabase
                 .from('inventory')
                 .update({
                   remaining_quantity: newQuantity,
@@ -408,7 +408,7 @@ export async function updateProduct(productId: string, productData: Partial<Prod
   if (productData.selling_price !== undefined) updates.selling_price = productData.selling_price;
   if (productData.creation_date !== undefined) updates.creation_date = productData.creation_date;
 
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('products')
     .update(updates)
     .eq('id', productId)
@@ -424,7 +424,7 @@ export async function updateProduct(productId: string, productData: Partial<Prod
 }
 
 export async function deleteProduct(productId: string) {
-  const { error } = await Bolt Database
+  const { error } = await supabase
     .from('products')
     .delete()
     .eq('id', productId);

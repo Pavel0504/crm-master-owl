@@ -1,4 +1,4 @@
-import { Bolt Database } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export interface ProductCategory {
   id: string;
@@ -25,7 +25,7 @@ export interface ProductCategoryInventoryLink {
 }
 
 export async function getProductCategories(userId: string) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('product_categories')
     .select('*')
     .eq('user_id', userId)
@@ -40,7 +40,7 @@ export async function getProductCategories(userId: string) {
 }
 
 export async function getProductCategoryInventory(categoryId: string) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('product_category_inventory')
     .select('inventory_id')
     .eq('category_id', categoryId);
@@ -58,7 +58,7 @@ export async function createProductCategory(
   categoryData: ProductCategoryInput,
   inventoryIds: string[]
 ) {
-  const { data: category, error: categoryError } = await Bolt Database
+  const { data: category, error: categoryError } = await supabase
     .from('product_categories')
     .insert({
       user_id: userId,
@@ -78,7 +78,7 @@ export async function createProductCategory(
       inventory_id: inventoryId,
     }));
 
-    const { error: linkError } = await Bolt Database
+    const { error: linkError } = await supabase
       .from('product_category_inventory')
       .insert(inventoryLinks);
 
@@ -96,7 +96,7 @@ export async function updateProductCategory(
   categoryData: ProductCategoryInput,
   inventoryIds: string[]
 ) {
-  const { data: category, error: categoryError } = await Bolt Database
+  const { data: category, error: categoryError } = await supabase
     .from('product_categories')
     .update(categoryData)
     .eq('id', categoryId)
@@ -108,7 +108,7 @@ export async function updateProductCategory(
     return { data: null, error: categoryError };
   }
 
-  const { error: deleteError } = await Bolt Database
+  const { error: deleteError } = await supabase
     .from('product_category_inventory')
     .delete()
     .eq('category_id', categoryId);
@@ -124,7 +124,7 @@ export async function updateProductCategory(
       inventory_id: inventoryId,
     }));
 
-    const { error: linkError } = await Bolt Database
+    const { error: linkError } = await supabase
       .from('product_category_inventory')
       .insert(inventoryLinks);
 
@@ -138,7 +138,7 @@ export async function updateProductCategory(
 }
 
 export async function deleteProductCategory(categoryId: string) {
-  const { error } = await Bolt Database
+  const { error } = await supabase
     .from('product_categories')
     .delete()
     .eq('id', categoryId);
