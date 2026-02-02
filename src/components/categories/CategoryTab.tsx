@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FolderOpen, FolderClosed } from 'lucide-react';
+import { FolderOpen } from 'lucide-react';
 import CategoryItem from './CategoryItem';
 import EditCategoryModal from './EditCategoryModal';
 import { ConfirmDialog } from '../ui';
@@ -12,7 +12,7 @@ interface Category {
 
 interface CategoryTabProps {
   categories: Category[];
-  onUpdate: (id: string, name: string) => Promise<boolean>;
+  onUpdate: (id: string, data: { name: string; parent_id: string | null }) => Promise<boolean>;
   onDelete: (id: string) => Promise<boolean>;
 }
 
@@ -41,11 +41,11 @@ export default function CategoryTab({ categories, onUpdate, onDelete }: Category
     setIsDeleteDialogOpen(true);
   };
 
-  const handleUpdateCategory = async (name: string) => {
+  const handleUpdateCategory = async (data: { name: string; parent_id: string | null }) => {
     if (!selectedCategory) return;
 
     setLoading(true);
-    const success = await onUpdate(selectedCategory.id, name);
+    const success = await onUpdate(selectedCategory.id, data);
     setLoading(false);
 
     if (success) {
@@ -106,6 +106,7 @@ export default function CategoryTab({ categories, onUpdate, onDelete }: Category
         }}
         onSubmit={handleUpdateCategory}
         category={selectedCategory}
+        categories={categories}
         loading={loading}
       />
 

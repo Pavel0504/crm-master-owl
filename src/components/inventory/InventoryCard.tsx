@@ -90,10 +90,10 @@ export default function InventoryCard({
           <>
             <DetailItem
               label="Износ на единицу изделия"
-              value={`${inventory.wear_rate_per_item}%`}
+              value={`${(inventory.wear_rate_per_item || 0).toFixed(3)}%`}
             />
             <DetailItem
-              label="Текущий износ"
+              label="Запас пригодности"
               value={`${wearPercentage}%`}
             />
           </>
@@ -106,6 +106,10 @@ export default function InventoryCard({
             <DetailItem
               label="Осталось"
               value={`${inventory.remaining_quantity || 0} шт`}
+            />
+            <DetailItem
+              label="Расход на единицу изделия"
+              value={`${(inventory.quantity_rate_per_item || 0).toFixed(3)} шт`}
             />
           </>
         )}

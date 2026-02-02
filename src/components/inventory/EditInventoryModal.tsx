@@ -28,6 +28,7 @@ export default function EditInventoryModal({
   const [wearRatePerItem, setWearRatePerItem] = useState('');
   const [quantity, setQuantity] = useState('');
   const [remainingQuantity, setRemainingQuantity] = useState('');
+  const [quantityRatePerItem, setQuantityRatePerItem] = useState('');
   const [purchaseDate, setPurchaseDate] = useState('');
 
   useEffect(() => {
@@ -44,6 +45,7 @@ export default function EditInventoryModal({
       } else {
         setQuantity(inventory.quantity?.toString() || '0');
         setRemainingQuantity(inventory.remaining_quantity?.toString() || '0');
+        setQuantityRatePerItem(inventory.quantity_rate_per_item?.toString() || '0');
       }
     }
   }, [inventory]);
@@ -64,11 +66,13 @@ export default function EditInventoryModal({
       data.wear_rate_per_item = parseFloat(wearRatePerItem) || 0;
       data.quantity = null;
       data.remaining_quantity = null;
+      data.quantity_rate_per_item = null;
     } else {
       data.wear_percentage = null;
       data.wear_rate_per_item = null;
       data.quantity = parseInt(quantity) || 0;
       data.remaining_quantity = parseInt(remainingQuantity) || 0;
+      data.quantity_rate_per_item = parseFloat(quantityRatePerItem) || 0;
     }
 
     await onSubmit(data);
@@ -168,48 +172,36 @@ export default function EditInventoryModal({
         </div>
 
         {inventoryType === 'процент' ? (
-          <>
-            <Input
-              label="Текущий процент износа (%)"
-              type="number"
-              step="0.001"
-              min="0"
-              max="100"
-              value={wearPercentage}
-              onChange={(e) => setWearPercentage(e.target.value)}
-              helperText="100% - новый, 0% - полностью изношен"
-              required
-            />
-            <Input
-              label="Износ на единицу изделия (%)"
-              type="number"
-              step="0.001"
-              min="0"
-              max="100"
-              value={wearRatePerItem}
-              onChange={(e) => setWearRatePerItem(e.target.value)}
-              helperText="Процент износа при создании одного изделия"
-              required
-            />
-          </>
+          <Input
+            label="Износ на единицу изделия (%)"
+            type="number"
+            step="0.001"
+            min="0"
+            max="100"
+            value={wearRatePerItem}
+            onChange={(e) => setWearRatePerItem(e.target.value)}
+            helperText="Процент износа при создании одного изделия"
+            required
+          />
         ) : (
           <>
             <Input
-              label="Общее количество (шт)"
+              label="Количество (шт)"
               type="number"
               min="0"
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
-              helperText="Изначальное количество единиц"
+              helperText="Количество единиц инвентаря"
               required
             />
             <Input
-              label="Оставшееся количество (шт)"
+              label="Расход на единицу изделия (шт)"
               type="number"
+              step="0.001"
               min="0"
-              value={remainingQuantity}
-              onChange={(e) => setRemainingQuantity(e.target.value)}
-              helperText="Текущее количество единиц"
+              value={quantityRatePerItem}
+              onChange={(e) => setQuantityRatePerItem(e.target.value)}
+              helperText="Сколько единиц тратится на создание одного изделия"
               required
             />
           </>
@@ -226,7 +218,7 @@ export default function EditInventoryModal({
             Отмена
           </Button>
           <Button type="submit" variant="primary" fullWidth loading={loading}>
-            Сохранить
+            Добавить
           </Button>
         </div>
       </form>

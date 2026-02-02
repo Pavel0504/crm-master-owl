@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Modal, Input, Select, Button, DatePicker, CurrencyInput } from '../ui';
 import { InventoryCategory } from '../../services/inventoryCategoryService';
 import { InventoryInput } from '../../services/inventoryService';
+import { parseDecimal } from '../../utils/currency';
 
 interface CreateInventoryModalProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ export default function CreateInventoryModal({
   const [inventoryType, setInventoryType] = useState<'процент' | 'количество'>('процент');
   const [wearRatePerItem, setWearRatePerItem] = useState('');
   const [quantity, setQuantity] = useState('');
+  const [quantityRatePerItem, setQuantityRatePerItem] = useState('');
   const [purchaseDate, setPurchaseDate] = useState(new Date().toISOString().split('T')[0]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,11 +44,13 @@ export default function CreateInventoryModal({
       data.wear_rate_per_item = parseFloat(wearRatePerItem) || 0;
       data.quantity = null;
       data.remaining_quantity = null;
+      data.quantity_rate_per_item = null;
     } else {
       data.wear_percentage = null;
       data.wear_rate_per_item = null;
       data.quantity = parseInt(quantity) || 0;
       data.remaining_quantity = parseInt(quantity) || 0;
+      data.quantity_rate_per_item = parseFloat(quantityRatePerItem) || 0;
     }
 
     await onSubmit(data);
@@ -60,6 +64,7 @@ export default function CreateInventoryModal({
     setInventoryType('процент');
     setWearRatePerItem('');
     setQuantity('');
+    setQuantityRatePerItem('');
     setPurchaseDate(new Date().toISOString().split('T')[0]);
     onClose();
   };
@@ -165,15 +170,27 @@ export default function CreateInventoryModal({
             required
           />
         ) : (
-          <Input
-            label="Количество (шт)"
-            type="number"
-            min="0"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-            helperText="Количество единиц инвентаря"
-            required
-          />
+          <>
+            <Input
+              label="Количество (шт)"
+              type="number"
+              min="0"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              helperText="Количество единиц инвентаря"
+              required
+            />
+            <Input
+              label="Расход на единицу изделия (шт)"
+              type="number"
+              step="0.001"
+              min="0"
+              value={quantityRatePerItem}
+              onChange={(e) => setQuantityRatePerItem(e.target.value)}
+              helperText="Сколько единиц тратится на создание одного изделия"
+              required
+            />
+          </>
         )}
 
         <div className="flex gap-3 pt-4">

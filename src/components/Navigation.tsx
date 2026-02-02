@@ -1,10 +1,11 @@
 import { NavLink } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   Package,
   Box,
   ShoppingBag,
-  Users,
+  Users as UsersIcon,
   ShoppingCart,
   Store,
   FolderTree,
@@ -15,13 +16,18 @@ import {
   X,
   LogOut,
   Calendar,
-  ListTodo
+  ListTodo,
+  Info,
+  ChevronLeft,
+  ChevronRight,
+  UserCog,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
-import { useState } from 'react';
+import { getOrCreateShop } from '../services/shopService';
+import { getEmployeeByUserId, Employee } from '../services/employeeService';
 
-const navItems = [
+const allNavItems = [
   { path: '/dashboard', icon: LayoutDashboard, label: 'Дашборд' },
   { path: '/planner', icon: Calendar, label: 'Планировщик' },
   { path: '/purchases', icon: ListTodo, label: 'Будущие покупки' },
@@ -31,14 +37,59 @@ const navItems = [
   { path: '/materials', icon: Package, label: 'Материалы' },
   { path: '/inventory', icon: Box, label: 'Инвентарь' },
   { path: '/products', icon: ShoppingBag, label: 'Изделия' },
-  { path: '/clients', icon: Users, label: 'Клиенты' },
+  { path: '/clients', icon: UsersIcon, label: 'Клиенты' },
   { path: '/orders', icon: ShoppingCart, label: 'Заказы' },
+  { path: '/employees', icon: UserCog, label: 'Сотрудники' },
+  { path: '/about', icon: Info, label: 'О программе' },
 ];
 
 export default function Navigation() {
   const { theme, toggleTheme } = useTheme();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [shopName, setShopName] = useState('Master Owl');
+  const [employee, setEmployee] = useState<Employee | null>(null);
+  const [allowedNavItems, setAllowedNavItems] = useState(allNavItems);
+
+  useEffect(() => {
+    if (user) {
+      loadShopName();
+      loadEmployeeAccess();
+    }
+  }, [user]);
+
+  const loadShopName = async () => {
+    if (!user) return;
+
+    const { data } = await getOrCreateShop(user.id);
+    if (data && data.name && data.name.trim() !== '') {
+      setShopName(data.name);
+    } else {
+      setShopName('Master Owl');
+    }
+  };
+
+  const loadEmployeeAccess = async () => {
+    if (!user) return;
+
+    const { data: employeeData } = await getEmployeeByUserId(user.id);
+
+    if (employeeData) {
+      setEmployee(employeeData);
+
+      if (employeeData.role === 'admin') {
+        setAllowedNavItems(allNavItems);
+      } else {
+        const filtered = allNavItems.filter((item) =>
+          employeeData.allowed_pages.includes(item.path)
+        );
+        setAllowedNavItems(filtered);
+      }
+    } else {
+      setAllowedNavItems(allNavItems);
+    }
+  };
 
   return (
     <>
@@ -53,30 +104,50 @@ export default function Navigation() {
         )}
       </button>
 
+      {isCollapsed && (
+        <button
+          onClick={() => setIsCollapsed(false)}
+          className="hidden lg:flex fixed top-4 left-0 z-40 h-12 w-8 bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 rounded-r-lg items-center justify-center shadow-lg hover:w-10 transition-all"
+        >
+          <ChevronRight className="h-5 w-5 text-white" />
+        </button>
+      )}
+
       <aside
         className={`
           fixed top-0 left-0 h-full bg-white dark:bg-gray-900 shadow-xl z-40
-          transition-transform duration-300 ease-in-out
-          w-64 flex flex-col
+          transition-all duration-300 ease-in-out
+          flex flex-col
           ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
-          lg:translate-x-0
+          ${isCollapsed ? 'lg:w-0 lg:-translate-x-full' : 'lg:w-64 lg:translate-x-0'}
+          w-64
         `}
       >
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-rose-400 dark:from-burgundy-600 dark:to-burgundy-800 rounded-lg flex items-center justify-center">
-              <span className="text-2xl">🦉</span>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-rose-400 dark:from-burgundy-600 dark:to-burgundy-800 rounded-lg flex items-center justify-center flex-shrink-0">
+                <span className="text-2xl">🦉</span>
+              </div>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-lg font-bold text-gray-900 dark:text-white truncate">
+                  {shopName}
+                </h1>
+                <p className="text-xs text-gray-500 dark:text-gray-400">CRM System</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-lg font-bold text-gray-900 dark:text-white">Master Owl</h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400">CRM System</p>
-            </div>
+            <button
+              onClick={() => setIsCollapsed(true)}
+              className="hidden lg:flex p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all flex-shrink-0"
+            >
+              <ChevronLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+            </button>
           </div>
         </div>
 
         <nav className="flex-1 p-4 overflow-y-auto">
           <ul className="space-y-2">
-            {navItems.map((item) => {
+            {allowedNavItems.map((item) => {
               const Icon = item.icon;
               return (
                 <li key={item.path}>

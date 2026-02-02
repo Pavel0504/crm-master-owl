@@ -1,5 +1,5 @@
 import { forwardRef, useState, useEffect } from 'react';
-import { DollarSign } from 'lucide-react';
+import { Ruble } from 'lucide-react';
 import Input from './Input';
 import { parseCurrency } from '../../utils/currency';
 
@@ -26,32 +26,31 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
       disabled,
       required,
       min = 0,
-      placeholder = '0,00',
+      placeholder = '0',
     },
     ref
   ) => {
     const [displayValue, setDisplayValue] = useState<string>('');
+    const [isFocused, setIsFocused] = useState(false);
 
-    // Синхронизируем отображаемое значение с prop value
     useEffect(() => {
-      if (value === 0 && displayValue === '') {
-        return; // Не заполняем поле если оно пустое и value = 0
+      if (!isFocused) {
+        if (value === 0 && displayValue === '') {
+          return;
+        }
+        setDisplayValue(value.toFixed(2).replace('.', ','));
       }
-      setDisplayValue(value.toFixed(2).replace('.', ','));
-    }, [value]);
+    }, [value, isFocused]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       let inputValue = e.target.value;
 
-      // Разрешаем только цифры, точку и запятую
       inputValue = inputValue.replace(/[^\d.,]/g, '');
 
-      // Заменяем множественные разделители
       const commaCount = (inputValue.match(/,/g) || []).length;
       const dotCount = (inputValue.match(/\./g) || []).length;
 
       if (commaCount + dotCount > 1) {
-        // Оставляем только первый разделитель
         let foundSeparator = false;
         inputValue = inputValue
           .split('')
@@ -65,7 +64,6 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
           .join('');
       }
 
-      // Ограничиваем до 2 знаков после запятой/точки
       const parts = inputValue.split(/[.,]/);
       if (parts.length > 1 && parts[1].length > 2) {
         parts[1] = parts[1].slice(0, 2);
@@ -74,7 +72,6 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
 
       setDisplayValue(inputValue);
 
-      // Парсим и отправляем числовое значение
       const numericValue = parseCurrency(inputValue);
       if (numericValue >= min) {
         onChange(numericValue);
@@ -82,11 +79,15 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
     };
 
     const handleBlur = () => {
-      // При потере фокуса форматируем значение
-      if (displayValue) {
+      setIsFocused(false);
+      if (displayValue && displayValue !== '') {
         const numericValue = parseCurrency(displayValue);
         setDisplayValue(numericValue.toFixed(2).replace('.', ','));
       }
+    };
+
+    const handleFocus = () => {
+      setIsFocused(true);
     };
 
     return (
@@ -98,9 +99,14 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
         value={displayValue}
         onChange={handleChange}
         onBlur={handleBlur}
+        onFocus={handleFocus}
         error={error}
         helperText={helperText || 'Можно использовать запятую или точку'}
-        leftIcon={<DollarSign className="h-5 w-5 text-gray-400 dark:text-gray-500" />}
+        leftIcon={
+          <div className="flex items-center justify-center w-5 h-5 text-gray-400 dark:text-gray-500">
+            <span className="text-sm font-medium">₽</span>
+          </div>
+        }
         disabled={disabled}
         required={required}
         placeholder={placeholder}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal, Input, Button, DatePicker, DynamicFieldArray } from '../ui';
 import { TaskInput } from '../../services/taskService';
 import { getMoscowDateString, toMoscowDateString } from '../../utils/moscowTime';
@@ -45,18 +45,22 @@ export default function CreateTaskModal({
   loading = false,
 }: CreateTaskModalProps) {
   const [title, setTitle] = useState('');
-  const [startDate, setStartDate] = useState(
-    initialDate ? toMoscowDateString(initialDate) : getMoscowDateString()
-  );
-  const [endDate, setEndDate] = useState(
-    initialDate ? toMoscowDateString(initialDate) : getMoscowDateString()
-  );
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [description, setDescription] = useState('');
   const [tag, setTag] = useState('');
   const [customTag, setCustomTag] = useState('');
   const [showCustomTag, setShowCustomTag] = useState(false);
   const [priority, setPriority] = useState<'низкая' | 'средняя' | 'высокая'>('средняя');
   const [checklist, setChecklist] = useState<ChecklistItem[]>([{ title: '' }]);
+
+  useEffect(() => {
+    if (isOpen) {
+      const dateToUse = initialDate ? toMoscowDateString(initialDate) : getMoscowDateString();
+      setStartDate(dateToUse);
+      setEndDate(dateToUse);
+    }
+  }, [isOpen, initialDate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,8 +87,8 @@ export default function CreateTaskModal({
 
   const handleClose = () => {
     setTitle('');
-    setStartDate(getMoscowDateString());
-    setEndDate(getMoscowDateString());
+    setStartDate('');
+    setEndDate('');
     setDescription('');
     setTag('');
     setCustomTag('');

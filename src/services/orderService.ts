@@ -69,7 +69,7 @@ export async function calculateOrderPrice(
   for (const item of items) {
     if (item.is_bonus) continue;
 
-    const { data: product, error } = await supabase
+    const { data: product, error } = await Bolt Database
       .from('products')
       .select('selling_price')
       .eq('id', item.product_id)
@@ -209,6 +209,46 @@ export function calculateTimeRemaining(orderDate: string, deadline: string | nul
   const remainingTime = end - now;
 
   return Math.round((remainingTime / totalTime) * 100);
+}
+
+export async function calculateOrderPrice(
+  items: OrderItemInput[],
+  bonusType: string,
+  discountType: string,
+  discountValue: number
+): Promise<{ totalPrice: number; error: Error | null }> {
+  let basePrice = 0;
+
+  for (const item of items) {
+    if (item.is_bonus) continue;
+
+    const { data: product, error } = await supabase
+      .from('products')
+      .select('selling_price')
+      .eq('id', item.product_id)
+      .single();
+
+    if (error || !product) {
+      console.error('Error fetching product for price calculation:', error);
+      continue;
+    }
+
+    basePrice += product.selling_price * item.quantity;
+  }
+
+  let finalPrice = basePrice;
+
+  if (bonusType === 'скидка' && discountValue > 0) {
+    if (discountType === 'процент') {
+      finalPrice = basePrice * (1 - discountValue / 100);
+    } else if (discountType === 'сумма') {
+      finalPrice = basePrice - discountValue;
+    }
+  }
+
+  finalPrice = Math.max(0, finalPrice);
+
+  return { totalPrice: finalPrice, error: null };
 }
 
 export async function createOrder(userId: string, orderData: OrderInput) {

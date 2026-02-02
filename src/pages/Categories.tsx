@@ -70,8 +70,8 @@ export default function Categories() {
     setLoading(false);
   };
 
-  const handleUpdateMaterialCategory = async (id: string, name: string) => {
-    const { error } = await updateMaterialCategory(id, { name });
+  const handleUpdateMaterialCategory = async (id: string, data: { name: string; parent_id: string | null }) => {
+    const { error } = await updateMaterialCategory(id, data);
     if (error) {
       setError('Не удалось обновить категорию');
       return false;
@@ -90,8 +90,8 @@ export default function Categories() {
     return true;
   };
 
-  const handleUpdateInventoryCategory = async (id: string, name: string) => {
-    const { error } = await updateInventoryCategory(id, { name });
+  const handleUpdateInventoryCategory = async (id: string, data: { name: string; parent_id: string | null }) => {
+    const { error } = await updateInventoryCategory(id, data);
     if (error) {
       setError('Не удалось обновить категорию');
       return false;
@@ -110,8 +110,8 @@ export default function Categories() {
     return true;
   };
 
-  const handleUpdateProductCategory = async (id: string, name: string) => {
-    const { error } = await updateProductCategory(id, { name }, []);
+  const handleUpdateProductCategory = async (id: string, data: { name: string; parent_id: string | null }) => {
+    const { error } = await updateProductCategory(id, data, []);
     if (error) {
       setError('Не удалось обновить категорию');
       return false;
@@ -130,8 +130,8 @@ export default function Categories() {
     return true;
   };
 
-  const handleUpdateSupplierCategory = async (id: string, name: string) => {
-    const { error } = await updateSupplierCategory(id, { name });
+  const handleUpdateSupplierCategory = async (id: string, data: { name: string; parent_id: string | null }) => {
+    const { error } = await updateSupplierCategory(id, data);
     if (error) {
       setError('Не удалось обновить категорию');
       return false;

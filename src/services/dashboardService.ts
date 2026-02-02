@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+import { Bolt Database } from '../lib/supabase';
 
 export interface SalesData {
   period: string;
@@ -35,7 +35,7 @@ export async function getSalesData(
   endDate?: string
 ): Promise<{ data: SalesData[] | null; error: any }> {
   try {
-    let query = supabase
+    let query = Bolt Database
       .from('orders')
       .select('order_date, total_price, status')
       .eq('user_id', userId)
@@ -76,12 +76,12 @@ export async function getExpensesData(
   endDate?: string
 ): Promise<{ data: ExpensesData[] | null; error: any }> {
   try {
-    let materialsQuery = supabase
+    let materialsQuery = Bolt Database
       .from('materials')
       .select('purchase_date, purchase_price')
       .eq('user_id', userId);
 
-    let inventoryQuery = supabase
+    let inventoryQuery = Bolt Database
       .from('inventory')
       .select('purchase_date, purchase_price')
       .eq('user_id', userId);
@@ -142,7 +142,7 @@ export async function getMaterialExpensesByType(
   endDate?: string
 ): Promise<{ data: MaterialExpensesByType[] | null; error: any }> {
   try {
-    let query = supabase
+    let query = Bolt Database
       .from('materials')
       .select('name, purchase_price, category_id, purchase_date')
       .eq('user_id', userId);
@@ -161,7 +161,7 @@ export async function getMaterialExpensesByType(
       return { data: null, error };
     }
 
-    const { data: categories } = await supabase
+    const { data: categories } = await Bolt Database
       .from('material_categories')
       .select('id, name')
       .eq('user_id', userId);
@@ -435,7 +435,7 @@ export async function exportAllDataToExcel(userId: string) {
     if (ordersResult.data && ordersResult.data.length > 0) {
       const ordersWithDetails = await Promise.all(
         ordersResult.data.map(async (order) => {
-          const { data: client } = await supabase
+          const { data: client } = await Bolt Database
             .from('clients')
             .select('full_name')
             .eq('id', order.client_id || '')

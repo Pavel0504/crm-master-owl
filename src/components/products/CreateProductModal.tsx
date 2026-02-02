@@ -48,7 +48,7 @@ export default function CreateProductModal({
   const [categoryId, setCategoryId] = useState<string>('');
   const [description, setDescription] = useState('');
   const [composition, setComposition] = useState('');
-  const [quantity, setQuantity] = useState<number>(1);
+  const [quantity, setQuantity] = useState<number>(0);
   const [laborHours, setLaborHours] = useState<number>(0);
   const [sellingPrice, setSellingPrice] = useState<number>(0);
   const [creationDate, setCreationDate] = useState<string>(
@@ -59,7 +59,7 @@ export default function CreateProductModal({
   const [calculatedProfit, setCalculatedProfit] = useState<number>(0);
 
   useEffect(() => {
-    if (onCalculateCost) {
+    if (onCalculateCost && quantity > 0) {
       const validMaterials = selectedMaterials.filter(
         (m) => m.material_id && m.volume_per_item > 0
       );
@@ -72,6 +72,11 @@ export default function CreateProductModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (quantity <= 0) {
+      alert('Количество должно быть больше нуля');
+      return;
+    }
 
     const validMaterials = selectedMaterials.filter(
       (m) => m.material_id && m.volume_per_item > 0
@@ -97,7 +102,7 @@ export default function CreateProductModal({
     setCategoryId('');
     setDescription('');
     setComposition('');
-    setQuantity(1);
+    setQuantity(0);
     setLaborHours(0);
     setSellingPrice(0);
     setCreationDate(new Date().toISOString().split('T')[0]);
@@ -128,6 +133,8 @@ export default function CreateProductModal({
       label: cat.name,
     })),
   ];
+
+  const sortedMaterials = [...materials].sort((a, b) => a.name.localeCompare(b.name, 'ru'));
 
   return (
     <Modal
@@ -236,7 +243,7 @@ export default function CreateProductModal({
                       onChange={(e) => updateMaterial(index, 'material_id', e.target.value)}
                       options={[
                         { value: '', label: 'Выберите материал' },
-                        ...materials.map((mat) => ({
+                        ...sortedMaterials.map((mat) => ({
                           value: mat.id,
                           label: `${mat.name} (остаток: ${mat.remaining_volume} ${mat.unit_of_measurement})`,
                         })),

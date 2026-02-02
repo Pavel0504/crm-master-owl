@@ -18,6 +18,10 @@ import Categories from './pages/Categories';
 import Suppliers from './pages/Suppliers';
 import Planner from './pages/Planner';
 import Purchases from './pages/Purchases';
+import Employees from './pages/Employees';
+import EmployeeRegister from './pages/EmployeeRegister';
+import NoAccess from './pages/NoAccess';
+import About from './pages/About';
 
 function App() {
   return (
@@ -29,6 +33,8 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/employee-register/:inviteToken" element={<EmployeeRegister />} />
+            <Route path="/no-access" element={<NoAccess />} />
             <Route
               path="/dashboard"
               element={
@@ -135,6 +141,26 @@ function App() {
                 <ProtectedRoute>
                   <MainLayout>
                     <Purchases />
+                  </MainLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/employees"
+              element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Employees />
+                  </MainLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/about"
+              element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <About />
                   </MainLayout>
                 </ProtectedRoute>
               }
