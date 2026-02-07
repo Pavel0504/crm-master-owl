@@ -225,17 +225,7 @@ export default function Orders() {
     setFilterPriceTo('');
   };
 
-  if (loading) {
-    return (
-      <div className="max-w-7xl mx-auto">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-orange-500 dark:text-burgundy-400" />
-          </div>
-        </div>
-      </div>
-    );
-  }
+
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
