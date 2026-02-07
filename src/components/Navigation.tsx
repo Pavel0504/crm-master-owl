@@ -21,11 +21,13 @@ import {
   ChevronLeft,
   ChevronRight,
   UserCog,
+  ChefHat,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { getOrCreateShop } from '../services/shopService';
 import { getEmployeeByUserId, Employee } from '../services/employeeService';
+
 
 const allNavItems = [
   { path: '/dashboard', icon: LayoutDashboard, label: 'Дашборд' },
@@ -40,6 +42,7 @@ const allNavItems = [
   { path: '/clients', icon: UsersIcon, label: 'Клиенты' },
   { path: '/orders', icon: ShoppingCart, label: 'Заказы' },
   { path: '/employees', icon: UserCog, label: 'Сотрудники' },
+  { path: '/recipes', icon: ChefHat, label: 'Рецепты' },
   { path: '/about', icon: Info, label: 'О программе' },
 ];
 

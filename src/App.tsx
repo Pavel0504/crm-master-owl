@@ -22,6 +22,8 @@ import Employees from './pages/Employees';
 import EmployeeRegister from './pages/EmployeeRegister';
 import NoAccess from './pages/NoAccess';
 import About from './pages/About';
+import Recipes from './pages/Recipes';
+
 
 function App() {
   return (
@@ -155,6 +157,17 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+  path="/recipes"
+  element={
+    <ProtectedRoute>
+      <MainLayout>
+        <Recipes />
+      </MainLayout>
+    </ProtectedRoute>
+  }
+/>
+
             <Route
               path="/about"
               element={
