@@ -12,7 +12,7 @@ interface EditingField {
 export default function Shop() {
   const { user } = useAuth();
   const [shop, setShop] = useState<ShopType | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editingField, setEditingField] = useState<EditingField | null>(null);
   const [saving, setSaving] = useState(false);

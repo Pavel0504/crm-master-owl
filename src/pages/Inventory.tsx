@@ -24,7 +24,7 @@ export default function Inventory() {
   const { user } = useAuth();
   const [inventory, setInventory] = useState<InventoryType[]>([]);
   const [categories, setCategories] = useState<InventoryCategory[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

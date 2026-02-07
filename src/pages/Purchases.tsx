@@ -17,7 +17,7 @@ import EditPurchaseModal from '../components/purchases/EditPurchaseModal';
 export default function Purchases() {
   const { user } = useAuth();
   const [purchases, setPurchases] = useState<PurchasePlan[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

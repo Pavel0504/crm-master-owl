@@ -32,7 +32,7 @@ export default function Products() {
   const [productMaterials, setProductMaterials] = useState<
     Record<string, Array<{ material_id: string; volume_per_item: number; material_name: string }>>
   >({});
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

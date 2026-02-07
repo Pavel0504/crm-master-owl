@@ -33,7 +33,7 @@ type TabType = 'materials' | 'inventory' | 'products' | 'suppliers';
 export default function Categories() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('materials');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [materialCategories, setMaterialCategories] = useState<MaterialCategory[]>([]);

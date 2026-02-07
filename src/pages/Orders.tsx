@@ -25,7 +25,7 @@ export default function Orders() {
   const [ordersWithDetails, setOrdersWithDetails] = useState<OrderWithItems[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

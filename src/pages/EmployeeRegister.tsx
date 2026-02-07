@@ -14,7 +14,7 @@ export default function EmployeeRegister() {
   const navigate = useNavigate();
 
   const [employee, setEmployee] = useState<Employee | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 

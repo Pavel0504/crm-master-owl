@@ -13,6 +13,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const { theme } = useTheme();
   const [background, setBackground] = useState<Background | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    const saved = localStorage.getItem('sidebarCollapsed');
+    return saved === 'true';
+  });
 
   useEffect(() => {
     const checkMobile = () => {
@@ -23,6 +27,18 @@ export default function MainLayout({ children }: MainLayoutProps) {
     window.addEventListener('resize', checkMobile);
 
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    const handleSidebarToggle = (e: CustomEvent) => {
+      setIsSidebarCollapsed(e.detail.isCollapsed);
+    };
+
+    window.addEventListener('sidebarToggle', handleSidebarToggle as EventListener);
+
+    return () => {
+      window.removeEventListener('sidebarToggle', handleSidebarToggle as EventListener);
+    };
   }, []);
 
   useEffect(() => {
@@ -79,7 +95,11 @@ export default function MainLayout({ children }: MainLayoutProps) {
       style={backgroundStyle}
     >
       <Navigation />
-      <main className="lg:ml-64 min-h-screen transition-all duration-300">
+      <main 
+        className={`min-h-screen transition-all duration-300 ${
+          isSidebarCollapsed ? 'lg:ml-0' : 'lg:ml-[21rem]'
+        }`}
+      >
         <div className="p-4 lg:p-8 pt-20 lg:pt-8">
           {children}
         </div>

@@ -47,7 +47,10 @@ export default function Navigation() {
   const { theme, toggleTheme } = useTheme();
   const { signOut, user } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    const saved = localStorage.getItem('sidebarCollapsed');
+    return saved === 'true';
+  });
   const [shopName, setShopName] = useState('Master Owl');
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [allowedNavItems, setAllowedNavItems] = useState(allNavItems);
@@ -58,6 +61,11 @@ export default function Navigation() {
       loadEmployeeAccess();
     }
   }, [user]);
+
+  useEffect(() => {
+    localStorage.setItem('sidebarCollapsed', isCollapsed.toString());
+    window.dispatchEvent(new CustomEvent('sidebarToggle', { detail: { isCollapsed } }));
+  }, [isCollapsed]);
 
   const loadShopName = async () => {
     if (!user) return;
@@ -91,6 +99,10 @@ export default function Navigation() {
     }
   };
 
+  const handleToggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
   return (
     <>
       <button
@@ -106,7 +118,7 @@ export default function Navigation() {
 
       {isCollapsed && (
         <button
-          onClick={() => setIsCollapsed(false)}
+          onClick={handleToggleCollapse}
           className="hidden lg:flex fixed top-4 left-0 z-40 h-12 w-8 bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 rounded-r-lg items-center justify-center shadow-lg hover:w-10 transition-all"
         >
           <ChevronRight className="h-5 w-5 text-white" />
@@ -119,11 +131,12 @@ export default function Navigation() {
           transition-all duration-300 ease-in-out
           flex flex-col
           ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
-          ${isCollapsed ? 'lg:w-0 lg:-translate-x-full' : 'lg:w-64 lg:translate-x-0'}
+          ${isCollapsed ? 'lg:w-0 lg:-translate-x-full' : 'lg:w-[21rem] lg:translate-x-0'}
           w-64
+          ${isCollapsed ? 'lg:overflow-hidden' : 'overflow-y-auto'}
         `}
       >
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-rose-400 dark:from-burgundy-600 dark:to-burgundy-800 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -137,7 +150,7 @@ export default function Navigation() {
               </div>
             </div>
             <button
-              onClick={() => setIsCollapsed(true)}
+              onClick={handleToggleCollapse}
               className="hidden lg:flex p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all flex-shrink-0"
             >
               <ChevronLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
@@ -162,7 +175,7 @@ export default function Navigation() {
                       }`
                     }
                   >
-                    <Icon className="h-5 w-5" />
+                    <Icon className="h-5 w-5 flex-shrink-0" />
                     <span className="font-medium">{item.label}</span>
                   </NavLink>
                 </li>
@@ -171,19 +184,19 @@ export default function Navigation() {
           </ul>
         </nav>
 
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2 flex-shrink-0">
           <button
             onClick={toggleTheme}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
           >
             {theme === 'light' ? (
               <>
-                <Moon className="h-5 w-5" />
+                <Moon className="h-5 w-5 flex-shrink-0" />
                 <span className="font-medium">Темная тема</span>
               </>
             ) : (
               <>
-                <Sun className="h-5 w-5" />
+                <Sun className="h-5 w-5 flex-shrink-0" />
                 <span className="font-medium">Светлая тема</span>
               </>
             )}
@@ -193,7 +206,7 @@ export default function Navigation() {
             onClick={() => signOut()}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
           >
-            <LogOut className="h-5 w-5" />
+            <LogOut className="h-5 w-5 flex-shrink-0" />
             <span className="font-medium">Выйти</span>
           </button>
         </div>
