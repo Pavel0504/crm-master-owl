@@ -1,4 +1,4 @@
-import { Bolt Database } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export interface RecipeCategory {
   id: string;
@@ -14,7 +14,7 @@ export interface RecipeCategoryInput {
 }
 
 export async function getRecipeCategories(userId: string) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('recipe_categories')
     .select('*')
     .eq('user_id', userId)
@@ -29,7 +29,7 @@ export async function getRecipeCategories(userId: string) {
 }
 
 export async function createRecipeCategory(userId: string, categoryData: RecipeCategoryInput) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('recipe_categories')
     .insert({
       user_id: userId,
@@ -47,7 +47,7 @@ export async function createRecipeCategory(userId: string, categoryData: RecipeC
 }
 
 export async function updateRecipeCategory(categoryId: string, categoryData: RecipeCategoryInput) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('recipe_categories')
     .update(categoryData)
     .eq('id', categoryId)
@@ -63,7 +63,7 @@ export async function updateRecipeCategory(categoryId: string, categoryData: Rec
 }
 
 export async function deleteRecipeCategory(categoryId: string) {
-  const { error } = await Bolt Database
+  const { error } = await supabase
     .from('recipe_categories')
     .delete()
     .eq('id', categoryId);

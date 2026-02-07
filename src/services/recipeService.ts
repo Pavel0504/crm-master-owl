@@ -1,4 +1,4 @@
-import { Bolt Database } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export interface Recipe {
   id: string;
@@ -40,7 +40,7 @@ export interface RecipeWithSteps extends Recipe {
 }
 
 export async function getRecipes(userId: string) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('recipes')
     .select('*')
     .eq('user_id', userId)
@@ -55,7 +55,7 @@ export async function getRecipes(userId: string) {
 }
 
 export async function getRecipeById(recipeId: string) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('recipes')
     .select('*')
     .eq('id', recipeId)
@@ -70,7 +70,7 @@ export async function getRecipeById(recipeId: string) {
 }
 
 export async function getRecipeSteps(recipeId: string) {
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('recipe_steps')
     .select('*')
     .eq('recipe_id', recipeId)
@@ -107,7 +107,7 @@ export async function getRecipeWithSteps(recipeId: string) {
 }
 
 export async function createRecipe(userId: string, recipeData: RecipeInput) {
-  const { data: recipe, error: recipeError } = await Bolt Database
+  const { data: recipe, error: recipeError } = await supabase
     .from('recipes')
     .insert({
       user_id: userId,
@@ -137,7 +137,7 @@ export async function createRecipe(userId: string, recipeData: RecipeInput) {
       }));
 
     if (steps.length > 0) {
-      const { error: stepsError } = await Bolt Database
+      const { error: stepsError } = await supabase
         .from('recipe_steps')
         .insert(steps);
 
@@ -159,7 +159,7 @@ export async function updateRecipe(recipeId: string, recipeData: Partial<RecipeI
   if (recipeData.tag_name !== undefined) updates.tag_name = recipeData.tag_name;
   if (recipeData.tag_color !== undefined) updates.tag_color = recipeData.tag_color;
 
-  const { data, error } = await Bolt Database
+  const { data, error } = await supabase
     .from('recipes')
     .update(updates)
     .eq('id', recipeId)
@@ -172,7 +172,7 @@ export async function updateRecipe(recipeId: string, recipeData: Partial<RecipeI
   }
 
   if (recipeData.steps !== undefined) {
-    const { error: deleteError } = await Bolt Database
+    const { error: deleteError } = await supabase
       .from('recipe_steps')
       .delete()
       .eq('recipe_id', recipeId);
@@ -193,7 +193,7 @@ export async function updateRecipe(recipeId: string, recipeData: Partial<RecipeI
       }));
 
     if (steps.length > 0) {
-      const { error: stepsError } = await Bolt Database
+      const { error: stepsError } = await supabase
         .from('recipe_steps')
         .insert(steps);
 
