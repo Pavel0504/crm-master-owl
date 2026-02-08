@@ -18,6 +18,7 @@ import {
   TaskInput,
   TaskWithChecklist,
 } from '../services/taskService';
+import { getEmployees, Employee } from '../services/employeeService';
 import { toMoscowDateString } from '../utils/moscowTime';
 
 export default function Planner() {
@@ -25,6 +26,7 @@ export default function Planner() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [tasksForSelectedDate, setTasksForSelectedDate] = useState<TaskWithChecklist[]>([]);
   const [allTasks, setAllTasks] = useState<TaskWithChecklist[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [tasksCountByDate, setTasksCountByDate] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,11 +49,18 @@ export default function Planner() {
     if (!user) return;
 
     setLoading(true);
-    const { data: tasks } = await getTasks(user.id);
+    const [tasksResult, employeesResult] = await Promise.all([
+      getTasks(user.id),
+      getEmployees(user.id)
+    ]);
 
-    if (tasks) {
+    if (employeesResult.data) {
+      setEmployees(employeesResult.data);
+    }
+
+    if (tasksResult.data) {
       const tasksWithDetails: TaskWithChecklist[] = [];
-      for (const task of tasks) {
+      for (const task of tasksResult.data) {
         const { data: taskWithChecklist } = await getTaskWithChecklist(task.id);
         if (taskWithChecklist) {
           tasksWithDetails.push(taskWithChecklist);
@@ -60,7 +69,7 @@ export default function Planner() {
       setAllTasks(tasksWithDetails);
 
       const counts: Record<string, number> = {};
-      tasks.forEach((task) => {
+      tasksResult.data.forEach((task) => {
         const startDate = new Date(task.start_date + 'T00:00:00');
         const endDate = new Date(task.end_date + 'T00:00:00');
 
@@ -306,6 +315,7 @@ export default function Planner() {
         onClose={handleCloseCreateModal}
         onSubmit={handleSubmitCreateTask}
         initialDate={selectedDate || undefined}
+        employees={employees}
         loading={loading}
       />
 
@@ -314,6 +324,7 @@ export default function Planner() {
         onClose={handleCloseEditModal}
         onSubmit={handleSubmitEditTask}
         task={selectedTask}
+        employees={employees}
         loading={loading}
       />
 

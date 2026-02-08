@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Modal, Input, Button, DatePicker, DynamicFieldArray } from '../ui';
+import { Modal, Input, Button, DatePicker, DynamicFieldArray, Select } from '../ui';
 import { TaskInput, TaskWithChecklist } from '../../services/taskService';
+import { Employee } from '../../services/employeeService';
 
 interface EditTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: TaskInput) => Promise<void>;
   task: TaskWithChecklist | null;
+  employees?: Employee[];
   loading?: boolean;
 }
 
@@ -41,11 +43,13 @@ export default function EditTaskModal({
   onClose,
   onSubmit,
   task,
+  employees = [],
   loading = false,
 }: EditTaskModalProps) {
   const [title, setTitle] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [assignedTo, setAssignedTo] = useState('');
   const [description, setDescription] = useState('');
   const [tag, setTag] = useState('');
   const [customTag, setCustomTag] = useState('');
@@ -58,6 +62,7 @@ export default function EditTaskModal({
       setTitle(task.title);
       setStartDate(task.start_date);
       setEndDate(task.end_date);
+      setAssignedTo(task.assigned_to || '');
       setDescription(task.description || '');
       setPriority(task.priority);
 
@@ -95,6 +100,7 @@ export default function EditTaskModal({
       title,
       start_date: startDate,
       end_date: endDate,
+      assigned_to: assignedTo || null,
       description,
       tag: finalTag,
       priority,
@@ -155,6 +161,21 @@ export default function EditTaskModal({
             required
           />
         </div>
+
+        {employees.length > 0 && (
+          <Select
+            label="Назначить сотруднику"
+            value={assignedTo}
+            onChange={(e) => setAssignedTo(e.target.value)}
+            options={[
+              { value: '', label: 'Не назначена' },
+              ...employees.map((emp) => ({
+                value: emp.id,
+                label: `${emp.first_name} ${emp.last_name}`,
+              })),
+            ]}
+          />
+        )}
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

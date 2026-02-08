@@ -224,7 +224,6 @@ const handleCreateCategory = async (
   };
 
   const handleViewRecipe = async (recipeId: string) => {
-    setActionLoading(true);
     const { data, error } = await getRecipeWithSteps(recipeId);
     if (error || !data) {
       setError('Не удалось загрузить рецепт');
@@ -232,7 +231,6 @@ const handleCreateCategory = async (
       setSelectedRecipe(data);
       setIsViewRecipeModalOpen(true);
     }
-    setActionLoading(false);
   };
 
   const filteredProducts = products.filter((product) => {
