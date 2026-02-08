@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, Plus, Loader2 } from 'lucide-react';
+import { Users, Plus, FolderPlus, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import {
   getClients,
@@ -11,20 +11,34 @@ import {
   ClientInput,
   ClientStats,
 } from '../services/clientService';
+import {
+  getClientCategories,
+  createClientCategory,
+  updateClientCategory,
+  deleteClientCategory,
+  ClientCategory,
+} from '../services/clientCategoryService';
 import { Button, FilterPanel, Input, ConfirmDialog, PageHeader, SortBar } from '../components/ui';
 import SearchInput from '../components/ui/SearchInput';
 import ClientCard from '../components/clients/ClientCard';
 import CreateClientModal from '../components/clients/CreateClientModal';
 import EditClientModal from '../components/clients/EditClientModal';
+import CreateCategoryModal from '../components/clients/CreateCategoryModal';
+import CategoryTab from '../components/categories/CategoryTab';
+
+type TabType = 'clients' | 'categories';
 
 export default function Clients() {
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<TabType>('clients');
   const [clients, setClients] = useState<Client[]>([]);
+  const [categories, setCategories] = useState<ClientCategory[]>([]);
   const [clientsStats, setClientsStats] = useState<Record<string, ClientStats>>({});
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -51,19 +65,36 @@ export default function Clients() {
     setLoading(true);
     setError(null);
 
-    const [clientsResult, statsResult] = await Promise.all([
+    const [clientsResult, categoriesResult, statsResult] = await Promise.all([
       getClients(user.id),
+      getClientCategories(user.id),
       getAllClientsStats(user.id),
     ]);
 
-    if (clientsResult.error) {
+    if (clientsResult.error || categoriesResult.error) {
       setError('Не удалось загрузить данные');
     } else {
       setClients(clientsResult.data || []);
+      setCategories(categoriesResult.data || []);
       setClientsStats(statsResult);
     }
 
     setLoading(false);
+  };
+
+  const handleCreateCategory = async (data: { name: string; parent_id: string | null }) => {
+    if (!user) return;
+
+    setActionLoading(true);
+    const { error } = await createClientCategory(user.id, data);
+
+    if (error) {
+      setError('Не удалось создать категорию');
+    } else {
+      await loadData();
+    }
+
+    setActionLoading(false);
   };
 
   const handleCreateClient = async (data: ClientInput) => {
@@ -205,161 +236,254 @@ export default function Clients() {
           title="Клиенты"
           subtitle="База клиентов"
           actions={
-            <Button
-              variant="primary"
-              onClick={() => setIsCreateModalOpen(true)}
-              className="flex items-center gap-2 text-sm sm:text-base whitespace-nowrap"
-              size="md"
-            >
-              <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
-              <span className="hidden sm:inline">Добавить клиента</span>
-              <span className="sm:hidden">Добавить</span>
-            </Button>
+            <div className="flex gap-2">
+              {activeTab === 'categories' && (
+                <Button
+                  variant="secondary"
+                  onClick={() => setIsCategoryModalOpen(true)}
+                  className="flex items-center gap-2 text-sm sm:text-base whitespace-nowrap"
+                  size="md"
+                >
+                  <FolderPlus className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="hidden sm:inline">Создать категорию</span>
+                  <span className="sm:hidden">Категория</span>
+                </Button>
+              )}
+              {activeTab === 'clients' && (
+                <Button
+                  variant="primary"
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className="flex items-center gap-2 text-sm sm:text-base whitespace-nowrap"
+                  size="md"
+                >
+                  <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="hidden sm:inline">Добавить клиента</span>
+                  <span className="sm:hidden">Добавить</span>
+                </Button>
+              )}
+            </div>
           }
         />
 
+        <div className="mt-6 border-b border-gray-200 dark:border-gray-700">
+          <nav className="flex space-x-8">
+            <button
+              onClick={() => setActiveTab('clients')}
+              className={`
+                py-3 px-1 border-b-2 font-medium text-sm transition-colors
+                ${
+                  activeTab === 'clients'
+                    ? 'border-orange-500 dark:border-burgundy-600 text-orange-600 dark:text-burgundy-500'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                }
+              `}
+            >
+              Клиенты
+            </button>
+            <button
+              onClick={() => setActiveTab('categories')}
+              className={`
+                py-3 px-1 border-b-2 font-medium text-sm transition-colors
+                ${
+                  activeTab === 'categories'
+                    ? 'border-orange-500 dark:border-burgundy-600 text-orange-600 dark:text-burgundy-500'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                }
+              `}
+            >
+              Категории
+            </button>
+          </nav>
+        </div>
+
         {error && (
-          <div className="mb-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg">
+          <div className="mt-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg">
             {error}
           </div>
         )}
 
-        <div className="mb-6">
-          <SearchInput
-            value={searchQuery}
-            onChange={setSearchQuery}
-            placeholder="Поиск по имени, телефону, адресу или тегу..."
-          />
-        </div>
+        {activeTab === 'clients' && (
+          <>
+            <div className="mt-6">
+              <SearchInput
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Поиск по имени, телефону, адресу или тегу..."
+              />
+            </div>
 
-        <FilterPanel onReset={resetFilters} showActions={false}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Input
-              label="Количество заказов от"
-              type="number"
-              min="0"
-              value={filterOrdersFrom}
-              onChange={(e) => setFilterOrdersFrom(e.target.value)}
-              placeholder="0"
-            />
+            <FilterPanel onReset={resetFilters} showActions={false}>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Input
+                  label="Количество заказов от"
+                  type="number"
+                  min="0"
+                  value={filterOrdersFrom}
+                  onChange={(e) => setFilterOrdersFrom(e.target.value)}
+                  placeholder="0"
+                />
 
-            <Input
-              label="Количество заказов до"
-              type="number"
-              min="0"
-              value={filterOrdersTo}
-              onChange={(e) => setFilterOrdersTo(e.target.value)}
-              placeholder="100"
-            />
+                <Input
+                  label="Количество заказов до"
+                  type="number"
+                  min="0"
+                  value={filterOrdersTo}
+                  onChange={(e) => setFilterOrdersTo(e.target.value)}
+                  placeholder="100"
+                />
 
-            <Input
-              label="Сумма заказов от (руб.)"
-              type="number"
-              step="0.01"
-              min="0"
-              value={filterSumFrom}
-              onChange={(e) => setFilterSumFrom(e.target.value)}
-              placeholder="0"
-            />
+                <Input
+                  label="Сумма заказов от (руб.)"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={filterSumFrom}
+                  onChange={(e) => setFilterSumFrom(e.target.value)}
+                  placeholder="0"
+                />
 
-            <Input
-              label="Сумма заказов до (руб.)"
-              type="number"
-              step="0.01"
-              min="0"
-              value={filterSumTo}
-              onChange={(e) => setFilterSumTo(e.target.value)}
-              placeholder="100000"
-            />
+                <Input
+                  label="Сумма заказов до (руб.)"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={filterSumTo}
+                  onChange={(e) => setFilterSumTo(e.target.value)}
+                  placeholder="100000"
+                />
 
-            {uniqueTags.length > 0 && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Метка
-                </label>
-                <select
-                  value={filterTag}
-                  onChange={(e) => setFilterTag(e.target.value)}
-                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-2.5 focus:ring-2 focus:ring-orange-500 dark:focus:ring-burgundy-600 focus:border-transparent transition-all"
-                >
-                  <option value="">Все метки</option>
-                  {uniqueTags.map((tag) => (
-                    <option key={tag} value={tag}>
-                      {tag}
-                    </option>
-                  ))}
-                </select>
+                {uniqueTags.length > 0 && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Метка
+                    </label>
+                    <select
+                      value={filterTag}
+                      onChange={(e) => setFilterTag(e.target.value)}
+                      className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-2.5 focus:ring-2 focus:ring-orange-500 dark:focus:ring-burgundy-600 focus:border-transparent transition-all"
+                    >
+                      <option value="">Все метки</option>
+                      {uniqueTags.map((tag) => (
+                        <option key={tag} value={tag}>
+                          {tag}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
-            )}
+
+              {(filterOrdersFrom ||
+                filterOrdersTo ||
+                filterSumFrom ||
+                filterSumTo ||
+                filterTag) && (
+                <Button variant="ghost" size="sm" onClick={resetFilters} className="mt-2">
+                  Сбросить фильтры
+                </Button>
+              )}
+            </FilterPanel>
+
+            <div className="mt-4">
+              <SortBar
+                options={[
+                  { value: 'name', label: 'По имени' },
+                  { value: 'orders_count', label: 'По количеству заказов' },
+                  { value: 'total_sum', label: 'По сумме заказов' },
+                ]}
+                value={sortBy}
+                direction={sortDirection}
+                onChange={setSortBy}
+                onDirectionChange={setSortDirection}
+              />
+            </div>
+          </>
+        )}
+
+        {activeTab === 'categories' && (
+          <div className="mt-6">
+            <CategoryTab
+              categories={categories}
+              onEdit={async (id, data) => {
+                setActionLoading(true);
+                const { error } = await updateClientCategory(id, data);
+                if (error) {
+                  setError('Не удалось обновить категорию');
+                } else {
+                  await loadData();
+                }
+                setActionLoading(false);
+              }}
+              onDelete={async (id) => {
+                setActionLoading(true);
+                const { error } = await deleteClientCategory(id);
+                if (error) {
+                  setError('Не удалось удалить категорию');
+                } else {
+                  await loadData();
+                }
+                setActionLoading(false);
+              }}
+              loading={actionLoading}
+            />
           </div>
-
-          {(filterOrdersFrom ||
-            filterOrdersTo ||
-            filterSumFrom ||
-            filterSumTo ||
-            filterTag) && (
-            <Button variant="ghost" size="sm" onClick={resetFilters} className="mt-2">
-              Сбросить фильтры
-            </Button>
-          )}
-        </FilterPanel>
-
-        <div className="mt-4">
-          <SortBar
-            options={[
-              { value: 'name', label: 'По имени' },
-              { value: 'orders_count', label: 'По количеству заказов' },
-              { value: 'total_sum', label: 'По сумме заказов' },
-            ]}
-            value={sortBy}
-            direction={sortDirection}
-            onChange={setSortBy}
-            onDirectionChange={setSortDirection}
-          />
-        </div>
+        )}
       </div>
 
-      {sortedClients.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-12 text-center">
-          <Users className="h-16 w-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-            Нет клиентов
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            {clients.length === 0
-              ? 'Добавьте первого клиента для начала работы'
-              : 'Попробуйте изменить фильтры'}
-          </p>
-          {clients.length === 0 && (
-            <Button
-              variant="primary"
-              onClick={() => setIsCreateModalOpen(true)}
-              className="flex items-center gap-2 mx-auto"
-            >
-              <Plus className="h-5 w-5" />
-              Добавить клиента
-            </Button>
+      {activeTab === 'clients' && (
+        <>
+          {sortedClients.length === 0 ? (
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-12 text-center">
+              <Users className="h-16 w-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                Нет клиентов
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                {clients.length === 0
+                  ? 'Добавьте первого клиента для начала работы'
+                  : 'Попробуйте изменить фильтры'}
+              </p>
+              {clients.length === 0 && (
+                <Button
+                  variant="primary"
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className="flex items-center gap-2 mx-auto"
+                >
+                  <Plus className="h-5 w-5" />
+                  Добавить клиента
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {sortedClients.map((client) => (
+                <ClientCard
+                  key={client.id}
+                  client={client}
+                  stats={clientsStats[client.id] || { orders_count: 0, total_orders_sum: 0 }}
+                  onEdit={openEditModal}
+                  onDelete={openDeleteDialog}
+                />
+              ))}
+            </div>
           )}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {sortedClients.map((client) => (
-            <ClientCard
-              key={client.id}
-              client={client}
-              stats={clientsStats[client.id] || { orders_count: 0, total_orders_sum: 0 }}
-              onEdit={openEditModal}
-              onDelete={openDeleteDialog}
-            />
-          ))}
-        </div>
+        </>
       )}
+
+      <CreateCategoryModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+        onSubmit={handleCreateCategory}
+        categories={categories}
+        loading={actionLoading}
+      />
 
       <CreateClientModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSubmit={handleCreateClient}
         loading={actionLoading}
+        categories={categories}
       />
 
       <EditClientModal
@@ -371,6 +495,7 @@ export default function Clients() {
         onSubmit={handleEditClient}
         client={selectedClient}
         loading={actionLoading}
+        categories={categories}
       />
 
       <ConfirmDialog

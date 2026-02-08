@@ -1,7 +1,8 @@
 // EditPurchaseModal.tsx
 import { useState, useEffect } from 'react';
-import { Modal, Input, Button, CurrencyInput } from '../ui';
+import { Modal, Input, Button, CurrencyInput, Select } from '../ui';
 import { PurchasePlan, PurchasePlanInput } from '../../services/purchaseService';
+import { PurchaseCategory } from '../../services/purchaseCategoryService';
 import { parseDecimal } from '../../utils/currency';
 
 interface EditPurchaseModalProps {
@@ -9,6 +10,7 @@ interface EditPurchaseModalProps {
   onClose: () => void;
   onSubmit: (data: PurchasePlanInput) => Promise<void>;
   purchase: PurchasePlan | null;
+  categories: PurchaseCategory[];
   loading?: boolean;
 }
 
@@ -17,6 +19,7 @@ export default function EditPurchaseModal({
   onClose,
   onSubmit,
   purchase,
+  categories,
   loading = false,
 }: EditPurchaseModalProps) {
   const [formData, setFormData] = useState<PurchasePlanInput>({
@@ -25,6 +28,7 @@ export default function EditPurchaseModal({
     amount: 0,
     delivery_method: '',
     notes: '',
+    category_id: null,
   });
 
   useEffect(() => {
@@ -35,6 +39,7 @@ export default function EditPurchaseModal({
         amount: purchase.amount,
         delivery_method: purchase.delivery_method,
         notes: purchase.notes,
+        category_id: purchase.category_id,
       });
     }
   }, [purchase]);
@@ -49,6 +54,14 @@ export default function EditPurchaseModal({
     onClose();
   };
 
+  const categoryOptions = [
+    { value: '', label: 'Без категории' },
+    ...categories.map((cat) => ({
+      value: cat.id,
+      label: cat.name,
+    })),
+  ];
+
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Редактировать закупку" size="md">
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -58,6 +71,13 @@ export default function EditPurchaseModal({
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           required
           placeholder="Например: Шерстяная пряжа красная"
+        />
+
+        <Select
+          label="Категория"
+          value={formData.category_id || ''}
+          onChange={(e) => setFormData({ ...formData, category_id: e.target.value || null })}
+          options={categoryOptions}
         />
 
         <div className="grid grid-cols-2 gap-4">

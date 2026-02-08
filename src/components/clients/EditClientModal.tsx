@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Modal, Input, Button, DatePicker } from '../ui';
+import { Modal, Input, Button, DatePicker, Select } from '../ui';
 import { Client, ClientInput } from '../../services/clientService';
+import { ClientCategory } from '../../services/clientCategoryService';
 
 interface EditClientModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: ClientInput) => Promise<void>;
   client: Client | null;
+  categories: ClientCategory[];
   loading?: boolean;
 }
 
@@ -26,6 +28,7 @@ export default function EditClientModal({
   onClose,
   onSubmit,
   client,
+  categories,
   loading = false,
 }: EditClientModalProps) {
   const [formData, setFormData] = useState<ClientInput>({
@@ -36,6 +39,7 @@ export default function EditClientModal({
     birth_date: null,
     tag_name: '',
     tag_color: '#808080',
+    category_id: null,
   });
 
   useEffect(() => {
@@ -48,6 +52,7 @@ export default function EditClientModal({
         birth_date: client.birth_date,
         tag_name: client.tag_name,
         tag_color: client.tag_color,
+        category_id: client.category_id,
       });
     }
   }, [client]);
@@ -61,6 +66,14 @@ export default function EditClientModal({
   const handleClose = () => {
     onClose();
   };
+
+  const categoryOptions = [
+    { value: '', label: 'Без категории' },
+    ...categories.map((cat) => ({
+      value: cat.id,
+      label: cat.name,
+    })),
+  ];
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Редактировать клиента" size="lg">
@@ -105,6 +118,13 @@ export default function EditClientModal({
             label="Дата рождения"
             value={formData.birth_date || ''}
             onChange={(value) => setFormData({ ...formData, birth_date: value || null })}
+          />
+
+          <Select
+            label="Категория"
+            value={formData.category_id || ''}
+            onChange={(e) => setFormData({ ...formData, category_id: e.target.value || null })}
+            options={categoryOptions}
           />
 
           <Input

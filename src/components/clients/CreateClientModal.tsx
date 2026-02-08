@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Modal, Input, Button, DatePicker } from '../ui';
+import { Modal, Input, Button, DatePicker, Select } from '../ui';
 import { ClientInput } from '../../services/clientService';
+import { ClientCategory } from '../../services/clientCategoryService';
 
 interface CreateClientModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: ClientInput) => Promise<void>;
+  categories: ClientCategory[];
   loading?: boolean;
 }
 
@@ -24,6 +26,7 @@ export default function CreateClientModal({
   isOpen,
   onClose,
   onSubmit,
+  categories,
   loading = false,
 }: CreateClientModalProps) {
   const [formData, setFormData] = useState<ClientInput>({
@@ -34,6 +37,7 @@ export default function CreateClientModal({
     birth_date: null,
     tag_name: '',
     tag_color: '#808080',
+    category_id: null,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,9 +55,18 @@ export default function CreateClientModal({
       birth_date: null,
       tag_name: '',
       tag_color: '#808080',
+      category_id: null,
     });
     onClose();
   };
+
+  const categoryOptions = [
+    { value: '', label: 'Без категории' },
+    ...categories.map((cat) => ({
+      value: cat.id,
+      label: cat.name,
+    })),
+  ];
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Добавить клиента" size="lg">
@@ -98,6 +111,13 @@ export default function CreateClientModal({
             label="Дата рождения"
             value={formData.birth_date || ''}
             onChange={(value) => setFormData({ ...formData, birth_date: value || null })}
+          />
+
+          <Select
+            label="Категория"
+            value={formData.category_id || ''}
+            onChange={(e) => setFormData({ ...formData, category_id: e.target.value || null })}
+            options={categoryOptions}
           />
 
           <Input

@@ -17,6 +17,7 @@ import {
   RecipeCategory,
 } from '../services/recipeCategoryService';
 import { Button, FilterPanel, Select, ConfirmDialog, PageHeader, SortBar } from '../components/ui';
+import SearchInput from '../components/ui/SearchInput';
 import RecipeCard from '../components/recipes/RecipeCard';
 import CreateRecipeCategoryModal from '../components/recipes/CreateRecipeCategoryModal';
 import CreateRecipeModal from '../components/recipes/CreateRecipeModal';
@@ -39,6 +40,7 @@ export default function Recipes() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [recipeToDelete, setRecipeToDelete] = useState<RecipeWithSteps | null>(null);
 
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [filterTag, setFilterTag] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
@@ -157,6 +159,17 @@ export default function Recipes() {
   ).sort((a, b) => a.localeCompare(b, 'ru'));
 
   const filteredRecipes = recipesWithSteps.filter((recipe) => {
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesName = recipe.name.toLowerCase().includes(query);
+      const matchesDescription = recipe.description?.toLowerCase().includes(query);
+      const matchesTag = recipe.tag_name?.toLowerCase().includes(query);
+
+      if (!matchesName && !matchesDescription && !matchesTag) {
+        return false;
+      }
+    }
+
     if (filterTag && recipe.tag_name !== filterTag) {
       return false;
     }
@@ -182,6 +195,7 @@ export default function Recipes() {
   });
 
   const resetFilters = () => {
+    setSearchQuery('');
     setFilterTag('');
   };
 
@@ -221,10 +235,18 @@ export default function Recipes() {
         />
 
         {error && (
-          <div className="mb-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg">
+          <div className="mt-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg">
             {error}
           </div>
         )}
+
+        <div className="mt-6">
+          <SearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Поиск по названию, описанию или тегу..."
+          />
+        </div>
 
         {uniqueTags.length > 0 && (
           <FilterPanel onReset={resetFilters} showActions={false}>
@@ -243,7 +265,7 @@ export default function Recipes() {
               />
             </div>
 
-            {filterTag && (
+            {(searchQuery || filterTag) && (
               <Button variant="ghost" size="sm" onClick={resetFilters} className="mt-2">
                 Сбросить фильтры
               </Button>

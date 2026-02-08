@@ -10,6 +10,7 @@ import {
   EmployeeInput,
 } from '../services/employeeService';
 import { Button, FilterPanel, Select, ConfirmDialog, PageHeader, SortBar } from '../components/ui';
+import SearchInput from '../components/ui/SearchInput';
 import EmployeeCard from '../components/employees/EmployeeCard';
 import CreateEmployeeModal from '../components/employees/CreateEmployeeModal';
 import EditEmployeeModal from '../components/employees/EditEmployeeModal';
@@ -32,6 +33,7 @@ export default function Employees() {
   const [isInviteLinkModalOpen, setIsInviteLinkModalOpen] = useState(false);
   const [createdEmployee, setCreatedEmployee] = useState<Employee | null>(null);
 
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [filterRole, setFilterRole] = useState<string>('');
   const [filterPosition, setFilterPosition] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('name');
@@ -127,6 +129,17 @@ export default function Employees() {
   ).sort((a, b) => a.localeCompare(b, 'ru'));
 
   const filteredEmployees = employees.filter((employee) => {
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesName = employee.full_name.toLowerCase().includes(query);
+      const matchesEmail = employee.email?.toLowerCase().includes(query);
+      const matchesPosition = employee.position_name?.toLowerCase().includes(query);
+
+      if (!matchesName && !matchesEmail && !matchesPosition) {
+        return false;
+      }
+    }
+
     if (filterRole && employee.role !== filterRole) {
       return false;
     }
@@ -159,6 +172,7 @@ export default function Employees() {
   });
 
   const resetFilters = () => {
+    setSearchQuery('');
     setFilterRole('');
     setFilterPosition('');
   };
@@ -186,10 +200,18 @@ export default function Employees() {
         />
 
         {error && (
-          <div className="mb-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg">
+          <div className="mt-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg">
             {error}
           </div>
         )}
+
+        <div className="mt-6">
+          <SearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Поиск по имени, email или должности..."
+          />
+        </div>
 
         <FilterPanel onReset={resetFilters} showActions={false}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -220,7 +242,7 @@ export default function Employees() {
             )}
           </div>
 
-          {(filterRole || filterPosition) && (
+          {(searchQuery || filterRole || filterPosition) && (
             <Button variant="ghost" size="sm" onClick={resetFilters} className="mt-2">
               Сбросить фильтры
             </Button>

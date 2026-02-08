@@ -15,6 +15,7 @@ import {
   InventoryCategory,
 } from '../services/inventoryCategoryService';
 import { Button, FilterPanel, Select, DatePicker, ConfirmDialog, Input, PageHeader, SortBar } from '../components/ui';
+import SearchInput from '../components/ui/SearchInput';
 import InventoryCard from '../components/inventory/InventoryCard';
 import CreateCategoryModal from '../components/inventory/CreateCategoryModal';
 import CreateInventoryModal from '../components/inventory/CreateInventoryModal';
@@ -36,6 +37,7 @@ export default function Inventory() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [inventoryToDelete, setInventoryToDelete] = useState<InventoryType | null>(null);
 
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [filterCategory, setFilterCategory] = useState<string>('');
   const [filterDateFrom, setFilterDateFrom] = useState<string>('');
   const [filterDateTo, setFilterDateTo] = useState<string>('');
@@ -143,6 +145,17 @@ export default function Inventory() {
   };
 
   const filteredInventory = inventory.filter((item) => {
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesName = item.name.toLowerCase().includes(query);
+      const matchesDescription = item.description?.toLowerCase().includes(query);
+      const matchesNotes = item.notes?.toLowerCase().includes(query);
+
+      if (!matchesName && !matchesDescription && !matchesNotes) {
+        return false;
+      }
+    }
+
     if (filterCategory && item.category_id !== filterCategory) {
       return false;
     }
@@ -190,6 +203,7 @@ export default function Inventory() {
   });
 
   const resetFilters = () => {
+    setSearchQuery('');
     setFilterCategory('');
     setFilterDateFrom('');
     setFilterDateTo('');
@@ -236,10 +250,18 @@ export default function Inventory() {
         />
 
         {error && (
-          <div className="mb-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg">
+          <div className="mt-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg">
             {error}
           </div>
         )}
+
+        <div className="mt-6">
+          <SearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Поиск по названию, описанию или заметкам..."
+          />
+        </div>
 
         <FilterPanel onReset={resetFilters} showActions={false}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -289,7 +311,7 @@ export default function Inventory() {
             />
           </div>
 
-          {(filterCategory || filterDateFrom || filterDateTo || filterWearFrom || filterWearTo) && (
+          {(searchQuery || filterCategory || filterDateFrom || filterDateTo || filterWearFrom || filterWearTo) && (
             <Button
               variant="ghost"
               size="sm"

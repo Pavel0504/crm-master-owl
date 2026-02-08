@@ -1,13 +1,15 @@
 // CreatePurchaseModal.tsx
 import { useState } from 'react';
-import { Modal, Input, Button, CurrencyInput } from '../ui';
+import { Modal, Input, Button, CurrencyInput, Select } from '../ui';
 import { PurchasePlanInput } from '../../services/purchaseService';
+import { PurchaseCategory } from '../../services/purchaseCategoryService';
 import { parseDecimal } from '../../utils/currency';
 
 interface CreatePurchaseModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: PurchasePlanInput) => Promise<void>;
+  categories: PurchaseCategory[];
   loading?: boolean;
 }
 
@@ -15,6 +17,7 @@ export default function CreatePurchaseModal({
   isOpen,
   onClose,
   onSubmit,
+  categories,
   loading = false,
 }: CreatePurchaseModalProps) {
   const [formData, setFormData] = useState<PurchasePlanInput>({
@@ -23,6 +26,7 @@ export default function CreatePurchaseModal({
     amount: 0,
     delivery_method: '',
     notes: '',
+    category_id: null,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,9 +42,18 @@ export default function CreatePurchaseModal({
       amount: 0,
       delivery_method: '',
       notes: '',
+      category_id: null,
     });
     onClose();
   };
+
+  const categoryOptions = [
+    { value: '', label: 'Без категории' },
+    ...categories.map((cat) => ({
+      value: cat.id,
+      label: cat.name,
+    })),
+  ];
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Создать список закупки" size="md">
@@ -51,6 +64,13 @@ export default function CreatePurchaseModal({
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           required
           placeholder="Например: Шерстяная пряжа красная"
+        />
+
+        <Select
+          label="Категория"
+          value={formData.category_id || ''}
+          onChange={(e) => setFormData({ ...formData, category_id: e.target.value || null })}
+          options={categoryOptions}
         />
 
         <div className="grid grid-cols-2 gap-4">

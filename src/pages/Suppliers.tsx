@@ -15,6 +15,7 @@ import {
   SupplierCategory,
 } from '../services/supplierCategoryService';
 import { Button, FilterPanel, Select, ConfirmDialog, PageHeader, SortBar } from '../components/ui';
+import SearchInput from '../components/ui/SearchInput';
 import SupplierCard from '../components/suppliers/SupplierCard';
 import CreateSupplierCategoryModal from '../components/suppliers/CreateSupplierCategoryModal';
 import CreateSupplierModal from '../components/suppliers/CreateSupplierModal';
@@ -36,6 +37,7 @@ export default function Suppliers() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [supplierToDelete, setSupplierToDelete] = useState<Supplier | null>(null);
 
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [filterCategory, setFilterCategory] = useState<string>('');
   const [filterDeliveryMethod, setFilterDeliveryMethod] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('name');
@@ -148,6 +150,17 @@ export default function Suppliers() {
   ).sort((a, b) => a.localeCompare(b, 'ru'));
 
   const filteredSuppliers = suppliers.filter((supplier) => {
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesName = supplier.name.toLowerCase().includes(query);
+      const matchesContactInfo = supplier.contact_info?.toLowerCase().includes(query);
+      const matchesNotes = supplier.notes?.toLowerCase().includes(query);
+
+      if (!matchesName && !matchesContactInfo && !matchesNotes) {
+        return false;
+      }
+    }
+
     if (filterCategory && supplier.category_id !== filterCategory) {
       return false;
     }
@@ -177,6 +190,7 @@ export default function Suppliers() {
   });
 
   const resetFilters = () => {
+    setSearchQuery('');
     setFilterCategory('');
     setFilterDeliveryMethod('');
   };
@@ -219,10 +233,18 @@ export default function Suppliers() {
         />
 
         {error && (
-          <div className="mb-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg">
+          <div className="mt-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg">
             {error}
           </div>
         )}
+
+        <div className="mt-6">
+          <SearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Поиск по названию, контактной информации или заметкам..."
+          />
+        </div>
 
         <FilterPanel onReset={resetFilters} showActions={false}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -255,7 +277,7 @@ export default function Suppliers() {
             )}
           </div>
 
-          {(filterCategory || filterDeliveryMethod) && (
+          {(searchQuery || filterCategory || filterDeliveryMethod) && (
             <Button variant="ghost" size="sm" onClick={resetFilters} className="mt-2">
               Сбросить фильтры
             </Button>
