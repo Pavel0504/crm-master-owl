@@ -18,7 +18,8 @@ import {
 import { getMaterials, Material } from '../services/materialService';
 import { getInventory, Inventory } from '../services/inventoryService';
 import { getRecipes, getRecipeWithSteps, Recipe, RecipeWithSteps } from '../services/recipeService';
-import { Button, FilterPanel, Select, Input, ConfirmDialog, PageHeader } from '../components/ui';
+import { Button, FilterPanel, Select, Input, ConfirmDialog, PageHeader, SortBar } from '../components/ui';
+import SearchInput from '../components/ui/SearchInput';
 import ProductCard from '../components/products/ProductCard';
 import CreateProductCategoryModal from '../components/products/CreateProductCategoryModal';
 import CreateProductModal from '../components/products/CreateProductModal';
@@ -54,6 +55,9 @@ export default function Products() {
   const [filterPriceTo, setFilterPriceTo] = useState<string>('');
   const [filterQuantityFrom, setFilterQuantityFrom] = useState<string>('');
   const [filterQuantityTo, setFilterQuantityTo] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [sortBy, setSortBy] = useState<string>('name');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
     loadData();
@@ -234,6 +238,16 @@ const handleCreateCategory = async (
   };
 
   const filteredProducts = products.filter((product) => {
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesName = product.name.toLowerCase().includes(query);
+      const matchesDescription = product.description.toLowerCase().includes(query);
+      const matchesComposition = product.composition.toLowerCase().includes(query);
+      if (!matchesName && !matchesDescription && !matchesComposition) {
+        return false;
+      }
+    }
+
     if (filterCategory && product.category_id !== filterCategory) {
       return false;
     }
@@ -257,9 +271,27 @@ const handleCreateCategory = async (
     return true;
   });
 
-  // Сортировка по алфавиту
   const sortedProducts = [...filteredProducts].sort((a, b) => {
-    return a.name.localeCompare(b.name, 'ru');
+    let compareValue = 0;
+
+    switch (sortBy) {
+      case 'name':
+        compareValue = a.name.localeCompare(b.name, 'ru');
+        break;
+      case 'selling_price':
+        compareValue = a.selling_price - b.selling_price;
+        break;
+      case 'cost_price':
+        compareValue = a.cost_price_per_item - b.cost_price_per_item;
+        break;
+      case 'quantity':
+        compareValue = a.remaining_quantity - b.remaining_quantity;
+        break;
+      default:
+        compareValue = a.name.localeCompare(b.name, 'ru');
+    }
+
+    return sortDirection === 'asc' ? compareValue : -compareValue;
   });
 
   const resetFilters = () => {
@@ -268,6 +300,7 @@ const handleCreateCategory = async (
     setFilterPriceTo('');
     setFilterQuantityFrom('');
     setFilterQuantityTo('');
+    setSearchQuery('');
   };
 
   // Сортировка категорий для селекта
@@ -312,6 +345,14 @@ const handleCreateCategory = async (
             {error}
           </div>
         )}
+
+        <div className="mb-6">
+          <SearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Поиск по названию, описанию или составу..."
+          />
+        </div>
 
         <FilterPanel onReset={resetFilters} showActions={false}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -377,6 +418,21 @@ const handleCreateCategory = async (
             </Button>
           )}
         </FilterPanel>
+
+        <div className="mt-4">
+          <SortBar
+            options={[
+              { value: 'name', label: 'По названию' },
+              { value: 'selling_price', label: 'По цене продажи' },
+              { value: 'cost_price', label: 'По себестоимости' },
+              { value: 'quantity', label: 'По количеству' },
+            ]}
+            value={sortBy}
+            direction={sortDirection}
+            onChange={setSortBy}
+            onDirectionChange={setSortDirection}
+          />
+        </div>
       </div>
 
       {sortedProducts.length === 0 ? (

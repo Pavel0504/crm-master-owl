@@ -14,7 +14,7 @@ import {
   createInventoryCategory,
   InventoryCategory,
 } from '../services/inventoryCategoryService';
-import { Button, FilterPanel, Select, DatePicker, ConfirmDialog, Input, PageHeader } from '../components/ui';
+import { Button, FilterPanel, Select, DatePicker, ConfirmDialog, Input, PageHeader, SortBar } from '../components/ui';
 import InventoryCard from '../components/inventory/InventoryCard';
 import CreateCategoryModal from '../components/inventory/CreateCategoryModal';
 import CreateInventoryModal from '../components/inventory/CreateInventoryModal';
@@ -41,6 +41,8 @@ export default function Inventory() {
   const [filterDateTo, setFilterDateTo] = useState<string>('');
   const [filterWearFrom, setFilterWearFrom] = useState<string>('');
   const [filterWearTo, setFilterWearTo] = useState<string>('');
+  const [sortBy, setSortBy] = useState<string>('name');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
     loadData();
@@ -164,9 +166,27 @@ export default function Inventory() {
     return true;
   });
 
-  // Сортировка по алфавиту
   const sortedInventory = [...filteredInventory].sort((a, b) => {
-    return a.name.localeCompare(b.name, 'ru');
+    let compareValue = 0;
+
+    switch (sortBy) {
+      case 'name':
+        compareValue = a.name.localeCompare(b.name, 'ru');
+        break;
+      case 'purchase_price':
+        compareValue = a.purchase_price - b.purchase_price;
+        break;
+      case 'purchase_date':
+        compareValue = new Date(a.purchase_date).getTime() - new Date(b.purchase_date).getTime();
+        break;
+      case 'wear':
+        compareValue = (a.wear_percentage || 0) - (b.wear_percentage || 0);
+        break;
+      default:
+        compareValue = a.name.localeCompare(b.name, 'ru');
+    }
+
+    return sortDirection === 'asc' ? compareValue : -compareValue;
   });
 
   const resetFilters = () => {
@@ -280,6 +300,21 @@ export default function Inventory() {
             </Button>
           )}
         </FilterPanel>
+
+        <div className="mt-4">
+          <SortBar
+            options={[
+              { value: 'name', label: 'По названию' },
+              { value: 'purchase_price', label: 'По цене' },
+              { value: 'purchase_date', label: 'По дате покупки' },
+              { value: 'wear', label: 'По проценту износа' },
+            ]}
+            value={sortBy}
+            direction={sortDirection}
+            onChange={setSortBy}
+            onDirectionChange={setSortDirection}
+          />
+        </div>
       </div>
 
       {sortedInventory.length === 0 ? (

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar } from 'lucide-react';
+import { Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { PageHeader, ConfirmDialog } from '../components/ui';
 import WeekCalendar from '../components/planner/WeekCalendar';
@@ -38,6 +38,7 @@ export default function Planner() {
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<TaskWithChecklist | null>(null);
+  const [isCalendarExpanded, setIsCalendarExpanded] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -285,7 +286,21 @@ export default function Planner() {
           </div>
         )}
 
-        <div className="mt-6">
+        <button
+          onClick={() => setIsCalendarExpanded(!isCalendarExpanded)}
+          className="lg:hidden w-full flex items-center justify-between px-4 py-3 mt-4 bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white rounded-xl hover:shadow-lg transition-all"
+        >
+          <span className="font-medium">
+            {isCalendarExpanded ? 'Скрыть календарь' : 'Показать календарь'}
+          </span>
+          {isCalendarExpanded ? (
+            <ChevronUp className="h-5 w-5" />
+          ) : (
+            <ChevronDown className="h-5 w-5" />
+          )}
+        </button>
+
+        <div className={`mt-6 ${isCalendarExpanded ? 'block' : 'hidden lg:block'}`}>
           <WeekCalendar onDayClick={handleDayClick} tasksCountByDate={tasksCountByDate} />
         </div>
       </div>

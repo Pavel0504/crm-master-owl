@@ -13,3 +13,5 @@ export { default as PercentageBadge } from './PercentageBadge';
 export { default as DynamicFieldArray } from './DynamicFieldArray';
 export { default as PageHeader } from './PageHeader';
 export { default as CurrencyInput } from './CurrencyInput';
+export { default as SearchInput } from './SearchInput';
+export { default as SortBar } from './SortBar';

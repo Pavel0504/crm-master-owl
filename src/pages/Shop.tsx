@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Store, Edit2, Check, X, Plus, Trash2, Loader2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Store, Edit2, Check, X, Plus, Trash2, Loader2, Upload, Image as ImageIcon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { getOrCreateShop, updateShop, Shop as ShopType } from '../services/shopService';
 import { Card, Input, Button, IconButton } from '../components/ui';
@@ -19,6 +19,7 @@ export default function Shop() {
 
   const [socialNetworks, setSocialNetworks] = useState<Array<{ key: string; value: string }>>([]);
   const [editingSocials, setEditingSocials] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     loadShop();
@@ -131,6 +132,67 @@ export default function Shop() {
     setSocialNetworks(updated);
   };
 
+  const handleLogoClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleLogoChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !shop) return;
+
+    if (!file.type.startsWith('image/')) {
+      setError('Пожалуйста, выберите файл изображения');
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setError('Размер изображения должен быть меньше 2 МБ');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64String = reader.result as string;
+
+      setSaving(true);
+      const { data, error: updateError } = await updateShop(shop.id, {
+        logo: base64String,
+      });
+
+      if (updateError) {
+        setError('Не удалось загрузить логотип');
+      } else if (data) {
+        setShop(data);
+        setError(null);
+      }
+
+      setSaving(false);
+    };
+
+    reader.onerror = () => {
+      setError('Ошибка при чтении файла');
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveLogo = async () => {
+    if (!shop) return;
+
+    setSaving(true);
+    const { data, error: updateError } = await updateShop(shop.id, {
+      logo: null,
+    });
+
+    if (updateError) {
+      setError('Не удалось удалить логотип');
+    } else if (data) {
+      setShop(data);
+    }
+
+    setSaving(false);
+  };;
+
 
   if (!shop) {
     return (
@@ -160,6 +222,59 @@ export default function Shop() {
             {error}
           </div>
         )}
+
+        <div className="mb-8 pb-8 border-b border-gray-200 dark:border-gray-700">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
+            Логотип магазина
+          </label>
+
+          <div className="flex items-center gap-6">
+            <div className="relative">
+              {shop.logo ? (
+                <div className="relative group">
+                  <img
+                    src={shop.logo}
+                    alt="Логотип"
+                    className="w-32 h-32 rounded-xl object-cover border-2 border-gray-200 dark:border-gray-700"
+                  />
+                  <button
+                    onClick={handleRemoveLogo}
+                    disabled={saving}
+                    className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="w-32 h-32 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center bg-gray-50 dark:bg-gray-900/50">
+                  <ImageIcon className="h-12 w-12 text-gray-400 dark:text-gray-600" />
+                </div>
+              )}
+            </div>
+
+            <div className="flex-1 space-y-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleLogoChange}
+                className="hidden"
+              />
+              <Button
+                variant="secondary"
+                onClick={handleLogoClick}
+                disabled={saving}
+                className="flex items-center gap-2"
+              >
+                <Upload className="h-4 w-4" />
+                {shop.logo ? 'Изменить логотип' : 'Загрузить логотип'}
+              </Button>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                PNG, JPG или GIF. Максимальный размер 2 МБ
+              </p>
+            </div>
+          </div>
+        </div>
 
         <div className="space-y-6">
           <EditableField

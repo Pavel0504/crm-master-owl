@@ -16,7 +16,7 @@ import {
   createRecipeCategory,
   RecipeCategory,
 } from '../services/recipeCategoryService';
-import { Button, FilterPanel, Select, ConfirmDialog, PageHeader } from '../components/ui';
+import { Button, FilterPanel, Select, ConfirmDialog, PageHeader, SortBar } from '../components/ui';
 import RecipeCard from '../components/recipes/RecipeCard';
 import CreateRecipeCategoryModal from '../components/recipes/CreateRecipeCategoryModal';
 import CreateRecipeModal from '../components/recipes/CreateRecipeModal';
@@ -40,6 +40,8 @@ export default function Recipes() {
   const [recipeToDelete, setRecipeToDelete] = useState<RecipeWithSteps | null>(null);
 
   const [filterTag, setFilterTag] = useState<string>('');
+  const [sortBy, setSortBy] = useState<string>('name');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
     loadData();
@@ -163,7 +165,20 @@ export default function Recipes() {
   });
 
   const sortedRecipes = [...filteredRecipes].sort((a, b) => {
-    return a.name.localeCompare(b.name, 'ru');
+    let compareValue = 0;
+
+    switch (sortBy) {
+      case 'name':
+        compareValue = a.name.localeCompare(b.name, 'ru');
+        break;
+      case 'tag':
+        compareValue = a.tag_name.localeCompare(b.tag_name, 'ru');
+        break;
+      default:
+        compareValue = a.name.localeCompare(b.name, 'ru');
+    }
+
+    return sortDirection === 'asc' ? compareValue : -compareValue;
   });
 
   const resetFilters = () => {
@@ -235,6 +250,19 @@ export default function Recipes() {
             )}
           </FilterPanel>
         )}
+
+        <div className="mt-4">
+          <SortBar
+            options={[
+              { value: 'name', label: 'По названию' },
+              { value: 'tag', label: 'По метке' },
+            ]}
+            value={sortBy}
+            direction={sortDirection}
+            onChange={setSortBy}
+            onDirectionChange={setSortDirection}
+          />
+        </div>
       </div>
 
       {sortedRecipes.length === 0 ? (

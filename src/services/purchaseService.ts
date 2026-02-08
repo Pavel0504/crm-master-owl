@@ -9,6 +9,7 @@ export interface PurchasePlan {
   delivery_method: string;
   notes: string;
   material_id: string | null;
+  category_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -20,6 +21,7 @@ export interface PurchasePlanInput {
   delivery_method?: string;
   notes?: string;
   material_id?: string | null;
+  category_id?: string | null;
 }
 
 export async function getPurchasePlans(userId: string) {

@@ -10,6 +10,7 @@ export interface Client {
   birth_date: string | null;
   tag_name: string;
   tag_color: string;
+  category_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -22,6 +23,7 @@ export interface ClientInput {
   birth_date?: string | null;
   tag_name?: string;
   tag_color?: string;
+  category_id?: string | null;
 }
 
 export interface ClientStats {

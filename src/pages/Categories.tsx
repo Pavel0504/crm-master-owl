@@ -3,6 +3,7 @@ import { FolderTree, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { PageHeader } from '../components/ui';
 import CategoryTab from '../components/categories/CategoryTab';
+import ProductCategoryTab from '../components/categories/ProductCategoryTab';
 import {
   getMaterialCategories,
   MaterialCategory,
@@ -20,6 +21,7 @@ import {
   ProductCategory,
   updateProductCategory,
   deleteProductCategory,
+  getProductCategoryInventory,
 } from '../services/productCategoryService';
 import {
   getSupplierCategories,
@@ -33,9 +35,25 @@ import {
   updateRecipeCategory,
   deleteRecipeCategory,
 } from '../services/recipeCategoryService';
+import {
+  getInventory,
+  Inventory,
+} from '../services/inventoryService';
+import {
+  getPurchaseCategories,
+  PurchaseCategory,
+  updatePurchaseCategory,
+  deletePurchaseCategory,
+} from '../services/purchaseCategoryService';
+import {
+  getClientCategories,
+  ClientCategory,
+  updateClientCategory,
+  deleteClientCategory,
+} from '../services/clientCategoryService';
 
 
-type TabType = 'materials' | 'inventory' | 'products' | 'suppliers' | 'recipes';
+type TabType = 'materials' | 'inventory' | 'products' | 'suppliers' | 'recipes' | 'purchases' | 'clients';
 
 export default function Categories() {
   const { user } = useAuth();
@@ -48,6 +66,9 @@ export default function Categories() {
   const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
   const [supplierCategories, setSupplierCategories] = useState<SupplierCategory[]>([]);
   const [recipeCategories, setRecipeCategories] = useState<RecipeCategory[]>([]);
+  const [purchaseCategories, setPurchaseCategories] = useState<PurchaseCategory[]>([]);
+  const [clientCategories, setClientCategories] = useState<ClientCategory[]>([]);
+  const [inventory, setInventory] = useState<Inventory[]>([]);
 
 
   useEffect(() => {
@@ -60,16 +81,19 @@ export default function Categories() {
     setLoading(true);
     setError(null);
 
-    const [materialsResult, inventoryResult, productsResult, suppliersResult, recipesResult] = await Promise.all([
+    const [materialsResult, inventoryResult, productsResult, suppliersResult, recipesResult, purchasesResult, clientsResult, inventoryDataResult] = await Promise.all([
       getMaterialCategories(user.id),
       getInventoryCategories(user.id),
       getProductCategories(user.id),
       getSupplierCategories(user.id),
       getRecipeCategories(user.id),
+      getPurchaseCategories(user.id),
+      getClientCategories(user.id),
+      getInventory(user.id),
     ]);
-    
 
-    if (materialsResult.error || inventoryResult.error || productsResult.error || suppliersResult.error) {
+
+    if (materialsResult.error || inventoryResult.error || productsResult.error || suppliersResult.error || inventoryDataResult.error) {
       setError('Не удалось загрузить категории');
     } else {
       setMaterialCategories(materialsResult.data || []);
@@ -77,6 +101,9 @@ export default function Categories() {
       setProductCategories(productsResult.data || []);
       setSupplierCategories(suppliersResult.data || []);
       setRecipeCategories(recipesResult.data || []);
+      setPurchaseCategories(purchasesResult.data || []);
+      setClientCategories(clientsResult.data || []);
+      setInventory(inventoryDataResult.data || []);
     }
 
     setLoading(false);
@@ -122,14 +149,32 @@ export default function Categories() {
     return true;
   };
 
-  const handleUpdateProductCategory = async (id: string, data: { name: string; parent_id: string | null }) => {
-    const { error } = await updateProductCategory(id, data, []);
+  const handleUpdateProductCategory = async (
+    id: string,
+    data: {
+      name: string;
+      parent_id: string | null;
+      energy_costs_electricity: number;
+      energy_costs_water: number;
+      labor_cost_per_hour: number;
+    },
+    inventoryIds: string[]
+  ) => {
+    const { error } = await updateProductCategory(id, data, inventoryIds);
     if (error) {
       setError('Не удалось обновить категорию');
       return false;
     }
     await loadAllCategories();
     return true;
+  };
+
+  const handleLoadProductCategoryInventory = async (categoryId: string): Promise<string[]> => {
+    const { data, error } = await getProductCategoryInventory(categoryId);
+    if (error || !data) {
+      return [];
+    }
+    return data;
   };
 
   const handleDeleteProductCategory = async (id: string) => {
@@ -182,7 +227,47 @@ const handleDeleteRecipeCategory = async (id: string) => {
   return true;
 };
 
-  
+const handleUpdatePurchaseCategory = async (id: string, data: { name: string; parent_id: string | null }) => {
+  const { error } = await updatePurchaseCategory(id, data);
+  if (error) {
+    setError('Не удалось обновить категорию');
+    return false;
+  }
+  await loadAllCategories();
+  return true;
+};
+
+const handleDeletePurchaseCategory = async (id: string) => {
+  const { error } = await deletePurchaseCategory(id);
+  if (error) {
+    setError('Не удалось удалить категорию');
+    return false;
+  }
+  await loadAllCategories();
+  return true;
+};
+
+const handleUpdateClientCategory = async (id: string, data: { name: string; parent_id: string | null }) => {
+  const { error } = await updateClientCategory(id, data);
+  if (error) {
+    setError('Не удалось обновить категорию');
+    return false;
+  }
+  await loadAllCategories();
+  return true;
+};
+
+const handleDeleteClientCategory = async (id: string) => {
+  const { error } = await deleteClientCategory(id);
+  if (error) {
+    setError('Не удалось удалить категорию');
+    return false;
+  }
+  await loadAllCategories();
+  return true;
+};
+
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 sm:p-8">
@@ -265,6 +350,32 @@ const handleDeleteRecipeCategory = async (id: string) => {
 >
   Рецепты
 </button>
+            <button
+              onClick={() => setActiveTab('purchases')}
+              className={`
+                px-4 py-2 font-medium rounded-t-lg transition-all whitespace-nowrap
+                ${
+                  activeTab === 'purchases'
+                    ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+                }
+              `}
+            >
+              Закупки
+            </button>
+            <button
+              onClick={() => setActiveTab('clients')}
+              className={`
+                px-4 py-2 font-medium rounded-t-lg transition-all whitespace-nowrap
+                ${
+                  activeTab === 'clients'
+                    ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+                }
+              `}
+            >
+              Клиенты
+            </button>
 
           </div>
         </div>
@@ -285,10 +396,12 @@ const handleDeleteRecipeCategory = async (id: string) => {
             />
           )}
           {activeTab === 'products' && (
-            <CategoryTab
+            <ProductCategoryTab
               categories={productCategories}
+              inventory={inventory}
               onUpdate={handleUpdateProductCategory}
               onDelete={handleDeleteProductCategory}
+              onLoadInventoryIds={handleLoadProductCategoryInventory}
             />
           )}
           {activeTab === 'suppliers' && (
@@ -305,6 +418,20 @@ const handleDeleteRecipeCategory = async (id: string) => {
     onDelete={handleDeleteRecipeCategory}
   />
 )}
+          {activeTab === 'purchases' && (
+            <CategoryTab
+              categories={purchaseCategories}
+              onUpdate={handleUpdatePurchaseCategory}
+              onDelete={handleDeletePurchaseCategory}
+            />
+          )}
+          {activeTab === 'clients' && (
+            <CategoryTab
+              categories={clientCategories}
+              onUpdate={handleUpdateClientCategory}
+              onDelete={handleDeleteClientCategory}
+            />
+          )}
 
         </div>
       </div>

@@ -14,7 +14,8 @@ import {
 } from '../services/orderService';
 import { getClients, createClient, Client, ClientInput } from '../services/clientService';
 import { getProducts, Product } from '../services/productService';
-import { Button, FilterPanel, Select, DatePicker, Input, ConfirmDialog, PageHeader } from '../components/ui';
+import { Button, FilterPanel, Select, DatePicker, Input, ConfirmDialog, PageHeader, SortBar } from '../components/ui';
+import SearchInput from '../components/ui/SearchInput';
 import OrderCard from '../components/orders/OrderCard';
 import CreateOrderModal from '../components/orders/CreateOrderModal';
 import EditOrderModal from '../components/orders/EditOrderModal';
@@ -41,6 +42,9 @@ export default function Orders() {
   const [filterDateTo, setFilterDateTo] = useState<string>('');
   const [filterPriceFrom, setFilterPriceFrom] = useState<string>('');
   const [filterPriceTo, setFilterPriceTo] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [sortBy, setSortBy] = useState<string>('order_number');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
     loadData();
@@ -187,6 +191,18 @@ export default function Orders() {
   };
 
   const filteredOrders = ordersWithDetails.filter((order) => {
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesOrderNumber = order.order_number.toString().includes(query);
+      const matchesClientName = order.client_name?.toLowerCase().includes(query) || false;
+      const matchesSource = order.source.toLowerCase().includes(query);
+      const matchesDelivery = order.delivery.toLowerCase().includes(query);
+      const matchesStatus = order.status.toLowerCase().includes(query);
+      if (!matchesOrderNumber && !matchesClientName && !matchesSource && !matchesDelivery && !matchesStatus) {
+        return false;
+      }
+    }
+
     if (filterStatus && order.status !== filterStatus) {
       return false;
     }
@@ -211,7 +227,31 @@ export default function Orders() {
   });
 
   const sortedOrders = [...filteredOrders].sort((a, b) => {
-    return b.order_number - a.order_number;
+    let compareValue = 0;
+
+    switch (sortBy) {
+      case 'order_number':
+        compareValue = a.order_number - b.order_number;
+        break;
+      case 'order_date':
+        compareValue = new Date(a.order_date).getTime() - new Date(b.order_date).getTime();
+        break;
+      case 'deadline':
+        const deadlineA = a.deadline ? new Date(a.deadline).getTime() : 0;
+        const deadlineB = b.deadline ? new Date(b.deadline).getTime() : 0;
+        compareValue = deadlineA - deadlineB;
+        break;
+      case 'total_price':
+        compareValue = a.total_price - b.total_price;
+        break;
+      case 'client':
+        compareValue = (a.client_name || '').localeCompare(b.client_name || '', 'ru');
+        break;
+      default:
+        compareValue = a.order_number - b.order_number;
+    }
+
+    return sortDirection === 'asc' ? compareValue : -compareValue;
   });
 
   const sortedClients = [...clients].sort((a, b) => a.full_name.localeCompare(b.full_name, 'ru'));
@@ -223,6 +263,7 @@ export default function Orders() {
     setFilterDateTo('');
     setFilterPriceFrom('');
     setFilterPriceTo('');
+    setSearchQuery('');
   };
 
 
@@ -252,6 +293,14 @@ export default function Orders() {
             {error}
           </div>
         )}
+
+        <div className="mb-6">
+          <SearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Поиск по номеру заказа, клиенту, источнику, доставке или статусу..."
+          />
+        </div>
 
         <FilterPanel onReset={resetFilters} showActions={false}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -311,6 +360,22 @@ export default function Orders() {
             </Button>
           )}
         </FilterPanel>
+
+        <div className="mt-4">
+          <SortBar
+            options={[
+              { value: 'order_number', label: 'По номеру заказа' },
+              { value: 'order_date', label: 'По дате заказа' },
+              { value: 'deadline', label: 'По дедлайну' },
+              { value: 'total_price', label: 'По сумме' },
+              { value: 'client', label: 'По клиенту' },
+            ]}
+            value={sortBy}
+            direction={sortDirection}
+            onChange={setSortBy}
+            onDirectionChange={setSortDirection}
+          />
+        </div>
       </div>
 
       {sortedOrders.length === 0 ? (

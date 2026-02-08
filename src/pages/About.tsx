@@ -1,4 +1,4 @@
-import { Mail, MessageCircle, Heart, Sparkles, CheckCircle } from 'lucide-react';
+import { Mail, MessageCircle, Heart, Sparkles, CheckCircle, Coffee, ExternalLink } from 'lucide-react';
 import { PageHeader } from '../components/ui';
 
 export default function About() {
@@ -189,6 +189,43 @@ export default function About() {
             <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">
               Буду рад помочь вам работать с программой и услышать ваши идеи по улучшению!
             </p>
+          </section>
+
+          <section className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 dark:from-amber-900/20 dark:via-burgundy-900/20 dark:to-rose-900/20 rounded-2xl border-2 border-orange-200 dark:border-burgundy-600">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-400/20 to-rose-400/20 dark:from-burgundy-500/20 dark:to-rose-500/20 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-amber-400/20 to-orange-400/20 dark:from-amber-500/20 dark:to-burgundy-500/20 rounded-full blur-3xl"></div>
+
+            <div className="relative p-8 text-center">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-800 rounded-2xl flex items-center justify-center shadow-lg transform rotate-3 hover:rotate-6 transition-transform">
+                  <Coffee className="h-8 w-8 text-white" />
+                </div>
+              </div>
+
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3">
+                Поддержать разработку
+              </h2>
+
+              <p className="text-gray-700 dark:text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed">
+                Если Master Owl помогает вам в работе и вы хотите поддержать развитие проекта,
+                буду очень благодарен за вашу помощь! Все средства идут на улучшение системы и добавление новых функций.
+              </p>
+
+              <a
+                href="https://yoomoney.ru/fundraise/1FQ6TDHJVR4.260208"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 hover:from-orange-600 hover:to-rose-600 dark:hover:from-burgundy-700 dark:hover:to-burgundy-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
+              >
+                <Heart className="h-5 w-5 animate-pulse" />
+                Поддержать проект
+                <ExternalLink className="h-4 w-4" />
+              </a>
+
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-6">
+                Спасибо за вашу поддержку! Вместе мы делаем Master Owl еще лучше.
+              </p>
+            </div>
           </section>
 
           <div className="text-center pt-6 border-t border-gray-200 dark:border-gray-700">

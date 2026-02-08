@@ -2,8 +2,7 @@ const CACHE_NAME = 'master-owl-v1';
 const RUNTIME_CACHE = 'master-owl-runtime';
 
 const PRECACHE_URLS = [
-  '/',
-  '/index.html',
+  '/dashboard',
   '/manifest.json',
 ];
 
@@ -35,6 +34,11 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') {
+    return;
+  }
+
+  const url = new URL(event.request.url);
+  if (url.pathname === '/' || url.pathname === '/landing') {
     return;
   }
 

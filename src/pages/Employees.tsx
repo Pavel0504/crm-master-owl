@@ -9,7 +9,7 @@ import {
   Employee,
   EmployeeInput,
 } from '../services/employeeService';
-import { Button, FilterPanel, Select, ConfirmDialog, PageHeader } from '../components/ui';
+import { Button, FilterPanel, Select, ConfirmDialog, PageHeader, SortBar } from '../components/ui';
 import EmployeeCard from '../components/employees/EmployeeCard';
 import CreateEmployeeModal from '../components/employees/CreateEmployeeModal';
 import EditEmployeeModal from '../components/employees/EditEmployeeModal';
@@ -34,6 +34,8 @@ export default function Employees() {
 
   const [filterRole, setFilterRole] = useState<string>('');
   const [filterPosition, setFilterPosition] = useState<string>('');
+  const [sortBy, setSortBy] = useState<string>('name');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
     loadData();
@@ -137,7 +139,23 @@ export default function Employees() {
   });
 
   const sortedEmployees = [...filteredEmployees].sort((a, b) => {
-    return a.full_name.localeCompare(b.full_name, 'ru');
+    let compareValue = 0;
+
+    switch (sortBy) {
+      case 'name':
+        compareValue = a.full_name.localeCompare(b.full_name, 'ru');
+        break;
+      case 'position':
+        compareValue = a.position_name.localeCompare(b.position_name, 'ru');
+        break;
+      case 'role':
+        compareValue = a.role.localeCompare(b.role, 'ru');
+        break;
+      default:
+        compareValue = a.full_name.localeCompare(b.full_name, 'ru');
+    }
+
+    return sortDirection === 'asc' ? compareValue : -compareValue;
   });
 
   const resetFilters = () => {
@@ -208,6 +226,20 @@ export default function Employees() {
             </Button>
           )}
         </FilterPanel>
+
+        <div className="mt-4">
+          <SortBar
+            options={[
+              { value: 'name', label: 'По имени' },
+              { value: 'position', label: 'По должности' },
+              { value: 'role', label: 'По роли' },
+            ]}
+            value={sortBy}
+            direction={sortDirection}
+            onChange={setSortBy}
+            onDirectionChange={setSortDirection}
+          />
+        </div>
       </div>
 
       {sortedEmployees.length === 0 ? (

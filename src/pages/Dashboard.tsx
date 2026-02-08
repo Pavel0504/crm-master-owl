@@ -4,7 +4,7 @@ import {
   LayoutDashboard,
   TrendingUp,
   TrendingDown,
-  DollarSign,
+  Coins,
   ShoppingCart,
   Download,
   Calendar,
@@ -234,7 +234,7 @@ export default function Dashboard() {
             <StatCard
               title="Общая выручка"
               value={formatCurrency(totalRevenue)}
-              icon={<DollarSign className="h-6 w-6" />}
+              icon={<Coins className="h-6 w-6" />}
               trend={totalRevenue > totalExpenses ? 'up' : 'down'}
               color="green"
             />

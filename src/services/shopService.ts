@@ -7,6 +7,7 @@ export interface Shop {
   category: string;
   social_networks: Record<string, string>;
   owner: string;
+  logo: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -16,6 +17,7 @@ export interface ShopInput {
   category?: string;
   social_networks?: Record<string, string>;
   owner?: string;
+  logo?: string | null;
 }
 
 export async function getShopByUserId(userId: string) {

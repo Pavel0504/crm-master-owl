@@ -1,8 +1,9 @@
 {
-  "name": "Master Owl CRM",
+  "name": "Master Owl - CRM для творческого бизнеса",
   "short_name": "Master Owl",
-  "description": "CRM система для мастера рукоделия - управление материалами, изделиями, заказами и клиентами",
-  "start_url": "/",
+  "description": "Тёплая и дружелюбная система управления для мастеров ручной работы, кондитеров и творческих предпринимателей. Управление материалами, рецептами, заказами и финансами.",
+  "start_url": "/dashboard",
+  "scope": "/dashboard",
   "display": "standalone",
   "background_color": "#fff5f0",
   "theme_color": "#f97316",

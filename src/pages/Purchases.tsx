@@ -9,7 +9,8 @@ import {
   PurchasePlan,
   PurchasePlanInput,
 } from '../services/purchaseService';
-import { Button, PageHeader, ConfirmDialog } from '../components/ui';
+import { Button, PageHeader, ConfirmDialog, FilterPanel, DatePicker, Input, SortBar } from '../components/ui';
+import SearchInput from '../components/ui/SearchInput';
 import PurchaseCard from '../components/purchases/PurchaseCard';
 import CreatePurchaseModal from '../components/purchases/CreatePurchaseModal';
 import EditPurchaseModal from '../components/purchases/EditPurchaseModal';
@@ -27,6 +28,14 @@ export default function Purchases() {
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [purchaseToDelete, setPurchaseToDelete] = useState<PurchasePlan | null>(null);
+
+  const [filterDateFrom, setFilterDateFrom] = useState<string>('');
+  const [filterDateTo, setFilterDateTo] = useState<string>('');
+  const [filterAmountFrom, setFilterAmountFrom] = useState<string>('');
+  const [filterAmountTo, setFilterAmountTo] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [sortBy, setSortBy] = useState<string>('name');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
     loadData();
@@ -107,9 +116,63 @@ export default function Purchases() {
     setIsDeleteDialogOpen(true);
   };
 
-  const sortedPurchases = [...purchases].sort((a, b) => {
-    return a.name.localeCompare(b.name, 'ru');
+  const filteredPurchases = purchases.filter((purchase) => {
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesName = purchase.name.toLowerCase().includes(query);
+      const matchesDelivery = purchase.delivery_method.toLowerCase().includes(query);
+      const matchesNotes = purchase.notes.toLowerCase().includes(query);
+      if (!matchesName && !matchesDelivery && !matchesNotes) {
+        return false;
+      }
+    }
+
+    if (filterDateFrom && purchase.created_at < filterDateFrom) {
+      return false;
+    }
+
+    if (filterDateTo && purchase.created_at > filterDateTo) {
+      return false;
+    }
+
+    if (filterAmountFrom && purchase.amount < parseFloat(filterAmountFrom)) {
+      return false;
+    }
+
+    if (filterAmountTo && purchase.amount > parseFloat(filterAmountTo)) {
+      return false;
+    }
+
+    return true;
   });
+
+  const sortedPurchases = [...filteredPurchases].sort((a, b) => {
+    let compareValue = 0;
+
+    switch (sortBy) {
+      case 'name':
+        compareValue = a.name.localeCompare(b.name, 'ru');
+        break;
+      case 'created_at':
+        compareValue = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        break;
+      case 'amount':
+        compareValue = a.amount - b.amount;
+        break;
+      default:
+        compareValue = a.name.localeCompare(b.name, 'ru');
+    }
+
+    return sortDirection === 'asc' ? compareValue : -compareValue;
+  });
+
+  const resetFilters = () => {
+    setFilterDateFrom('');
+    setFilterDateTo('');
+    setFilterAmountFrom('');
+    setFilterAmountTo('');
+    setSearchQuery('');
+  };
 
 
   return (
@@ -138,6 +201,70 @@ export default function Purchases() {
             {error}
           </div>
         )}
+
+        <div className="mb-6">
+          <SearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Поиск по названию, способу доставки или заметкам..."
+          />
+        </div>
+
+        <FilterPanel onReset={resetFilters} showActions={false}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <DatePicker
+              label="Дата создания от"
+              value={filterDateFrom}
+              onChange={(e) => setFilterDateFrom(e.target.value)}
+            />
+
+            <DatePicker
+              label="Дата создания до"
+              value={filterDateTo}
+              onChange={(e) => setFilterDateTo(e.target.value)}
+            />
+
+            <Input
+              label="Сумма от (₽)"
+              type="number"
+              min="0"
+              step="0.01"
+              value={filterAmountFrom}
+              onChange={(e) => setFilterAmountFrom(e.target.value)}
+              placeholder="0"
+            />
+
+            <Input
+              label="Сумма до (₽)"
+              type="number"
+              min="0"
+              step="0.01"
+              value={filterAmountTo}
+              onChange={(e) => setFilterAmountTo(e.target.value)}
+              placeholder="0"
+            />
+          </div>
+
+          {(filterDateFrom || filterDateTo || filterAmountFrom || filterAmountTo) && (
+            <Button variant="ghost" size="sm" onClick={resetFilters} className="mt-2">
+              Сбросить фильтры
+            </Button>
+          )}
+        </FilterPanel>
+
+        <div className="mt-4">
+          <SortBar
+            options={[
+              { value: 'name', label: 'По названию' },
+              { value: 'created_at', label: 'По дате создания' },
+              { value: 'amount', label: 'По сумме' },
+            ]}
+            value={sortBy}
+            direction={sortDirection}
+            onChange={setSortBy}
+            onDirectionChange={setSortDirection}
+          />
+        </div>
       </div>
 
       {sortedPurchases.length === 0 ? (

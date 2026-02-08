@@ -11,7 +11,8 @@ import {
   ClientInput,
   ClientStats,
 } from '../services/clientService';
-import { Button, FilterPanel, Input, ConfirmDialog, PageHeader } from '../components/ui';
+import { Button, FilterPanel, Input, ConfirmDialog, PageHeader, SortBar } from '../components/ui';
+import SearchInput from '../components/ui/SearchInput';
 import ClientCard from '../components/clients/ClientCard';
 import CreateClientModal from '../components/clients/CreateClientModal';
 import EditClientModal from '../components/clients/EditClientModal';
@@ -36,6 +37,9 @@ export default function Clients() {
   const [filterSumFrom, setFilterSumFrom] = useState<string>('');
   const [filterSumTo, setFilterSumTo] = useState<string>('');
   const [filterTag, setFilterTag] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [sortBy, setSortBy] = useState<string>('name');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
     loadData();
@@ -125,6 +129,17 @@ export default function Clients() {
   ).sort((a, b) => a.localeCompare(b, 'ru'));
 
   const filteredClients = clients.filter((client) => {
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesName = client.full_name.toLowerCase().includes(query);
+      const matchesPhone = client.phone.toLowerCase().includes(query);
+      const matchesAddress = client.address.toLowerCase().includes(query);
+      const matchesTag = client.tag_name.toLowerCase().includes(query);
+      if (!matchesName && !matchesPhone && !matchesAddress && !matchesTag) {
+        return false;
+      }
+    }
+
     const stats = clientsStats[client.id] || { orders_count: 0, total_orders_sum: 0 };
 
     if (filterOrdersFrom && stats.orders_count < parseInt(filterOrdersFrom)) {
@@ -151,7 +166,25 @@ export default function Clients() {
   });
 
   const sortedClients = [...filteredClients].sort((a, b) => {
-    return a.full_name.localeCompare(b.full_name, 'ru');
+    let compareValue = 0;
+    const stats_a = clientsStats[a.id] || { orders_count: 0, total_orders_sum: 0 };
+    const stats_b = clientsStats[b.id] || { orders_count: 0, total_orders_sum: 0 };
+
+    switch (sortBy) {
+      case 'name':
+        compareValue = a.full_name.localeCompare(b.full_name, 'ru');
+        break;
+      case 'orders_count':
+        compareValue = stats_a.orders_count - stats_b.orders_count;
+        break;
+      case 'total_sum':
+        compareValue = stats_a.total_orders_sum - stats_b.total_orders_sum;
+        break;
+      default:
+        compareValue = a.full_name.localeCompare(b.full_name, 'ru');
+    }
+
+    return sortDirection === 'asc' ? compareValue : -compareValue;
   });
 
   const resetFilters = () => {
@@ -160,6 +193,7 @@ export default function Clients() {
     setFilterSumFrom('');
     setFilterSumTo('');
     setFilterTag('');
+    setSearchQuery('');
   };
 
 
@@ -189,6 +223,14 @@ export default function Clients() {
             {error}
           </div>
         )}
+
+        <div className="mb-6">
+          <SearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Поиск по имени, телефону, адресу или тегу..."
+          />
+        </div>
 
         <FilterPanel onReset={resetFilters} showActions={false}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -261,6 +303,20 @@ export default function Clients() {
             </Button>
           )}
         </FilterPanel>
+
+        <div className="mt-4">
+          <SortBar
+            options={[
+              { value: 'name', label: 'По имени' },
+              { value: 'orders_count', label: 'По количеству заказов' },
+              { value: 'total_sum', label: 'По сумме заказов' },
+            ]}
+            value={sortBy}
+            direction={sortDirection}
+            onChange={setSortBy}
+            onDirectionChange={setSortDirection}
+          />
+        </div>
       </div>
 
       {sortedClients.length === 0 ? (

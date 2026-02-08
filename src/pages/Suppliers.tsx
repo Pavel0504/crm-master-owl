@@ -14,7 +14,7 @@ import {
   createSupplierCategory,
   SupplierCategory,
 } from '../services/supplierCategoryService';
-import { Button, FilterPanel, Select, ConfirmDialog, PageHeader } from '../components/ui';
+import { Button, FilterPanel, Select, ConfirmDialog, PageHeader, SortBar } from '../components/ui';
 import SupplierCard from '../components/suppliers/SupplierCard';
 import CreateSupplierCategoryModal from '../components/suppliers/CreateSupplierCategoryModal';
 import CreateSupplierModal from '../components/suppliers/CreateSupplierModal';
@@ -38,6 +38,8 @@ export default function Suppliers() {
 
   const [filterCategory, setFilterCategory] = useState<string>('');
   const [filterDeliveryMethod, setFilterDeliveryMethod] = useState<string>('');
+  const [sortBy, setSortBy] = useState<string>('name');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
     loadData();
@@ -157,9 +159,21 @@ export default function Suppliers() {
     return true;
   });
 
-  // Сортировка по алфавиту
   const sortedSuppliers = [...filteredSuppliers].sort((a, b) => {
-    return a.name.localeCompare(b.name, 'ru');
+    let compareValue = 0;
+
+    switch (sortBy) {
+      case 'name':
+        compareValue = a.name.localeCompare(b.name, 'ru');
+        break;
+      case 'delivery_method':
+        compareValue = a.delivery_method.localeCompare(b.delivery_method, 'ru');
+        break;
+      default:
+        compareValue = a.name.localeCompare(b.name, 'ru');
+    }
+
+    return sortDirection === 'asc' ? compareValue : -compareValue;
   });
 
   const resetFilters = () => {
@@ -247,6 +261,19 @@ export default function Suppliers() {
             </Button>
           )}
         </FilterPanel>
+
+        <div className="mt-4">
+          <SortBar
+            options={[
+              { value: 'name', label: 'По названию' },
+              { value: 'delivery_method', label: 'По способу доставки' },
+            ]}
+            value={sortBy}
+            direction={sortDirection}
+            onChange={setSortBy}
+            onDirectionChange={setSortDirection}
+          />
+        </div>
       </div>
 
       {sortedSuppliers.length === 0 ? (

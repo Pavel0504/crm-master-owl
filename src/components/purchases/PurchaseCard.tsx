@@ -1,4 +1,4 @@
-import { Edit2, Trash2, Package, DollarSign, Truck } from 'lucide-react';
+import { Edit2, Trash2, Package, Coins, Truck } from 'lucide-react';
 import { PurchasePlan } from '../../services/purchaseService';
 import { ExpandableCard, IconButton } from '../ui';
 
@@ -26,7 +26,7 @@ export default function PurchaseCard({ purchase, onEdit, onDelete }: PurchaseCar
             <span className="text-sm">{purchase.quantity} шт</span>
           </div>
           <div className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+            <Coins className="h-4 w-4 text-orange-600 dark:text-orange-400" />
             <span className="text-base sm:text-lg font-bold text-orange-600 dark:text-orange-400">
               {purchase.amount.toFixed(2)} ₽
             </span>

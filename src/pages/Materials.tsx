@@ -16,7 +16,8 @@ import {
 } from '../services/materialCategoryService';
 import { getSuppliers, Supplier } from '../services/supplierService';
 import { checkAndCreatePurchasesForLowStock } from '../services/purchaseService';
-import { Button, FilterPanel, Select, DatePicker, ConfirmDialog, PageHeader } from '../components/ui';
+import { Button, FilterPanel, Select, DatePicker, ConfirmDialog, PageHeader, SortBar } from '../components/ui';
+import SearchInput from '../components/ui/SearchInput';
 import MaterialCard from '../components/materials/MaterialCard';
 import CreateCategoryModal from '../components/materials/CreateCategoryModal';
 import CreateMaterialModal from '../components/materials/CreateMaterialModal';
@@ -42,6 +43,9 @@ export default function Materials() {
   const [filterCategory, setFilterCategory] = useState<string>('');
   const [filterDateFrom, setFilterDateFrom] = useState<string>('');
   const [filterDateTo, setFilterDateTo] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [sortBy, setSortBy] = useState<string>('name');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
     loadData();
@@ -146,6 +150,16 @@ export default function Materials() {
   };
 
   const filteredMaterials = materials.filter((material) => {
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesName = material.name.toLowerCase().includes(query);
+      const matchesSupplier = material.supplier.toLowerCase().includes(query);
+      const matchesUnit = material.unit_of_measurement.toLowerCase().includes(query);
+      if (!matchesName && !matchesSupplier && !matchesUnit) {
+        return false;
+      }
+    }
+
     if (filterCategory && material.category_id !== filterCategory) {
       return false;
     }
@@ -161,15 +175,34 @@ export default function Materials() {
     return true;
   });
 
-  // Сортировка по алфавиту если нет фильтров
   const sortedMaterials = [...filteredMaterials].sort((a, b) => {
-    return a.name.localeCompare(b.name, 'ru');
+    let compareValue = 0;
+
+    switch (sortBy) {
+      case 'name':
+        compareValue = a.name.localeCompare(b.name, 'ru');
+        break;
+      case 'purchase_price':
+        compareValue = a.purchase_price - b.purchase_price;
+        break;
+      case 'remaining_volume':
+        compareValue = a.remaining_volume - b.remaining_volume;
+        break;
+      case 'purchase_date':
+        compareValue = new Date(a.purchase_date).getTime() - new Date(b.purchase_date).getTime();
+        break;
+      default:
+        compareValue = a.name.localeCompare(b.name, 'ru');
+    }
+
+    return sortDirection === 'asc' ? compareValue : -compareValue;
   });
 
   const resetFilters = () => {
     setFilterCategory('');
     setFilterDateFrom('');
     setFilterDateTo('');
+    setSearchQuery('');
   };
 
   // Сортировка категорий и поставщиков для селектов
@@ -216,6 +249,14 @@ export default function Materials() {
           </div>
         )}
 
+        <div className="mb-6">
+          <SearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Поиск по названию, поставщику или единице измерения..."
+          />
+        </div>
+
         <FilterPanel onReset={resetFilters} showActions={false}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Select
@@ -255,6 +296,21 @@ export default function Materials() {
             </Button>
           )}
         </FilterPanel>
+
+        <div className="mt-4">
+          <SortBar
+            options={[
+              { value: 'name', label: 'По названию' },
+              { value: 'purchase_price', label: 'По цене' },
+              { value: 'remaining_volume', label: 'По остатку' },
+              { value: 'purchase_date', label: 'По дате закупки' },
+            ]}
+            value={sortBy}
+            direction={sortDirection}
+            onChange={setSortBy}
+            onDirectionChange={setSortDirection}
+          />
+        </div>
       </div>
 
       {sortedMaterials.length === 0 ? (
