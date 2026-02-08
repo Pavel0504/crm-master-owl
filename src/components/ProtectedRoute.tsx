@@ -2,7 +2,6 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getEmployeeByUserId, Employee } from '../services/employeeService';
 import { useEffect, useState } from 'react';
-import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -32,6 +31,10 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
     setCheckingAccess(false);
   };
+
+  if (loading || checkingAccess) {
+    return null;
+  }
 
   if (!user) {
     return <Navigate to="/login" replace />;

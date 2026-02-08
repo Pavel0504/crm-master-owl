@@ -55,6 +55,7 @@ export default function Navigation() {
     return saved === 'true';
   });
   const [shopName, setShopName] = useState('Master Owl');
+  const [shopLogo, setShopLogo] = useState<string | null>(null);
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [allowedNavItems, setAllowedNavItems] = useState(allNavItems);
 
@@ -74,10 +75,18 @@ export default function Navigation() {
     if (!user) return;
 
     const { data } = await getOrCreateShop(user.id);
-    if (data && data.name && data.name.trim() !== '') {
-      setShopName(data.name);
-    } else {
-      setShopName('Master Owl');
+    if (data) {
+      if (data.name && data.name.trim() !== '') {
+        setShopName(data.name);
+      } else {
+        setShopName('Master Owl');
+      }
+
+      if (data.logo && data.logo.trim() !== '') {
+        setShopLogo(data.logo);
+      } else {
+        setShopLogo(null);
+      }
     }
   };
 
@@ -142,8 +151,12 @@ export default function Navigation() {
         <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-rose-400 dark:from-burgundy-600 dark:to-burgundy-800 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-2xl">🦉</span>
+              <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-rose-400 dark:from-burgundy-600 dark:to-burgundy-800 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                {shopLogo ? (
+                  <img src={shopLogo} alt={shopName} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-2xl">🦉</span>
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <h1 className="text-lg font-bold text-gray-900 dark:text-white truncate">
