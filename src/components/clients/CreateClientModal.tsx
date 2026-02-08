@@ -60,13 +60,13 @@ export default function CreateClientModal({
     onClose();
   };
 
-  const categoryOptions = [
-    { value: '', label: 'Без категории' },
-    ...categories.map((cat) => ({
-      value: cat.id,
-      label: cat.name,
-    })),
-  ];
+const categoryOptions = [
+  { value: '', label: 'Без категории' },
+  ...(categories || []).map((cat) => ({
+    value: cat.id,
+    label: cat.name,
+  })),
+];
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Добавить клиента" size="lg">
