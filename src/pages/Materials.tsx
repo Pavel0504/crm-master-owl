@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Package, Plus, FolderPlus } from 'lucide-react';
+import { Package, Plus, FolderPlus, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import {
   getMaterials,
@@ -161,6 +161,7 @@ export default function Materials() {
     return true;
   });
 
+  // Сортировка по алфавиту если нет фильтров
   const sortedMaterials = [...filteredMaterials].sort((a, b) => {
     return a.name.localeCompare(b.name, 'ru');
   });
@@ -171,8 +172,10 @@ export default function Materials() {
     setFilterDateTo('');
   };
 
+  // Сортировка категорий и поставщиков для селектов
   const sortedCategories = [...categories].sort((a, b) => a.name.localeCompare(b.name, 'ru'));
   const sortedSuppliers = [...suppliers].sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">

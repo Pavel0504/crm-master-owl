@@ -1,24 +1,30 @@
-import { Edit2, Trash2, Package, Calendar } from 'lucide-react';
+import { Edit2, Trash2, Package, Calendar, ChefHat } from 'lucide-react';
 import { Product } from '../../services/productService';
 import { ProductCategory } from '../../services/productCategoryService';
+import { Recipe } from '../../services/recipeService';
 import { ExpandableCard, IconButton, Badge } from '../ui';
 
 interface ProductCardProps {
   product: Product;
   categories: ProductCategory[];
+  recipes: Recipe[];
   materials: Array<{ material_id: string; volume_per_item: number; material_name: string }>;
   onEdit: (product: Product) => void;
   onDelete: (product: Product) => void;
+  onViewRecipe?: (recipeId: string) => void;
 }
 
 export default function ProductCard({
   product,
   categories,
+  recipes,
   materials,
   onEdit,
   onDelete,
+  onViewRecipe,
 }: ProductCardProps) {
   const category = categories.find((cat) => cat.id === product.category_id);
+  const recipe = recipes.find((r) => r.id === product.recipe_id);
   const isSoldOut = product.remaining_quantity === 0;
   const profit = product.selling_price - product.cost_price_per_item;
 
@@ -100,6 +106,33 @@ export default function ProductCard({
           />
         )}
       </div>
+
+      {recipe && (
+        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+            <ChefHat className="h-4 w-4" />
+            Рецепт
+          </h4>
+          <button
+            onClick={() => onViewRecipe?.(recipe.id)}
+            className="w-full bg-gradient-to-r from-burgundy-50 to-orange-50 dark:from-burgundy-900/30 dark:to-orange-900/30 border border-burgundy-200 dark:border-burgundy-700 rounded-lg px-4 py-3 text-left hover:shadow-md transition-all group"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="font-medium text-gray-900 dark:text-white group-hover:text-burgundy-600 dark:group-hover:text-burgundy-400 transition-colors">
+                  {recipe.name}
+                </p>
+                {recipe.description && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {recipe.description}
+                  </p>
+                )}
+              </div>
+              <ChefHat className="h-5 w-5 text-burgundy-500 dark:text-burgundy-400 group-hover:scale-110 transition-transform" />
+            </div>
+          </button>
+        </div>
+      )}
 
       {materials.length > 0 && (
         <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">

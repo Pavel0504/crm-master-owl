@@ -92,19 +92,6 @@ export default function EmployeeRegister() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-peach-50 to-rose-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (!employee || error) {
     return (

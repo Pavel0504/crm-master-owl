@@ -131,17 +131,6 @@ export default function Shop() {
     setSocialNetworks(updated);
   };
 
-  if (loading) {
-    return (
-      <div className="max-w-7xl mx-auto">
-        <Card variant="elevated">
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-orange-500 dark:text-burgundy-400" />
-          </div>
-        </Card>
-      </div>
-    );
-  }
 
   if (!shop) {
     return (

@@ -7,6 +7,7 @@ export interface Product {
   user_id: string;
   name: string;
   category_id: string | null;
+  recipe_id: string | null;
   description: string;
   composition: string;
   quantity_created: number;
@@ -27,6 +28,7 @@ export interface ProductMaterial {
 export interface ProductInput {
   name: string;
   category_id?: string | null;
+  recipe_id?: string | null;
   description?: string;
   composition?: string;
   quantity_created: number;
@@ -285,6 +287,7 @@ export async function createProduct(userId: string, productData: ProductInput) {
       user_id: userId,
       name: productData.name,
       category_id: productData.category_id,
+      recipe_id: productData.recipe_id,
       description: productData.description || '',
       composition: productData.composition || '',
       quantity_created: productData.quantity_created,
@@ -402,6 +405,7 @@ export async function updateProduct(productId: string, productData: Partial<Prod
 
   if (productData.name !== undefined) updates.name = productData.name;
   if (productData.category_id !== undefined) updates.category_id = productData.category_id;
+  if (productData.recipe_id !== undefined) updates.recipe_id = productData.recipe_id;
   if (productData.description !== undefined) updates.description = productData.description;
   if (productData.composition !== undefined) updates.composition = productData.composition;
   if (productData.labor_hours_per_item !== undefined) updates.labor_hours_per_item = productData.labor_hours_per_item;

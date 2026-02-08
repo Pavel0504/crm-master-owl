@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Modal, Input, Select, Button, CurrencyInput, DatePicker } from '../ui';
 import { ProductCategory } from '../../services/productCategoryService';
 import { Material } from '../../services/materialService';
+import { Recipe } from '../../services/recipeService';
 import { Plus, Trash2 } from 'lucide-react';
 import { parseDecimal } from '../../utils/currency';
 
@@ -16,6 +17,7 @@ interface CreateProductModalProps {
   onSubmit: (data: {
     name: string;
     category_id?: string | null;
+    recipe_id?: string | null;
     description?: string;
     composition?: string;
     quantity_created: number;
@@ -26,6 +28,7 @@ interface CreateProductModalProps {
   }) => Promise<void>;
   categories: ProductCategory[];
   materials: Material[];
+  recipes: Recipe[];
   loading?: boolean;
   onCalculateCost?: (
     categoryId: string | null,
@@ -41,11 +44,13 @@ export default function CreateProductModal({
   onSubmit,
   categories,
   materials,
+  recipes,
   loading = false,
   onCalculateCost,
 }: CreateProductModalProps) {
   const [name, setName] = useState('');
   const [categoryId, setCategoryId] = useState<string>('');
+  const [recipeId, setRecipeId] = useState<string>('');
   const [description, setDescription] = useState('');
   const [composition, setComposition] = useState('');
   const [quantity, setQuantity] = useState<number>(0);
@@ -85,6 +90,7 @@ export default function CreateProductModal({
     await onSubmit({
       name,
       category_id: categoryId || null,
+      recipe_id: recipeId || null,
       description,
       composition,
       quantity_created: quantity,
@@ -100,6 +106,7 @@ export default function CreateProductModal({
   const handleClose = () => {
     setName('');
     setCategoryId('');
+    setRecipeId('');
     setDescription('');
     setComposition('');
     setQuantity(0);
@@ -135,6 +142,15 @@ export default function CreateProductModal({
   ];
 
   const sortedMaterials = [...materials].sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+  const sortedRecipes = [...recipes].sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+
+  const recipeOptions = [
+    { value: '', label: 'Без рецепта' },
+    ...sortedRecipes.map((recipe) => ({
+      value: recipe.id,
+      label: recipe.name,
+    })),
+  ];
 
   return (
     <Modal
@@ -159,6 +175,15 @@ export default function CreateProductModal({
             onChange={(e) => setCategoryId(e.target.value)}
             options={categoryOptions}
           />
+
+          <div className="md:col-span-2">
+            <Select
+              label="Рецепт"
+              value={recipeId}
+              onChange={(e) => setRecipeId(e.target.value)}
+              options={recipeOptions}
+            />
+          </div>
 
           <div className="md:col-span-2">
             <Input

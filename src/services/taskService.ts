@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 export interface Task {
   id: string;
   user_id: string;
+  assigned_to: string | null;
   title: string;
   start_date: string;
   end_date: string;
@@ -28,6 +29,7 @@ export interface TaskInput {
   title: string;
   start_date: string;
   end_date: string;
+  assigned_to?: string | null;
   description?: string;
   tag?: string;
   priority: 'низкая' | 'средняя' | 'высокая';
@@ -117,10 +119,11 @@ export async function getTasksByDateRange(
 }
 
 export async function createTask(userId: string, taskData: TaskInput) {
-  const { data: task, error: taskError } = await supabase
+  const { data: task, error: taskError} = await supabase
     .from('tasks')
     .insert({
       user_id: userId,
+      assigned_to: taskData.assigned_to || null,
       title: taskData.title,
       start_date: taskData.start_date,
       end_date: taskData.end_date,
@@ -168,6 +171,7 @@ export async function updateTask(taskId: string, taskData: Partial<TaskInput>) {
   if (taskData.title !== undefined) updates.title = taskData.title;
   if (taskData.start_date !== undefined) updates.start_date = taskData.start_date;
   if (taskData.end_date !== undefined) updates.end_date = taskData.end_date;
+  if (taskData.assigned_to !== undefined) updates.assigned_to = taskData.assigned_to;
   if (taskData.description !== undefined) updates.description = taskData.description;
   if (taskData.tag !== undefined) updates.tag = taskData.tag;
   if (taskData.priority !== undefined) updates.priority = taskData.priority;

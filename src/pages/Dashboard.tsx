@@ -147,7 +147,6 @@ export default function Dashboard() {
   const formatCurrency = (value: number) => `${value.toFixed(0)} ₽`;
 
 
-
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 sm:p-8">

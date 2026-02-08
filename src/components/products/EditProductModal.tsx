@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Modal, Input, Select, Button, CurrencyInput, DatePicker } from '../ui';
 import { Product } from '../../services/productService';
 import { ProductCategory } from '../../services/productCategoryService';
+import { Recipe } from '../../services/recipeService';
 import { parseDecimal } from '../../utils/currency';
 
 interface EditProductModalProps {
@@ -10,6 +11,7 @@ interface EditProductModalProps {
   onSubmit: (data: {
     name: string;
     category_id?: string | null;
+    recipe_id?: string | null;
     description?: string;
     composition?: string;
     labor_hours_per_item?: number;
@@ -17,6 +19,7 @@ interface EditProductModalProps {
     creation_date?: string;
   }) => Promise<void>;
   categories: ProductCategory[];
+  recipes: Recipe[];
   product: Product | null;
   loading?: boolean;
 }
@@ -26,11 +29,13 @@ export default function EditProductModal({
   onClose,
   onSubmit,
   categories,
+  recipes,
   product,
   loading = false,
 }: EditProductModalProps) {
   const [name, setName] = useState('');
   const [categoryId, setCategoryId] = useState<string>('');
+  const [recipeId, setRecipeId] = useState<string>('');
   const [description, setDescription] = useState('');
   const [composition, setComposition] = useState('');
   const [laborHours, setLaborHours] = useState<number>(0);
@@ -41,6 +46,7 @@ export default function EditProductModal({
     if (product) {
       setName(product.name);
       setCategoryId(product.category_id || '');
+      setRecipeId(product.recipe_id || '');
       setDescription(product.description);
       setComposition(product.composition);
       setLaborHours(product.labor_hours_per_item);
@@ -55,6 +61,7 @@ export default function EditProductModal({
     await onSubmit({
       name,
       category_id: categoryId || null,
+      recipe_id: recipeId || null,
       description,
       composition,
       labor_hours_per_item: laborHours,
@@ -74,6 +81,16 @@ export default function EditProductModal({
     ...categories.map((cat) => ({
       value: cat.id,
       label: cat.name,
+    })),
+  ];
+
+  const sortedRecipes = [...recipes].sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+
+  const recipeOptions = [
+    { value: '', label: 'Без рецепта' },
+    ...sortedRecipes.map((recipe) => ({
+      value: recipe.id,
+      label: recipe.name,
     })),
   ];
 
@@ -105,6 +122,15 @@ export default function EditProductModal({
             onChange={(e) => setCategoryId(e.target.value)}
             options={categoryOptions}
           />
+
+          <div className="md:col-span-2">
+            <Select
+              label="Рецепт"
+              value={recipeId}
+              onChange={(e) => setRecipeId(e.target.value)}
+              options={recipeOptions}
+            />
+          </div>
 
           <div className="md:col-span-2">
             <Input

@@ -171,7 +171,6 @@ export default function Suppliers() {
   const sortedCategories = [...categories].sort((a, b) => a.name.localeCompare(b.name, 'ru'));
 
 
-
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 sm:p-8">

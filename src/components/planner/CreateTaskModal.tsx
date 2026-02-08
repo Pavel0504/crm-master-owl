@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Modal, Input, Button, DatePicker, DynamicFieldArray } from '../ui';
+import { Modal, Input, Button, DatePicker, DynamicFieldArray, Select } from '../ui';
 import { TaskInput } from '../../services/taskService';
 import { getMoscowDateString, toMoscowDateString } from '../../utils/moscowTime';
+import { Employee } from '../../services/employeeService';
 
 interface CreateTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: TaskInput) => Promise<void>;
   initialDate?: Date;
+  employees?: Employee[];
   loading?: boolean;
 }
 
@@ -42,11 +44,13 @@ export default function CreateTaskModal({
   onClose,
   onSubmit,
   initialDate,
+  employees = [],
   loading = false,
 }: CreateTaskModalProps) {
   const [title, setTitle] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [assignedTo, setAssignedTo] = useState('');
   const [description, setDescription] = useState('');
   const [tag, setTag] = useState('');
   const [customTag, setCustomTag] = useState('');
@@ -76,6 +80,7 @@ export default function CreateTaskModal({
       title,
       start_date: startDate,
       end_date: endDate,
+      assigned_to: assignedTo || null,
       description,
       tag: finalTag,
       priority,
@@ -89,6 +94,7 @@ export default function CreateTaskModal({
     setTitle('');
     setStartDate('');
     setEndDate('');
+    setAssignedTo('');
     setDescription('');
     setTag('');
     setCustomTag('');
@@ -146,6 +152,21 @@ export default function CreateTaskModal({
           />
         </div>
 
+        {employees.length > 0 && (
+          <Select
+            label="Назначить сотруднику"
+            value={assignedTo}
+            onChange={(e) => setAssignedTo(e.target.value)}
+            options={[
+              { value: '', label: 'Не назначена' },
+              ...employees.map((emp) => ({
+                value: emp.id,
+                label: `${emp.first_name} ${emp.last_name}`,
+              })),
+            ]}
+          />
+        )}
+
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Описание задачи
@@ -173,7 +194,7 @@ export default function CreateTaskModal({
                     type="button"
                     onClick={() => setTag(tagOption)}
                     className={`
-                      px-3 py-2 rounded-lg font-medium transition-all border-2
+                      px-3 py-2 rounded-lg font-medium transition-all border-2 text-gray-900 dark:text-white
                       ${
                         tag === tagOption
                           ? 'border-orange-500 dark:border-burgundy-500 shadow-md'
@@ -229,7 +250,7 @@ export default function CreateTaskModal({
                 type="button"
                 onClick={() => setPriority(btn.value)}
                 className={`
-                  px-4 py-3 rounded-lg font-medium transition-all border-2
+                  px-4 py-3 rounded-lg font-medium transition-all border-2 text-gray-900 dark:text-white
                   ${
                     priority === btn.value
                       ? 'border-orange-500 dark:border-burgundy-500 shadow-md'

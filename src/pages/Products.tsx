@@ -17,11 +17,13 @@ import {
 } from '../services/productCategoryService';
 import { getMaterials, Material } from '../services/materialService';
 import { getInventory, Inventory } from '../services/inventoryService';
+import { getRecipes, getRecipeWithSteps, Recipe, RecipeWithSteps } from '../services/recipeService';
 import { Button, FilterPanel, Select, Input, ConfirmDialog, PageHeader } from '../components/ui';
 import ProductCard from '../components/products/ProductCard';
 import CreateProductCategoryModal from '../components/products/CreateProductCategoryModal';
 import CreateProductModal from '../components/products/CreateProductModal';
 import EditProductModal from '../components/products/EditProductModal';
+import ViewRecipeModal from '../components/recipes/ViewRecipeModal';
 
 export default function Products() {
   const { user } = useAuth();
@@ -29,6 +31,7 @@ export default function Products() {
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [materials, setMaterials] = useState<Material[]>([]);
   const [inventory, setInventory] = useState<Inventory[]>([]);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [productMaterials, setProductMaterials] = useState<
     Record<string, Array<{ material_id: string; volume_per_item: number; material_name: string }>>
   >({});
@@ -39,7 +42,9 @@ export default function Products() {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isViewRecipeModalOpen, setIsViewRecipeModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedRecipe, setSelectedRecipe] = useState<RecipeWithSteps | null>(null);
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
@@ -60,19 +65,21 @@ export default function Products() {
     setLoading(true);
     setError(null);
 
-    const [productsResult, categoriesResult, materialsResult, inventoryResult] =
+    const [productsResult, categoriesResult, materialsResult, inventoryResult, recipesResult] =
       await Promise.all([
         getProducts(user.id),
         getProductCategories(user.id),
         getMaterials(user.id),
         getInventory(user.id),
+        getRecipes(user.id),
       ]);
 
     if (
       productsResult.error ||
       categoriesResult.error ||
       materialsResult.error ||
-      inventoryResult.error
+      inventoryResult.error ||
+      recipesResult.error
     ) {
       setError('Не удалось загрузить данные');
     } else {
@@ -80,6 +87,7 @@ export default function Products() {
       setCategories(categoriesResult.data || []);
       setMaterials(materialsResult.data || []);
       setInventory(inventoryResult.data || []);
+      setRecipes(recipesResult.data || []);
 
       const materialsMap: Record<
         string,
@@ -215,6 +223,18 @@ const handleCreateCategory = async (
     setIsEditModalOpen(true);
   };
 
+  const handleViewRecipe = async (recipeId: string) => {
+    setActionLoading(true);
+    const { data, error } = await getRecipeWithSteps(recipeId);
+    if (error || !data) {
+      setError('Не удалось загрузить рецепт');
+    } else {
+      setSelectedRecipe(data);
+      setIsViewRecipeModalOpen(true);
+    }
+    setActionLoading(false);
+  };
+
   const filteredProducts = products.filter((product) => {
     if (filterCategory && product.category_id !== filterCategory) {
       return false;
@@ -254,7 +274,6 @@ const handleCreateCategory = async (
 
   // Сортировка категорий для селекта
   const sortedCategories = [...categories].sort((a, b) => a.name.localeCompare(b.name, 'ru'));
-
 
 
   return (
@@ -391,9 +410,11 @@ const handleCreateCategory = async (
               key={product.id}
               product={product}
               categories={categories}
+              recipes={recipes}
               materials={productMaterials[product.id] || []}
               onEdit={openEditModal}
               onDelete={openDeleteDialog}
+              onViewRecipe={handleViewRecipe}
             />
           ))}
         </div>
@@ -414,6 +435,7 @@ const handleCreateCategory = async (
         onSubmit={handleCreateProduct}
         categories={sortedCategories}
         materials={materials}
+        recipes={recipes}
         loading={actionLoading}
         onCalculateCost={handleCalculateCost}
       />
@@ -426,8 +448,18 @@ const handleCreateCategory = async (
         }}
         onSubmit={handleEditProduct}
         categories={sortedCategories}
+        recipes={recipes}
         product={selectedProduct}
         loading={actionLoading}
+      />
+
+      <ViewRecipeModal
+        isOpen={isViewRecipeModalOpen}
+        onClose={() => {
+          setIsViewRecipeModalOpen(false);
+          setSelectedRecipe(null);
+        }}
+        recipe={selectedRecipe}
       />
 
       <ConfirmDialog
