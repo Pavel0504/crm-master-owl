@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Package, TrendingUp, ShoppingBag, Calendar, Moon, Sun, ExternalLink } from 'lucide-react';
 import { Button } from '../components/ui';
 import { useTheme } from '../contexts/ThemeContext';
@@ -289,6 +289,14 @@ export default function Landing() {
             </div>
           </div>
 
+          <div className="flex justify-center gap-4 text-sm mb-2">
+            <Link to="/terms" className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition-colors underline">
+              Условия использования
+            </Link>
+            <Link to="/privacy" className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition-colors underline">
+              Политика конфиденциальности
+            </Link>
+          </div>
           <p className="text-sm">© 2024 Master Owl. С заботой о вашем творчестве 🦉</p>
         </footer>
       </div>

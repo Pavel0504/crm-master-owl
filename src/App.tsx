@@ -24,6 +24,8 @@ import EmployeeRegister from './pages/EmployeeRegister';
 import NoAccess from './pages/NoAccess';
 import About from './pages/About';
 import Recipes from './pages/Recipes';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
 
 
 function App() {
@@ -39,6 +41,8 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/employee-register/:inviteToken" element={<EmployeeRegister />} />
             <Route path="/no-access" element={<NoAccess />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
             <Route element={<ProtectedRoute />}>
               <Route element={<MainLayout />}>
                 <Route path="/dashboard" element={<Dashboard />} />

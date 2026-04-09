@@ -113,12 +113,17 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
+          <div className="mt-6 text-center space-y-2">
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Нет аккаунта?{' '}
               <Link to="/register" className="text-orange-600 dark:text-burgundy-400 hover:text-orange-700 dark:hover:text-burgundy-300 font-medium transition-colors duration-200">
                 Зарегистрироваться
               </Link>
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-500">
+              <Link to="/terms" className="text-orange-600 dark:text-burgundy-400 hover:text-orange-700 dark:hover:text-burgundy-300 underline">Условия использования</Link>
+              {' '}·{' '}
+              <Link to="/privacy" className="text-orange-600 dark:text-burgundy-400 hover:text-orange-700 dark:hover:text-burgundy-300 underline">Политика конфиденциальности</Link>
             </p>
           </div>
         </div>

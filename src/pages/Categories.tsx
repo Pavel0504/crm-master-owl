@@ -1,24 +1,29 @@
 import { useState, useEffect } from 'react';
-import { FolderTree, Loader2 } from 'lucide-react';
+import { FolderTree, Loader2, Plus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { PageHeader } from '../components/ui';
+import { PageHeader, Button } from '../components/ui';
 import CategoryTab from '../components/categories/CategoryTab';
 import ProductCategoryTab from '../components/categories/ProductCategoryTab';
+import CreateCategoryModal from '../components/categories/CreateCategoryModal';
+import CreateProductCategoryModal from '../components/products/CreateProductCategoryModal';
 import {
   getMaterialCategories,
   MaterialCategory,
+  createMaterialCategory,
   updateMaterialCategory,
   deleteMaterialCategory,
 } from '../services/materialCategoryService';
 import {
   getInventoryCategories,
   InventoryCategory,
+  createInventoryCategory,
   updateInventoryCategory,
   deleteInventoryCategory,
 } from '../services/inventoryCategoryService';
 import {
   getProductCategories,
   ProductCategory,
+  createProductCategory,
   updateProductCategory,
   deleteProductCategory,
   getProductCategoryInventory,
@@ -26,12 +31,14 @@ import {
 import {
   getSupplierCategories,
   SupplierCategory,
+  createSupplierCategory,
   updateSupplierCategory,
   deleteSupplierCategory,
 } from '../services/supplierCategoryService';
 import {
   getRecipeCategories,
   RecipeCategory,
+  createRecipeCategory,
   updateRecipeCategory,
   deleteRecipeCategory,
 } from '../services/recipeCategoryService';
@@ -42,12 +49,14 @@ import {
 import {
   getPurchaseCategories,
   PurchaseCategory,
+  createPurchaseCategory,
   updatePurchaseCategory,
   deletePurchaseCategory,
 } from '../services/purchaseCategoryService';
 import {
   getClientCategories,
   ClientCategory,
+  createClientCategory,
   updateClientCategory,
   deleteClientCategory,
 } from '../services/clientCategoryService';
@@ -69,7 +78,8 @@ export default function Categories() {
   const [purchaseCategories, setPurchaseCategories] = useState<PurchaseCategory[]>([]);
   const [clientCategories, setClientCategories] = useState<ClientCategory[]>([]);
   const [inventory, setInventory] = useState<Inventory[]>([]);
-
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
 
   useEffect(() => {
     loadAllCategories();
@@ -267,6 +277,71 @@ const handleDeleteClientCategory = async (id: string) => {
   return true;
 };
 
+  const handleCreateCategory = async (data: { name: string; parent_id: string | null }) => {
+    if (!user) return;
+    setCreateLoading(true);
+
+    const createFn = {
+      materials: createMaterialCategory,
+      inventory: createInventoryCategory,
+      suppliers: createSupplierCategory,
+      recipes: createRecipeCategory,
+      purchases: createPurchaseCategory,
+      clients: createClientCategory,
+    }[activeTab as Exclude<TabType, 'products'>];
+
+    if (createFn) {
+      const { error } = await createFn(user.id, data);
+      if (error) {
+        setError('Не удалось создать категорию');
+      } else {
+        setIsCreateModalOpen(false);
+        await loadAllCategories();
+      }
+    }
+    setCreateLoading(false);
+  };
+
+  const handleCreateProductCategory = async (
+    data: {
+      name: string;
+      parent_id: string | null;
+      energy_costs_electricity: number;
+      energy_costs_water: number;
+      labor_cost_per_hour: number;
+    },
+    inventoryIds: string[]
+  ) => {
+    if (!user) return;
+    setCreateLoading(true);
+    const { error } = await createProductCategory(user.id, data, inventoryIds);
+    if (error) {
+      setError('Не удалось создать категорию');
+    } else {
+      setIsCreateModalOpen(false);
+      await loadAllCategories();
+    }
+    setCreateLoading(false);
+  };
+
+  const createModalConfig: Record<Exclude<TabType, 'products'>, { title: string; placeholder: string }> = {
+    materials: { title: 'Создать категорию материала', placeholder: 'Например: Ткани' },
+    inventory: { title: 'Создать категорию инвентаря', placeholder: 'Например: Инструменты' },
+    suppliers: { title: 'Создать категорию поставщика', placeholder: 'Например: Оптовые' },
+    recipes: { title: 'Создать категорию рецепта', placeholder: 'Например: Выпечка' },
+    purchases: { title: 'Создать категорию закупки', placeholder: 'Например: Срочные закупки' },
+    clients: { title: 'Создать категорию клиента', placeholder: 'Например: VIP клиенты' },
+  };
+
+  const categoriesForActiveTab: Record<TabType, { id: string; name: string; parent_id: string | null }[]> = {
+    materials: materialCategories,
+    inventory: inventoryCategories,
+    products: productCategories,
+    suppliers: supplierCategories,
+    recipes: recipeCategories,
+    purchases: purchaseCategories,
+    clients: clientCategories,
+  };
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -275,6 +350,15 @@ const handleDeleteClientCategory = async (id: string) => {
           icon={<FolderTree className="h-6 w-6 text-white" />}
           title="Категории"
           subtitle="Управление всеми категориями"
+          actions={
+            <Button
+              variant="primary"
+              onClick={() => setIsCreateModalOpen(true)}
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Создать категорию
+            </Button>
+          }
         />
 
         {error && (
@@ -435,6 +519,27 @@ const handleDeleteClientCategory = async (id: string) => {
 
         </div>
       </div>
+
+      {activeTab === 'products' ? (
+        <CreateProductCategoryModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSubmit={handleCreateProductCategory}
+          categories={productCategories}
+          inventory={inventory}
+          loading={createLoading}
+        />
+      ) : (
+        <CreateCategoryModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSubmit={handleCreateCategory}
+          categories={categoriesForActiveTab[activeTab]}
+          loading={createLoading}
+          title={createModalConfig[activeTab as Exclude<TabType, 'products'>]?.title || 'Создать категорию'}
+          placeholder={createModalConfig[activeTab as Exclude<TabType, 'products'>]?.placeholder || ''}
+        />
+      )}
     </div>
   );
 }

@@ -119,9 +119,9 @@ export default function CreateTaskModal({
   };
 
   const priorityButtons = [
-    { value: 'низкая' as const, label: 'Низкая', color: 'bg-gray-200 dark:bg-gray-700' },
-    { value: 'средняя' as const, label: 'Средняя', color: 'bg-yellow-200 dark:bg-yellow-900/40' },
-    { value: 'высокая' as const, label: 'Высокая', color: 'bg-red-200 dark:bg-red-900/40' },
+    { value: 'низкая' as const, label: 'Низкая', color: 'bg-gray-200 dark:bg-gray-700', activeColor: 'bg-gray-500 dark:bg-gray-600' },
+    { value: 'средняя' as const, label: 'Средняя', color: 'bg-yellow-200 dark:bg-yellow-900/40', activeColor: 'bg-yellow-500 dark:bg-yellow-700' },
+    { value: 'высокая' as const, label: 'Высокая', color: 'bg-red-200 dark:bg-red-900/40', activeColor: 'bg-red-500 dark:bg-red-700' },
   ];
 
   return (
@@ -194,15 +194,15 @@ export default function CreateTaskModal({
                     type="button"
                     onClick={() => setTag(tagOption)}
                     className={`
-                      px-3 py-2 rounded-lg font-medium transition-all border-2 text-gray-900 dark:text-white
+                      px-3 py-2 rounded-lg font-medium transition-all border-2
                       ${
                         tag === tagOption
-                          ? 'border-orange-500 dark:border-burgundy-500 shadow-md'
-                          : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+                          ? 'text-white border-transparent shadow-md'
+                          : 'text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
                       }
                     `}
                     style={{
-                      backgroundColor: tag === tagOption ? TAG_COLORS[tagOption] + '40' : undefined,
+                      backgroundColor: tag === tagOption ? TAG_COLORS[tagOption] : undefined,
                     }}
                   >
                     {tagOption}
@@ -250,13 +250,12 @@ export default function CreateTaskModal({
                 type="button"
                 onClick={() => setPriority(btn.value)}
                 className={`
-                  px-4 py-3 rounded-lg font-medium transition-all border-2 text-gray-900 dark:text-white
+                  px-4 py-3 rounded-lg font-medium transition-all border-2
                   ${
                     priority === btn.value
-                      ? 'border-orange-500 dark:border-burgundy-500 shadow-md'
-                      : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+                      ? `text-white border-transparent shadow-md ${btn.activeColor}`
+                      : `text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 ${btn.color}`
                   }
-                  ${btn.color}
                 `}
               >
                 {btn.label}

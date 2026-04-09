@@ -178,12 +178,18 @@ export default function Register() {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
+          <div className="mt-6 text-center space-y-2">
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Уже есть аккаунт?{' '}
               <Link to="/login" className="text-orange-600 dark:text-burgundy-400 hover:text-orange-700 dark:hover:text-burgundy-300 font-medium transition-colors duration-200">
                 Войти
               </Link>
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-500">
+              Регистрируясь, вы принимаете{' '}
+              <Link to="/terms" className="text-orange-600 dark:text-burgundy-400 hover:text-orange-700 dark:hover:text-burgundy-300 underline">Условия использования</Link>
+              {' '}и{' '}
+              <Link to="/privacy" className="text-orange-600 dark:text-burgundy-400 hover:text-orange-700 dark:hover:text-burgundy-300 underline">Политику конфиденциальности</Link>
             </p>
           </div>
         </div>
