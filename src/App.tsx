@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -39,147 +39,24 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/employee-register/:inviteToken" element={<EmployeeRegister />} />
             <Route path="/no-access" element={<NoAccess />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <MainLayout>
-                    <Dashboard />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/shop"
-              element={
-                <ProtectedRoute>
-                  <MainLayout>
-                    <Shop />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/materials"
-              element={
-                <ProtectedRoute>
-                  <MainLayout>
-                    <Materials />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/inventory"
-              element={
-                <ProtectedRoute>
-                  <MainLayout>
-                    <Inventory />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/products"
-              element={
-                <ProtectedRoute>
-                  <MainLayout>
-                    <Products />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/clients"
-              element={
-                <ProtectedRoute>
-                  <MainLayout>
-                    <Clients />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/orders"
-              element={
-                <ProtectedRoute>
-                  <MainLayout>
-                    <Orders />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/categories"
-              element={
-                <ProtectedRoute>
-                  <MainLayout>
-                    <Categories />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/suppliers"
-              element={
-                <ProtectedRoute>
-                  <MainLayout>
-                    <Suppliers />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/planner"
-              element={
-                <ProtectedRoute>
-                  <MainLayout>
-                    <Planner />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/purchases"
-              element={
-                <ProtectedRoute>
-                  <MainLayout>
-                    <Purchases />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/employees"
-              element={
-                <ProtectedRoute>
-                  <MainLayout>
-                    <Employees />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-  path="/recipes"
-  element={
-    <ProtectedRoute>
-      <MainLayout>
-        <Recipes />
-      </MainLayout>
-    </ProtectedRoute>
-  }
-/>
-
-            <Route
-              path="/about"
-              element={
-                <ProtectedRoute>
-                  <MainLayout>
-                    <About />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            />
+            <Route element={<ProtectedRoute />}>
+              <Route element={<MainLayout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/shop" element={<Shop />} />
+                <Route path="/materials" element={<Materials />} />
+                <Route path="/inventory" element={<Inventory />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/clients" element={<Clients />} />
+                <Route path="/orders" element={<Orders />} />
+                <Route path="/categories" element={<Categories />} />
+                <Route path="/suppliers" element={<Suppliers />} />
+                <Route path="/planner" element={<Planner />} />
+                <Route path="/purchases" element={<Purchases />} />
+                <Route path="/employees" element={<Employees />} />
+                <Route path="/recipes" element={<Recipes />} />
+                <Route path="/about" element={<About />} />
+              </Route>
+            </Route>
           </Routes>
         </AuthProvider>
       </ThemeProvider>

@@ -128,7 +128,7 @@
 
   /* Плавное появление страниц */
   .page-enter {
-    animation: fade-in-up 0.4s ease-out both;
+    animation: fade-in 0.2s ease-out both;
   }
 
   /* Скролл-тень для overflow контейнеров */

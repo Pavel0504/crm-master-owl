@@ -1,14 +1,11 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Outlet } from 'react-router-dom';
 import Navigation from './Navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { getOrCreateBackground, Background } from '../services/backgroundService';
 
-interface MainLayoutProps {
-  children: ReactNode;
-}
-
-export default function MainLayout({ children }: MainLayoutProps) {
+export default function MainLayout() {
   const { user } = useAuth();
   const { theme } = useTheme();
   const [background, setBackground] = useState<Background | null>(null);
@@ -101,7 +98,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
         }`}
       >
         <div className="p-4 lg:p-8 pt-20 lg:pt-8 page-enter">
-          {children}
+          <Outlet />
         </div>
       </main>
     </div>
