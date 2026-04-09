@@ -211,16 +211,17 @@ export default function About() {
                 буду очень благодарен за вашу помощь! Все средства идут на улучшение системы и добавление новых функций.
               </p>
 
-              <a
-                href="https://yoomoney.ru/fundraise/1FQ6TDHJVR4.260208"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 hover:from-orange-600 hover:to-rose-600 dark:hover:from-burgundy-700 dark:hover:to-burgundy-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
-              >
-                <Heart className="h-5 w-5 animate-pulse" />
-                Поддержать проект
-                <ExternalLink className="h-4 w-4" />
-              </a>
+              <div className="flex justify-center mb-4">
+                <iframe
+                  src="https://yoomoney.ru/quickpay/fundraise/widget?billNumber=1H1HLKDR7B6.260409&"
+                  width="500"
+                  height="480"
+                  frameBorder="0"
+                  allowTransparency={true}
+                  scrolling="no"
+                  className="max-w-full"
+                ></iframe>
+              </div>
 
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-6">
                 Спасибо за вашу поддержку! Вместе мы делаем Master Owl еще лучше.
