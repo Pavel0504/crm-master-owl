@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronRight, ChevronDown, Folder, Edit2, Trash2 } from 'lucide-react';
+import { ChevronRight, Folder, Edit2, Trash2 } from 'lucide-react';
 import { IconButton } from '../ui';
 
 interface Category {
@@ -33,7 +33,7 @@ export default function CategoryItem({
   return (
     <div>
       <div
-        className="flex items-center gap-2 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-orange-300 dark:hover:border-burgundy-600 transition-all"
+        className="flex items-center gap-2 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-md hover:border-orange-300 dark:hover:border-burgundy-600 transition-all duration-200 ease-spring"
         style={indentStyle}
       >
         <button
@@ -45,13 +45,11 @@ export default function CategoryItem({
           disabled={!hasChildren}
         >
           {hasChildren && (
-            <>
-              {isExpanded ? (
-                <ChevronDown className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-              ) : (
-                <ChevronRight className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-              )}
-            </>
+            <ChevronRight
+              className={`h-5 w-5 text-gray-600 dark:text-gray-400 transition-transform duration-300 ease-spring ${
+                isExpanded ? 'rotate-90' : 'rotate-0'
+              }`}
+            />
           )}
         </button>
 
@@ -78,7 +76,7 @@ export default function CategoryItem({
       </div>
 
       {hasChildren && isExpanded && (
-        <div className="mt-2 space-y-2">
+        <div className="mt-2 space-y-2 animate-fade-in">
           {children.map((child) => (
             <CategoryItem
               key={child.id}

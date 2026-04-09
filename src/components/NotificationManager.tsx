@@ -34,13 +34,17 @@ export default function NotificationManager() {
 
   useEffect(() => {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('message', (event) => {
-        if (event.data.type === 'GET_SUPABASE_URL') {
+      const handleMessage = (event: MessageEvent) => {
+        if (event.data.type === 'GET_SUPABASE_URL' && event.ports[0]) {
           event.ports[0].postMessage(import.meta.env.VITE_SUPABASE_URL);
-        } else if (event.data.type === 'GET_SUPABASE_ANON_KEY') {
+        } else if (event.data.type === 'GET_SUPABASE_ANON_KEY' && event.ports[0]) {
           event.ports[0].postMessage(import.meta.env.VITE_SUPABASE_ANON_KEY);
         }
-      });
+      };
+      navigator.serviceWorker.addEventListener('message', handleMessage);
+      return () => {
+        navigator.serviceWorker.removeEventListener('message', handleMessage);
+      };
     }
   }, []);
 

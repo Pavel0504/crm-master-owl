@@ -185,7 +185,7 @@ export default function Dashboard() {
         </div>
 
         {error && (
-          <div className="mb-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg">
+          <div className="mb-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-xl animate-fade-in">
             {error}
           </div>
         )}
@@ -459,7 +459,7 @@ function StatCard({ title, value, icon, trend, color }: StatCardProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-200 dark:border-gray-700">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-200 p-6 border border-gray-200 dark:border-gray-700 animate-fade-in">
       <div className="flex items-center justify-between mb-4">
         <div className={`w-12 h-12 bg-gradient-to-br ${colorClasses[color]} rounded-xl flex items-center justify-center text-white`}>
           {icon}
@@ -479,7 +479,7 @@ interface ChartCardProps {
 
 function ChartCard({ title, children }: ChartCardProps) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-200 dark:border-gray-700">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-200 p-6 border border-gray-200 dark:border-gray-700">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">{title}</h3>
       {children}
     </div>

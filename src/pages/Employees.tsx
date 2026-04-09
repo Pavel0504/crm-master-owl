@@ -78,10 +78,10 @@ export default function Employees() {
   };
 
   const handleEditEmployee = async (data: EmployeeInput) => {
-    if (!selectedEmployee) return;
+    if (!selectedEmployee || !user) return;
 
     setActionLoading(true);
-    const { error } = await updateEmployee(selectedEmployee.id, data);
+    const { error } = await updateEmployee(selectedEmployee.id, data, user.id);
 
     if (error) {
       setError('Не удалось обновить сотрудника');

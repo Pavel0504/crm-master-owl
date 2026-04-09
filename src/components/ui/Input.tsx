@@ -44,7 +44,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={`
-              block w-full rounded-lg border transition-all
+              block w-full rounded-xl border transition-all duration-200
               ${leftIcon ? 'pl-10' : 'pl-3'}
               ${rightIcon ? 'pr-10' : 'pr-3'}
               py-2.5
@@ -57,6 +57,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               text-gray-900 dark:text-gray-100
               placeholder-gray-400 dark:placeholder-gray-500
               disabled:opacity-50 disabled:cursor-not-allowed
+              shadow-sm focus:shadow-md
               ${className}
             `}
             {...props}

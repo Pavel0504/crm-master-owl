@@ -115,7 +115,7 @@ export default function ProductCard({
           </h4>
           <button
             onClick={() => onViewRecipe?.(recipe.id)}
-            className="w-full bg-gradient-to-r from-burgundy-50 to-orange-50 dark:from-burgundy-900/30 dark:to-orange-900/30 border border-burgundy-200 dark:border-burgundy-700 rounded-lg px-4 py-3 text-left hover:shadow-md transition-all group"
+            className="w-full bg-gradient-to-r from-burgundy-50 to-orange-50 dark:from-burgundy-900/30 dark:to-orange-900/30 border border-burgundy-200 dark:border-burgundy-700 rounded-xl px-4 py-3 text-left hover:shadow-md transition-all duration-200 group"
           >
             <div className="flex items-center justify-between">
               <div className="flex-1">
@@ -144,7 +144,7 @@ export default function ProductCard({
             {materials.map((mat, index) => (
               <div
                 key={index}
-                className="bg-gray-50 dark:bg-gray-900/50 rounded-lg px-3 py-2 text-sm"
+                className="bg-gray-50 dark:bg-gray-900/50 rounded-xl px-3 py-2 text-sm"
               >
                 <span className="text-gray-900 dark:text-white font-medium">
                   {mat.material_name}

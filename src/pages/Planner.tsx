@@ -60,14 +60,13 @@ export default function Planner() {
     }
 
     if (tasksResult.data) {
-      const tasksWithDetails: TaskWithChecklist[] = [];
-      for (const task of tasksResult.data) {
-        const { data: taskWithChecklist } = await getTaskWithChecklist(task.id);
-        if (taskWithChecklist) {
-          tasksWithDetails.push(taskWithChecklist);
-        }
-      }
-      setAllTasks(tasksWithDetails);
+      const tasksWithDetails = await Promise.all(
+        tasksResult.data.map(async (task) => {
+          const { data: taskWithChecklist } = await getTaskWithChecklist(task.id);
+          return taskWithChecklist;
+        })
+      );
+      setAllTasks(tasksWithDetails.filter((t): t is TaskWithChecklist => t !== null));
 
       const counts: Record<string, number> = {};
       tasksResult.data.forEach((task) => {
@@ -112,12 +111,13 @@ export default function Planner() {
     const tasksWithDetails: TaskWithChecklist[] = [];
 
     if (tasks) {
-      for (const task of tasks) {
-        const { data: taskWithChecklist } = await getTaskWithChecklist(task.id);
-        if (taskWithChecklist) {
-          tasksWithDetails.push(taskWithChecklist);
-        }
-      }
+      const results = await Promise.all(
+        tasks.map(async (task) => {
+          const { data: taskWithChecklist } = await getTaskWithChecklist(task.id);
+          return taskWithChecklist;
+        })
+      );
+      tasksWithDetails.push(...results.filter((t): t is TaskWithChecklist => t !== null));
     }
 
     setTasksForSelectedDate(tasksWithDetails);

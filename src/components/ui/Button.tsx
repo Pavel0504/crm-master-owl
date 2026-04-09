@@ -22,13 +22,13 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+    const baseClasses = 'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 ease-spring focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97] disabled:active:scale-100';
 
     const variantClasses = {
-      primary: 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white hover:from-orange-600 hover:to-rose-600 dark:hover:from-burgundy-700 dark:hover:to-burgundy-800 focus:ring-orange-500',
-      secondary: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-gray-500',
-      danger: 'bg-red-500 text-white hover:bg-red-600 focus:ring-red-500',
-      ghost: 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:ring-gray-500',
+      primary: 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white hover:from-orange-600 hover:to-rose-600 dark:hover:from-burgundy-700 dark:hover:to-burgundy-800 focus:ring-orange-500 dark:focus:ring-burgundy-500 shadow-sm hover:shadow-md',
+      secondary: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-gray-400',
+      danger: 'bg-red-500 text-white hover:bg-red-600 focus:ring-red-500 shadow-sm hover:shadow-md',
+      ghost: 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:ring-gray-400',
     };
 
     const sizeClasses = {

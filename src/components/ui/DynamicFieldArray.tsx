@@ -37,7 +37,7 @@ export default function DynamicFieldArray<T>({
 
       <div className="space-y-3">
         {items.map((item, index) => (
-          <div key={index} className="flex items-start gap-3">
+          <div key={index} className="flex items-start gap-3 animate-fade-in">
             <div className="flex-1">{renderItem(item, index)}</div>
             {canRemove && (
               <IconButton

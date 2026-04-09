@@ -136,7 +136,7 @@ export default function About() {
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
               Полезные советы
             </h2>
-            <div className="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 dark:border-blue-600 rounded-lg p-6 space-y-3">
+            <div className="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 dark:border-blue-600 rounded-xl p-6 space-y-3">
               <TipItem text="Регулярно обновляйте остатки материалов после создания изделий - система делает это автоматически при оформлении заказа." />
               <TipItem text="Используйте метки (теги) для клиентов, чтобы быстро находить VIP-клиентов или постоянных покупателей." />
               <TipItem text="Включите уведомления, чтобы не пропустить низкие остатки материалов и приближающиеся дедлайны." />
@@ -249,7 +249,7 @@ interface FeatureCardProps {
 
 function FeatureCard({ title, description }: FeatureCardProps) {
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:border-orange-300 dark:hover:border-burgundy-600 transition-all">
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:border-orange-300 dark:hover:border-burgundy-600 hover:shadow-md transition-all duration-200 hover:scale-[1.02]">
       <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{title}</h3>
       <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
     </div>

@@ -119,19 +119,19 @@ export default function Navigation() {
     <>
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-4 right-4 z-50 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg"
+        className="lg:hidden fixed top-4 right-4 z-50 p-2.5 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-xl shadow-lg transition-all duration-200 press-effect hover:shadow-xl"
       >
         {isMobileMenuOpen ? (
-          <X className="h-6 w-6 text-gray-700 dark:text-gray-300" />
+          <X className="h-6 w-6 text-gray-700 dark:text-gray-300 transition-transform duration-200" />
         ) : (
-          <Menu className="h-6 w-6 text-gray-700 dark:text-gray-300" />
+          <Menu className="h-6 w-6 text-gray-700 dark:text-gray-300 transition-transform duration-200" />
         )}
       </button>
 
       {isCollapsed && (
         <button
           onClick={handleToggleCollapse}
-          className="hidden lg:flex fixed top-4 left-0 z-40 h-12 w-8 bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 rounded-r-lg items-center justify-center shadow-lg hover:w-10 transition-all"
+          className="hidden lg:flex fixed top-4 left-0 z-40 h-12 w-8 bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 rounded-r-xl items-center justify-center shadow-lg hover:w-10 transition-all duration-300 ease-spring hover:shadow-xl"
         >
           <ChevronRight className="h-5 w-5 text-white" />
         </button>
@@ -139,13 +139,13 @@ export default function Navigation() {
 
       <aside
         className={`
-          fixed top-0 left-0 h-full bg-white dark:bg-gray-900 shadow-xl z-40
-          transition-all duration-300 ease-in-out
+          fixed top-0 left-0 h-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-2xl z-40
+          transition-all duration-300 ease-spring
           flex flex-col
           ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
           ${isCollapsed ? 'lg:w-0 lg:-translate-x-full' : 'lg:w-[21rem] lg:translate-x-0'}
           w-64
-          ${isCollapsed ? 'lg:overflow-hidden' : 'overflow-y-auto'}
+          ${isCollapsed ? 'lg:overflow-hidden' : 'overflow-y-auto scrollbar-thin'}
         `}
       >
         <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
@@ -174,8 +174,8 @@ export default function Navigation() {
           </div>
         </div>
 
-        <nav className="flex-1 p-4 overflow-y-auto">
-          <ul className="space-y-2">
+        <nav className="flex-1 p-4 overflow-y-auto scrollbar-thin">
+          <ul className="space-y-1">
             {allowedNavItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -184,10 +184,10 @@ export default function Navigation() {
                     to={item.path}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={({ isActive }) =>
-                      `flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                      `flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 ease-spring ${
                         isActive
-                          ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white shadow-md'
-                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                          ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white shadow-md shadow-orange-500/20 dark:shadow-burgundy-700/30'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:translate-x-1'
                       }`
                     }
                   >
@@ -200,10 +200,10 @@ export default function Navigation() {
           </ul>
         </nav>
 
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2 flex-shrink-0">
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-1 flex-shrink-0">
           <button
             onClick={toggleTheme}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
           >
             {theme === 'light' ? (
               <>
@@ -220,7 +220,7 @@ export default function Navigation() {
 
           <button
             onClick={() => signOut()}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
           >
             <LogOut className="h-5 w-5 flex-shrink-0" />
             <span className="font-medium">Выйти</span>
@@ -230,7 +230,7 @@ export default function Navigation() {
 
       {isMobileMenuOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-30"
+          className="lg:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-30 animate-overlay-in"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}

@@ -43,9 +43,9 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
             ref={ref}
             id={selectId}
             className={`
-              block w-full rounded-lg border transition-all
+              block w-full rounded-xl border transition-all duration-200
               pl-3 pr-10 py-2.5
-              appearance-none
+              appearance-none cursor-pointer
               ${
                 error
                   ? 'border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500'
@@ -54,6 +54,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
               bg-white dark:bg-gray-800
               text-gray-900 dark:text-gray-100
               disabled:opacity-50 disabled:cursor-not-allowed
+              shadow-sm focus:shadow-md
               ${className}
             `}
             {...props}

@@ -11,11 +11,13 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
   const location = useLocation();
   const [employee, setEmployee] = useState<Employee | null>(null);
-  const [checkingAccess, setCheckingAccess] = useState(false);
+  const [checkingAccess, setCheckingAccess] = useState(true);
 
   useEffect(() => {
     if (user && !loading) {
       checkAccess();
+    } else if (!loading && !user) {
+      setCheckingAccess(false);
     }
   }, [user, loading, location.pathname]);
 
@@ -30,11 +32,19 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     setCheckingAccess(false);
   };
 
-  if (!loading && !user) {
+  if (loading || checkingAccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  if (!checkingAccess && employee && employee.role === 'user') {
+  if (employee && employee.role === 'user') {
     if (!employee.allowed_pages.includes(location.pathname)) {
       return <Navigate to="/no-access" replace />;
     }

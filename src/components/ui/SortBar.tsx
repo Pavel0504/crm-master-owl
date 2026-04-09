@@ -33,11 +33,11 @@ export default function SortBar({
             key={option.value}
             onClick={() => onChange(option.value)}
             className={`
-              px-3 py-1.5 rounded-lg text-sm font-medium transition-all
+              px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ease-spring
               ${
                 value === option.value
-                  ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white shadow-md'
-                  : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
+                  ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white shadow-md shadow-orange-500/20 dark:shadow-burgundy-700/30 scale-[1.02]'
+                  : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 hover:scale-[1.02]'
               }
             `}
           >
@@ -47,7 +47,7 @@ export default function SortBar({
 
         <button
           onClick={() => onDirectionChange(direction === 'asc' ? 'desc' : 'asc')}
-          className="p-2 rounded-lg bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all"
+          className="p-2 rounded-lg bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-200 press-effect"
           title={direction === 'asc' ? 'По возрастанию' : 'По убыванию'}
         >
           {direction === 'asc' ? (

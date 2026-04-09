@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Edit2, Trash2, ChevronDown, ChevronUp, Calendar, Clock } from 'lucide-react';
+import { Edit2, Trash2, ChevronDown, Calendar, Clock } from 'lucide-react';
 import { TaskWithChecklist } from '../../services/taskService';
 import { IconButton, Badge } from '../ui';
 
@@ -61,20 +61,20 @@ export default function TaskListItem({
       className={`
         bg-white dark:bg-gray-800 border-2 rounded-xl transition-all
         ${task.completed ? 'border-green-300 dark:border-green-700' : 'border-gray-200 dark:border-gray-700'}
-        ${isExpanded ? 'shadow-lg' : 'hover:shadow-md'}
+        ${isExpanded ? 'shadow-lg' : 'shadow-sm hover:shadow-md'}
       `}
     >
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all rounded-t-xl"
+        className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200 rounded-t-xl"
       >
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div className="flex items-center justify-center">
-            {isExpanded ? (
-              <ChevronUp className="h-5 w-5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-            ) : (
-              <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-            )}
+            <ChevronDown
+              className={`h-5 w-5 text-gray-500 dark:text-gray-400 flex-shrink-0 transition-transform duration-300 ease-spring ${
+                isExpanded ? 'rotate-180' : 'rotate-0'
+              }`}
+            />
           </div>
 
           <div className="flex-1 min-w-0 text-left">
@@ -129,7 +129,7 @@ export default function TaskListItem({
       </button>
 
       {isExpanded && (
-        <div className="px-4 pb-4 pt-2 border-t border-gray-200 dark:border-gray-700">
+        <div className="px-4 pb-4 pt-2 border-t border-gray-200 dark:border-gray-700 animate-fade-in">
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -169,7 +169,7 @@ export default function TaskListItem({
                   {task.checklist.map((item) => (
                     <label
                       key={item.id}
-                      className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-all"
+                      className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-all duration-200"
                     >
                       <input
                         type="checkbox"

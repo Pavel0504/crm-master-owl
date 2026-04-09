@@ -9,9 +9,9 @@ interface PageHeaderProps {
 
 export default function PageHeader({ icon, title, subtitle, actions }: PageHeaderProps) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 animate-fade-in-down">
       <div className="flex items-center gap-4">
-        <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-rose-400 dark:from-burgundy-600 dark:to-burgundy-700 rounded-xl flex items-center justify-center flex-shrink-0">
+        <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-rose-400 dark:from-burgundy-600 dark:to-burgundy-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-orange-500/20 dark:shadow-burgundy-700/30">
           {icon}
         </div>
         <div className="min-w-0">

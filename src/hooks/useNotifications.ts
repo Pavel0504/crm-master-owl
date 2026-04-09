@@ -133,11 +133,11 @@ export function useNotifications(userId: string | undefined) {
 
     orders.forEach((order) => {
       const deadline = new Date(order.deadline);
-      const daysLeft = Math.ceil((deadline.getTime() - moscowToday.getTime()) / (1000 * 60 * 60 * 24));
+      const daysLeft = Math.max(0, Math.ceil((deadline.getTime() - moscowToday.getTime()) / (1000 * 60 * 60 * 24)));
 
       let message = '';
-      if (daysLeft === 0) {
-        message = `Заказ №${order.order_number}: срок истекает сегодня!`;
+      if (daysLeft <= 0) {
+        message = `Заказ №${order.order_number}: срок уже истёк!`;
       } else if (daysLeft === 1) {
         message = `Заказ №${order.order_number}: срок истекает завтра!`;
       } else if (daysLeft === 2) {

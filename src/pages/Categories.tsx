@@ -288,10 +288,10 @@ const handleDeleteClientCategory = async (id: string) => {
             <button
               onClick={() => setActiveTab('materials')}
               className={`
-                px-4 py-2 font-medium rounded-t-lg transition-all whitespace-nowrap
+                px-4 py-2 font-medium rounded-t-xl transition-all duration-200 whitespace-nowrap
                 ${
                   activeTab === 'materials'
-                    ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white'
+                    ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white shadow-sm'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
                 }
               `}
@@ -301,10 +301,10 @@ const handleDeleteClientCategory = async (id: string) => {
             <button
               onClick={() => setActiveTab('inventory')}
               className={`
-                px-4 py-2 font-medium rounded-t-lg transition-all whitespace-nowrap
+                px-4 py-2 font-medium rounded-t-xl transition-all duration-200 whitespace-nowrap
                 ${
                   activeTab === 'inventory'
-                    ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white'
+                    ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white shadow-sm'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
                 }
               `}
@@ -314,10 +314,10 @@ const handleDeleteClientCategory = async (id: string) => {
             <button
               onClick={() => setActiveTab('products')}
               className={`
-                px-4 py-2 font-medium rounded-t-lg transition-all whitespace-nowrap
+                px-4 py-2 font-medium rounded-t-xl transition-all duration-200 whitespace-nowrap
                 ${
                   activeTab === 'products'
-                    ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white'
+                    ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white shadow-sm'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
                 }
               `}
@@ -327,10 +327,10 @@ const handleDeleteClientCategory = async (id: string) => {
             <button
               onClick={() => setActiveTab('suppliers')}
               className={`
-                px-4 py-2 font-medium rounded-t-lg transition-all whitespace-nowrap
+                px-4 py-2 font-medium rounded-t-xl transition-all duration-200 whitespace-nowrap
                 ${
                   activeTab === 'suppliers'
-                    ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white'
+                    ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white shadow-sm'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
                 }
               `}
@@ -338,25 +338,25 @@ const handleDeleteClientCategory = async (id: string) => {
               Поставщики
             </button>
             <button
-  onClick={() => setActiveTab('recipes')}
-  className={`
-    px-4 py-2 font-medium rounded-t-lg transition-all whitespace-nowrap
-    ${
-      activeTab === 'recipes'
-        ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white'
-        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
-    }
-  `}
->
-  Рецепты
-</button>
+              onClick={() => setActiveTab('recipes')}
+              className={`
+                px-4 py-2 font-medium rounded-t-xl transition-all duration-200 whitespace-nowrap
+                ${
+                  activeTab === 'recipes'
+                    ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+                }
+              `}
+            >
+              Рецепты
+            </button>
             <button
               onClick={() => setActiveTab('purchases')}
               className={`
-                px-4 py-2 font-medium rounded-t-lg transition-all whitespace-nowrap
+                px-4 py-2 font-medium rounded-t-xl transition-all duration-200 whitespace-nowrap
                 ${
                   activeTab === 'purchases'
-                    ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white'
+                    ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white shadow-sm'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
                 }
               `}
@@ -366,10 +366,10 @@ const handleDeleteClientCategory = async (id: string) => {
             <button
               onClick={() => setActiveTab('clients')}
               className={`
-                px-4 py-2 font-medium rounded-t-lg transition-all whitespace-nowrap
+                px-4 py-2 font-medium rounded-t-xl transition-all duration-200 whitespace-nowrap
                 ${
                   activeTab === 'clients'
-                    ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white'
+                    ? 'bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white shadow-sm'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
                 }
               `}

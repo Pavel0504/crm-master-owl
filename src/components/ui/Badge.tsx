@@ -43,7 +43,7 @@ export default function Badge({
     <span
       className={`
         inline-flex items-center justify-center
-        rounded-full font-medium
+        rounded-full font-medium transition-colors duration-200
         ${!customColor ? variantClasses[variant] : ''}
         ${sizeClasses[size]}
         ${className}

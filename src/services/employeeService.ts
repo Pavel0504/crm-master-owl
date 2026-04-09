@@ -122,6 +122,18 @@ export async function createEmployee(createdByUserId: string, employeeData: Empl
     };
   }
 
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(employeeData.email)) {
+    return { data: null, error: new Error('Некорректный формат email') };
+  }
+
+  if (employeeData.allowed_pages && employeeData.allowed_pages.length > 0) {
+    const validPaths = ALL_PAGES.map(p => p.value);
+    const invalidPages = employeeData.allowed_pages.filter(p => !validPaths.includes(p));
+    if (invalidPages.length > 0) {
+      return { data: null, error: new Error(`Некорректные страницы: ${invalidPages.join(', ')}`) };
+    }
+  }
+
   const { data, error } = await supabase
     .from('employees')
     .insert({
@@ -146,16 +158,38 @@ export async function createEmployee(createdByUserId: string, employeeData: Empl
   return { data, error: null };
 }
 
-export async function updateEmployee(employeeId: string, employeeData: Partial<EmployeeInput>) {
+export async function updateEmployee(employeeId: string, employeeData: Partial<EmployeeInput>, callerUserId?: string) {
+  if (callerUserId) {
+    const { data: caller } = await getEmployeeByUserId(callerUserId);
+    if (caller && caller.role !== 'admin' && caller.id !== employeeId) {
+      return { data: null, error: new Error('Недостаточно прав для изменения сотрудника') };
+    }
+    if (caller && caller.role !== 'admin' && employeeData.role === 'admin') {
+      return { data: null, error: new Error('Невозможно назначить роль администратора') };
+    }
+  }
+
   const updates: any = {};
 
   if (employeeData.full_name !== undefined) updates.full_name = employeeData.full_name;
   if (employeeData.phone !== undefined) updates.phone = employeeData.phone;
-  if (employeeData.email !== undefined) updates.email = employeeData.email;
+  if (employeeData.email !== undefined) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(employeeData.email)) {
+      return { data: null, error: new Error('Некорректный формат email') };
+    }
+    updates.email = employeeData.email;
+  }
   if (employeeData.role !== undefined) updates.role = employeeData.role;
   if (employeeData.position_name !== undefined) updates.position_name = employeeData.position_name;
   if (employeeData.position_color !== undefined) updates.position_color = employeeData.position_color;
-  if (employeeData.allowed_pages !== undefined) updates.allowed_pages = employeeData.allowed_pages;
+  if (employeeData.allowed_pages !== undefined) {
+    const validPaths = ALL_PAGES.map(p => p.value);
+    const invalidPages = employeeData.allowed_pages.filter(p => !validPaths.includes(p));
+    if (invalidPages.length > 0) {
+      return { data: null, error: new Error(`Некорректные страницы: ${invalidPages.join(', ')}`) };
+    }
+    updates.allowed_pages = employeeData.allowed_pages;
+  }
 
   const { data, error } = await supabase
     .from('employees')

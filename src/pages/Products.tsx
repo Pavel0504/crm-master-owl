@@ -98,7 +98,7 @@ export default function Products() {
         Array<{ material_id: string; volume_per_item: number; material_name: string }>
       > = {};
 
-      for (const product of productsResult.data || []) {
+      const productMatPromises = (productsResult.data || []).map(async (product) => {
         const { data: productMats } = await getProductMaterials(product.id);
         if (productMats) {
           materialsMap[product.id] = productMats.map((pm) => {
@@ -109,7 +109,9 @@ export default function Products() {
             };
           });
         }
-      }
+      });
+
+      await Promise.all(productMatPromises);
 
       setProductMaterials(materialsMap);
     }

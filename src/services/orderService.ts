@@ -280,15 +280,25 @@ export async function createOrder(userId: string, orderData: OrderInput) {
       return { data: null, error: itemError };
     }
 
-    const { error: updateError } = await supabase
+    const { data: currentProduct } = await supabase
       .from('products')
-      .update({
-        remaining_quantity: supabase.raw(`remaining_quantity - ${item.quantity}`),
-      })
-      .eq('id', item.product_id);
+      .select('remaining_quantity')
+      .eq('id', item.product_id)
+      .single();
 
-    if (updateError) {
-      console.error('Error updating product quantity:', updateError);
+    if (currentProduct) {
+      const newQuantity = Math.max(0, currentProduct.remaining_quantity - item.quantity);
+      const { error: updateError } = await supabase
+        .from('products')
+        .update({ remaining_quantity: newQuantity })
+        .eq('id', item.product_id);
+
+      if (updateError) {
+        console.error('Error updating product quantity:', updateError);
+        await supabase.from('order_items').delete().eq('order_id', order.id);
+        await supabase.from('orders').delete().eq('id', order.id);
+        return { data: null, error: updateError };
+      }
     }
   }
 

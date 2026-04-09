@@ -34,8 +34,8 @@ export default function ConfirmDialog({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="sm" showCloseButton={false}>
-      <div className="text-center">
-        <div className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-4 ${iconColors[variant]}`}>
+      <div className="text-center animate-scale-in">
+        <div className={`mx-auto w-14 h-14 rounded-full flex items-center justify-center mb-4 ${iconColors[variant]} transition-transform duration-300`}>
           <AlertTriangle className="h-6 w-6" />
         </div>
 

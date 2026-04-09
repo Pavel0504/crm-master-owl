@@ -14,7 +14,7 @@ export default function Card({
   ...props
 }: CardProps) {
   const variantClasses = {
-    default: 'bg-white dark:bg-gray-800',
+    default: 'bg-white dark:bg-gray-800 shadow-sm',
     bordered: 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700',
     elevated: 'bg-white dark:bg-gray-800 shadow-xl',
   };
@@ -29,7 +29,7 @@ export default function Card({
   return (
     <div
       className={`
-        rounded-2xl transition-all
+        rounded-2xl transition-all duration-200 ease-spring
         ${variantClasses[variant]}
         ${paddingClasses[padding]}
         ${className}

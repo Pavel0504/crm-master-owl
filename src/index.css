@@ -1,3 +1,156 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Плавные переходы темы на корневых элементах */
+  html.dark body,
+  html.light body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+}
+
+@layer components {
+  /* Кастомный скроллбар */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.4);
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(156, 163, 175, 0.6);
+  }
+
+  .dark .scrollbar-thin {
+    scrollbar-color: rgba(75, 85, 99, 0.5) transparent;
+  }
+
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: rgba(75, 85, 99, 0.5);
+  }
+
+  /* Скелетон загрузки */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      rgba(229, 231, 235, 0.4) 0%,
+      rgba(229, 231, 235, 0.8) 50%,
+      rgba(229, 231, 235, 0.4) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite linear;
+    border-radius: 0.5rem;
+  }
+
+  .dark .skeleton {
+    background: linear-gradient(
+      90deg,
+      rgba(55, 65, 81, 0.4) 0%,
+      rgba(55, 65, 81, 0.8) 50%,
+      rgba(55, 65, 81, 0.4) 100%
+    );
+    background-size: 200% 100%;
+  }
+
+  /* Стеклянный эффект */
+  .glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .dark .glass {
+    background: rgba(17, 24, 39, 0.7);
+  }
+
+  /* GPU-ускоренные трансформации */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+
+  /* Hover-подъём карточки */
+  .card-hover {
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.1),
+                0 4px 8px -4px rgba(0, 0, 0, 0.06);
+  }
+
+  .dark .card-hover:hover {
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.3),
+                0 4px 8px -4px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Активное нажатие */
+  .press-effect {
+    transition: transform 0.1s ease;
+  }
+
+  .press-effect:active {
+    transform: scale(0.97);
+  }
+
+  /* Плавное появление страниц */
+  .page-enter {
+    animation: fade-in-up 0.4s ease-out both;
+  }
+
+  /* Скролл-тень для overflow контейнеров */
+  .scroll-shadow {
+    background:
+      linear-gradient(white 30%, rgba(255, 255, 255, 0)),
+      linear-gradient(rgba(255, 255, 255, 0), white 70%) 0 100%,
+      radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, 0.08), transparent),
+      radial-gradient(farthest-side at 50% 100%, rgba(0, 0, 0, 0.08), transparent) 0 100%;
+    background-repeat: no-repeat;
+    background-size: 100% 40px, 100% 40px, 100% 12px, 100% 12px;
+    background-attachment: local, local, scroll, scroll;
+  }
+
+  .dark .scroll-shadow {
+    background:
+      linear-gradient(rgb(17, 24, 39) 30%, rgba(17, 24, 39, 0)),
+      linear-gradient(rgba(17, 24, 39, 0), rgb(17, 24, 39) 70%) 0 100%,
+      radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, 0.2), transparent),
+      radial-gradient(farthest-side at 50% 100%, rgba(0, 0, 0, 0.2), transparent) 0 100%;
+    background-repeat: no-repeat;
+    background-size: 100% 40px, 100% 40px, 100% 12px, 100% 12px;
+    background-attachment: local, local, scroll, scroll;
+  }
+}

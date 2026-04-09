@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Eye, EyeOff, Lock, Loader2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import {
   getEmployeeByInviteToken,
   joinEmployeeByToken,
@@ -95,20 +96,20 @@ export default function EmployeeRegister() {
 
   if (!employee || error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-peach-50 to-rose-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-peach-50 to-rose-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+        <div className="w-full max-w-md animate-fade-in">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
-                <AlertCircle className="h-8 w-8 text-red-600" />
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full mb-4">
+                <AlertCircle className="h-8 w-8 text-red-600 dark:text-red-400" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                 Недействительная ссылка
               </h1>
-              <p className="text-gray-600 mb-6">{error}</p>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">{error}</p>
               <button
                 onClick={() => navigate('/login')}
-                className="text-orange-600 hover:text-orange-700 font-medium"
+                className="text-orange-600 dark:text-burgundy-400 hover:text-orange-700 dark:hover:text-burgundy-300 font-medium transition-colors duration-200"
               >
                 Вернуться к входу
               </button>
@@ -120,27 +121,27 @@ export default function EmployeeRegister() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-peach-50 to-rose-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-peach-50 to-rose-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+      <div className="w-full max-w-md animate-fade-in-up">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-300 p-8">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-400 to-rose-400 rounded-full mb-4">
               <span className="text-3xl">🦉</span>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Регистрация сотрудника</h1>
-            <p className="text-gray-600">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Регистрация сотрудника</h1>
+            <p className="text-gray-600 dark:text-gray-400">
               Добро пожаловать, <strong>{employee.full_name}</strong>
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl text-sm animate-fade-in">
                 {error}
               </div>
             )}
 
-            <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg text-sm">
+            <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400 px-4 py-3 rounded-xl text-sm">
               <p>
                 <strong>Email:</strong> {employee.email}
               </p>
@@ -148,7 +149,7 @@ export default function EmployeeRegister() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Пароль
               </label>
               <div className="relative">
@@ -161,7 +162,7 @@ export default function EmployeeRegister() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-orange-500 dark:focus:ring-burgundy-500 focus:border-transparent transition-all duration-200 shadow-sm focus:shadow-md"
                   placeholder="••••••••"
                 />
                 <button
@@ -181,7 +182,7 @@ export default function EmployeeRegister() {
             <div>
               <label
                 htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
               >
                 Подтвердите пароль
               </label>
@@ -195,7 +196,7 @@ export default function EmployeeRegister() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-orange-500 dark:focus:ring-burgundy-500 focus:border-transparent transition-all duration-200 shadow-sm focus:shadow-md"
                   placeholder="••••••••"
                 />
                 <button
@@ -215,7 +216,7 @@ export default function EmployeeRegister() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-gradient-to-r from-orange-500 to-rose-500 text-white py-3 px-4 rounded-lg font-medium hover:from-orange-600 hover:to-rose-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+              className="w-full bg-gradient-to-r from-orange-500 to-rose-500 dark:from-burgundy-600 dark:to-burgundy-700 text-white py-3 px-4 rounded-xl font-medium hover:from-orange-600 hover:to-rose-600 dark:hover:from-burgundy-700 dark:hover:to-burgundy-800 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-burgundy-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 active:scale-[0.97] flex items-center justify-center shadow-sm hover:shadow-md"
             >
               {submitting ? (
                 <>

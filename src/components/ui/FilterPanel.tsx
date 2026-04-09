@@ -1,5 +1,5 @@
-import { ReactNode, useState, useEffect } from 'react';
-import { Filter, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { ReactNode, useState, useEffect, useRef } from 'react';
+import { Filter, X, ChevronDown } from 'lucide-react';
 import Card from './Card';
 import Button from './Button';
 
@@ -19,6 +19,7 @@ export default function FilterPanel({
   title = 'Фильтры',
 }: FilterPanelProps) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -45,40 +46,46 @@ export default function FilterPanel({
           </h3>
         </div>
         <div className="md:hidden">
-          {isExpanded ? (
-            <ChevronUp className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-          ) : (
-            <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-          )}
+          <ChevronDown
+            className={`h-5 w-5 text-gray-500 dark:text-gray-400 transition-transform duration-300 ease-spring ${
+              isExpanded ? 'rotate-180' : 'rotate-0'
+            }`}
+          />
         </div>
       </button>
 
-      {isExpanded && (
-        <>
-          <div className="space-y-4">{children}</div>
+      {/* Animated content */}
+      <div
+        ref={contentRef}
+        className="overflow-hidden transition-all duration-300 ease-spring"
+        style={{
+          maxHeight: isExpanded ? contentRef.current?.scrollHeight ?? 1000 : 0,
+          opacity: isExpanded ? 1 : 0,
+        }}
+      >
+        <div className="space-y-4">{children}</div>
 
-          {showActions && (onReset || onApply) && (
-            <div className="flex gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-              {onReset && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onReset}
-                  className="flex items-center gap-2"
-                >
-                  <X className="h-4 w-4" />
-                  Сбросить
-                </Button>
-              )}
-              {onApply && (
-                <Button variant="primary" size="sm" onClick={onApply} fullWidth>
-                  Применить
-                </Button>
-              )}
-            </div>
-          )}
-        </>
-      )}
+        {showActions && (onReset || onApply) && (
+          <div className="flex gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+            {onReset && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onReset}
+                className="flex items-center gap-2"
+              >
+                <X className="h-4 w-4" />
+                Сбросить
+              </Button>
+            )}
+            {onApply && (
+              <Button variant="primary" size="sm" onClick={onApply} fullWidth>
+                Применить
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
     </Card>
   );
 }

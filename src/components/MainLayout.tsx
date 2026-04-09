@@ -69,9 +69,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
       bgImage = theme === 'light' ? background.desktop_light_bg : background.desktop_dark_bg;
     }
 
-    if (bgImage && bgImage.trim() !== '') {
+    if (bgImage && bgImage.trim() !== '' && /^https?:\/\//i.test(bgImage)) {
       return {
-        backgroundImage: `url(${bgImage})`,
+        backgroundImage: `url("${bgImage.replace(/[\"]/g, '')}")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -96,11 +96,11 @@ export default function MainLayout({ children }: MainLayoutProps) {
     >
       <Navigation />
       <main 
-        className={`min-h-screen transition-all duration-300 ${
+        className={`min-h-screen transition-all duration-300 ease-spring ${
           isSidebarCollapsed ? 'lg:ml-0' : 'lg:ml-[21rem]'
         }`}
       >
-        <div className="p-4 lg:p-8 pt-20 lg:pt-8">
+        <div className="p-4 lg:p-8 pt-20 lg:pt-8 page-enter">
           {children}
         </div>
       </main>

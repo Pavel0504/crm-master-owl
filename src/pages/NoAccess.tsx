@@ -38,8 +38,8 @@ export default function NoAccess() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-peach-50 to-rose-50 dark:from-gray-900 dark:via-burgundy-950 dark:to-gray-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 text-center">
+      <div className="w-full max-w-md animate-fade-in-up">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-300 p-8 text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-400 to-rose-400 dark:from-burgundy-600 dark:to-burgundy-700 rounded-full mb-6">
             <span className="text-3xl">🦉</span>
           </div>
